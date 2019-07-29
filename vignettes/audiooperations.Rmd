@@ -16,25 +16,50 @@ knitr::opts_chunk$set(
 )
 ```
 
-First, we need to set up a few parameters, so that the functions in the package can find `sox` and `ffmpeg` which are the programs that do the actual audio/video manipulation.
-
 ```{r setup, message = FALSE}
 library(avutils)
 ```
 
-```{r}
+After loading the package, we first need to set up a few parameters so that the functions in the package can find `sox` and `ffmpeg` which are the programs that do the actual audio/video manipulation.
+
+There are essentially two options to get R to control `sox` and `ffmpeg`. Either you have *installed* these programs, or you just have saved the program binaries somewhere. 
+
+In the first case, you just need to run the following command.
+
+```{r, eval = FALSE}
+set_binaries()
+```
+
+This will give you some (hopefully) informative output as to whether R could get access.
+
+The second option requires that you downloaded `sox` and `ffmpeg` and stored them somewhere you remember. In that case, you need to tell R where the two files are, also with the `set_binaries()` function:
+
+```{r, eval = FALSE}
 set_binaries(pathtoffmpeg = "~/Documents/utilities/ffmpeg", 
              pathtosox = "~/Documents/utilities/sox")
 ```
 
-Then we can test whether this actually worked. If the following command doesn't result in an error and returns version numbers for both programs this means that probably the actual functions should work as well.
+Again, you will get some information printed out that tells you whether this step succeeded.
+
+```{r, echo=FALSE}
+if (Sys.info()["user"] == "christofneumann") {
+  set_binaries(pathtoffmpeg = "~/Documents/utilities/ffmpeg", 
+               pathtosox = "~/Documents/utilities/sox")
+}
+
+if (Sys.info()["user"] == "cn") set_binaries()
+```
+
+Importantly, this step needs to be done every time you restart R.
+
+Then we can test whether this actually worked. If the following command doesn't result in an error and returns version numbers for both programs this means that probably the actual functions of the `avutils` package should work as well.
 
 
 ```{r}
 test_binaries()
 ```
 
-Next, we can test some more. For this, we create a temporary folder (one that is deleted as soon as you close R). Then we generate some sound and save it as wave file into this temporary folder. This is done instead of providing an example wave file.
+Next, we can test some more. For this, we create a temporary folder (one that is deleted as soon as you close R). Then we generate some sound, and save it as wave file into this temporary folder. This is done instead of providing an example wave file.
 
 ```{r}
 tdir <- tempdir()
@@ -46,7 +71,7 @@ writeWave(w2, filename = file.path(tdir, "file2.wav"))
 tdir
 ```
 
-Next, we use the package function `audio_info` to extract some information about the stored audio files.
+Next, we use the package function `audio_info()` to extract some information about the stored audio files.
 
 ```{r}
 # get locations

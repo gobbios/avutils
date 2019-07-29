@@ -4,13 +4,17 @@
 \alias{extract_audio}
 \title{extract mono wav file from video source}
 \usage{
-extract_audio(videofile, pathout = NULL,
-  pathtoffmpeg = getOption("avutils_ffmpeg"))
+extract_audio(videofile, pathout = NULL, messages = TRUE,
+  progbar = FALSE, pathtoffmpeg = getOption("avutils_ffmpeg"))
 }
 \arguments{
 \item{videofile}{character, path to video file(s)}
 
 \item{pathout}{character, path where the audio should be saved (by default the same as the video file)}
+
+\item{messages}{logical, should the file names of each processed file be printed}
+
+\item{progbar}{logical, should a progressbar be printed}
 
 \item{pathtoffmpeg}{character, the path to the ffmpeg binary}
 }

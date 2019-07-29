@@ -2,10 +2,11 @@
 #'
 #' @param videofile character, path to video file(s)
 #' @param pathout character, path where the audio should be saved (by default the same as the video file)
-#' @param message logical, should the file names of each processed file be printed
+#' @param messages logical, should the file names of each processed file be printed
 #' @param progbar logical, should a progressbar be printed
 #' @param pathtoffmpeg character, the path to the ffmpeg binary
 #'
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @return a character string with the path to the written audio file
 #' @export
 #'
