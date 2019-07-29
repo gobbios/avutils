@@ -2,18 +2,18 @@
 % Please edit documentation in R/audio_info.R
 \name{audio_info}
 \alias{audio_info}
-\title{get information about audio file via sox}
+\title{get media information}
 \usage{
 audio_info(filein, pathtosox = getOption("avutils_sox"))
 }
 \arguments{
-\item{filein}{character, path to audio file}
+\item{filein}{character, path to audio files}
 
 \item{pathtosox}{character, path to sox binary}
 }
 \value{
-a list with features of audio file
+a dataframe with features of audio files
 }
 \description{
-get information about audio file via sox
+audio information via sox
 }

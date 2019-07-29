@@ -1,4 +1,5 @@
 _testlab/
+.DS_Store
 # History files
 .Rhistory
 .Rapp.history
