@@ -4,16 +4,20 @@
 \alias{split_audio}
 \title{split audio file into chunks of defined length}
 \usage{
-split_audio(filein, split, pathtosox, pathout = NULL)
+split_audio(filein, split, pathout = NULL,
+  pathtosox = getOption("avutils_sox"))
 }
 \arguments{
 \item{filein}{character, path to input audio}
 
 \item{split}{numeric, duration of split in seconds}
 
-\item{pathtosox}{character, path to sox binary}
-
 \item{pathout}{character, path were output is stored, by default the same as the source}
+
+\item{pathtosox}{character, path to sox binary}
+}
+\value{
+a vector with the paths to the split files
 }
 \description{
 split audio file into chunks of defined length

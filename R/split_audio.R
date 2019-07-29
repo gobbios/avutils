@@ -1,7 +1,3 @@
-# pathtosox="~/Documents/utilities/sox"
-# filein="~/Downloads/00007.copy.wav"
-# split = 1.1
-# pathout = NULL
 #' split audio file into chunks of defined length
 #'
 #' @param filein character, path to input audio
@@ -12,7 +8,7 @@
 #' @return a vector with the paths to the split files
 #' @export
 #'
-split_audio <- function(filein, split, pathtosox, pathout = NULL) {
+split_audio <- function(filein, split, pathout = NULL, pathtosox = getOption("avutils_sox")) {
   xin <- normalizePath(filein)
   if (!file.exists(xin)) stop("video file not found", call. = FALSE)
   if (!file.exists(pathtosox)) stop("sox binary not found", call. = FALSE)

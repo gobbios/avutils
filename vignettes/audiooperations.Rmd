@@ -1,0 +1,62 @@
+---
+title: "audiooperations"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{audiooperations}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+First, we need to set up a few parameters, so that the functions in the package can find `sox` and `ffmpeg` which are the programs that do the actual audio/video manipulation.
+
+```{r setup, message = FALSE}
+library(avutils)
+```
+
+```{r}
+set_binaries(pathtoffmpeg = "~/Documents/utilities/ffmpeg", 
+             pathtosox = "~/Documents/utilities/sox")
+```
+
+Then we can test whether this actually worked. If the following command doesn't result in an error and returns version numbers for both programs this means that probably the actual functions should work as well.
+
+
+```{r}
+test_binaries()
+```
+
+Next, we can test some more. For this, we create a temporary folder (one that is deleted as soon as you close R). Then we generate some sound and save it as wave file into this temporary folder. This is done instead of providing an example wave file.
+
+```{r}
+tdir <- tempdir()
+
+w1 <- sine(freq = 440, duration = 0.9, bit = 32, stereo = TRUE, xunit = "time")
+writeWave(w1, filename = file.path(tdir, "file1.wav"))
+w2 <- noise(kind = "white", duration = 3.65, bit = 64, stereo = FALSE, xunit = "time")
+writeWave(w2, filename = file.path(tdir, "file2.wav"))
+tdir
+```
+
+Next, we use the package function `audio_info` to extract some information about the stored audio files.
+
+```{r}
+# get locations
+x <- list.files(tdir, pattern = "\\.wav$", full.names = TRUE)
+# 
+audio_info(filein = x[1])
+audio_info(filein = x[2])
+```
+
+We can also split files.
+
+
+

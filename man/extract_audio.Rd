@@ -8,7 +8,7 @@ extract_audio(videofile, pathout = NULL,
   pathtoffmpeg = getOption("avutils_ffmpeg"))
 }
 \arguments{
-\item{videofile}{character, path to video file}
+\item{videofile}{character, path to video file(s)}
 
 \item{pathout}{character, path where the audio should be saved (by default the same as the video file)}
 
