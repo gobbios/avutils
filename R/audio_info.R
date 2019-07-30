@@ -17,7 +17,7 @@ audio_info <- function(filein, pathtosox = getOption("avutils_sox")) {
   for (i in 1:nrow(out)) {
     if (!file.exists(filein[i])) stop("file not found", call. = FALSE)
 
-    cm <- paste(pathtosox, "--i", filein[i])
+    cm <- paste(pathtosox, "--i", paste0("'", filein[i], "'"))
     res <- system(cm, intern = TRUE)
     res1 <- unlist(strsplit(x = res, split = ":", fixed = TRUE))
     res1 <- gsub(pattern = " ", replacement = "", x = res1)
