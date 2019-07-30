@@ -18,7 +18,7 @@ video_info <- function(filein, pathtoffmpeg = getOption("avutils_ffmpeg")) {
                     hasaudio = NA)
   for (i in 1:nrow(out)) {
     if (!file.exists(filein[i])) stop("file not found", call. = FALSE)
-    file.info(filein[i])
+
     cmargs <- paste("-i", paste0("'", filein[i], "'"))
 
     res <- suppressWarnings(system2(command = normalizePath(pathtoffmpeg),
@@ -32,14 +32,15 @@ video_info <- function(filein, pathtoffmpeg = getOption("avutils_ffmpeg")) {
       res <- unlist(strsplit(res, ","))
       v <- unlist(strsplit(res[1], "Video: "))
       out$video_format[i] <- v[length(v)]
-      v <- unlist(strsplit(res[3], " ", fixed = TRUE))
-      v <- v[v != ""]
-      out$resol[i] <- v[1]
-      out$width[i] <- as.numeric(unlist(strsplit(v[1], "x"))[1])
-      out$height[i] <- as.numeric(unlist(strsplit(v[1], "x"))[2])
-      v <- unlist(strsplit(res[4], " ", fixed = TRUE))
-      v <- v[v != ""]
-      out$fps[i] <- as.numeric(v[1])
+      X <- res[grep("[[:digit:]]{2,5}x[[:digit:]]{2,5}", res)]
+      X <- unlist(strsplit(X, " "))
+      X <- X[grep("[[:digit:]]{2,5}x[[:digit:]]{2,5}", X)]
+      out$resol[i] <- X[1]
+      out$width[i] <- suppressWarnings(as.numeric(unlist(strsplit(X[1], "x"))[1]))
+      out$height[i] <- suppressWarnings(as.numeric(unlist(strsplit(X[1], "x"))[2]))
+      X <- res[grep(" fps", res)]
+      X <- unlist(strsplit(X, "fps", fixed = TRUE))
+      out$fps[i] <- suppressWarnings(as.numeric(X))
       out$hasaudio[i] <- hasaudio
       temp <- unlist(strsplit(duration, " ", fixed = TRUE))
       temp <- unlist(strsplit(temp, ",", fixed = TRUE))
