@@ -27,7 +27,6 @@ extract_audio <- function(videofile,
   for (i in 1:length(xin)) {
     if (!file.exists(xin[i])) stop("video file not found", call. = FALSE)
 
-
     temp <- unlist(strsplit(x = xin[i], split = "/", fixed = TRUE))
     newfilename <- unlist(strsplit(x = temp[length(temp)],
                                    split = ".",
@@ -46,15 +45,24 @@ extract_audio <- function(videofile,
                     "-y -ar 44100 -ac 1",
                     paste0("'", targetloc, "'"),
                     "-hide_banner")
-    xres <- system2(command = normalizePath(pathtoffmpeg),
-                    args = cmargs,
-                    stderr = TRUE,
-                    stdout = TRUE)
+    xres <- suppressWarnings(
+      system2(command = normalizePath(pathtoffmpeg),
+              args = cmargs,
+              stderr = TRUE,
+              stdout = TRUE))
     res[i, 1] <- xin[i]
-    res[i, 2] <- targetloc
-    if (messages) message(xin[i], "  -->  ", targetloc)
+    if (is.null(attr(xres, "status"))) {
+      res[i, 2] <- targetloc
+      if (messages) message(xin[i], "  -->  ", targetloc)
+    } else {
+      if (attr(xres, "status") == 1) {
+        warning("file ", xin[i], " is broken and has not been processed", call. = FALSE)
+        res[i, 2] <- NA
+        if (messages) message("!!! ", xin[i], "  X-X-X>X  ", targetloc, " !!!")
+      }
+    }
+
     if (progbar) setTxtProgressBar(pb = pb, value = i)
   }
   data.frame(input = res[, 1], targetloc = res[, 2], stringsAsFactors = FALSE)
 }
-
