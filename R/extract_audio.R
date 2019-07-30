@@ -42,9 +42,10 @@ extract_audio <- function(videofile,
     }
 
     cmargs <- paste("-i",
-                    xin[i],
+                    paste0("'", xin[i], "'"),
                     "-y -ar 44100 -ac 1",
-                    targetloc, "-hide_banner")
+                    paste0("'", targetloc, "'"),
+                    "-hide_banner")
     xres <- system2(command = normalizePath(pathtoffmpeg),
                     args = cmargs,
                     stderr = TRUE,

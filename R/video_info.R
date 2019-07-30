@@ -19,7 +19,7 @@ video_info <- function(filein, pathtoffmpeg = getOption("avutils_ffmpeg")) {
   for (i in 1:nrow(out)) {
     if (!file.exists(filein[i])) stop("file not found", call. = FALSE)
     file.info(filein[i])
-    cmargs <- paste("-i", filein[i])
+    cmargs <- paste("-i", paste0("'", filein[i], "'"))
 
     res <- suppressWarnings(system2(command = normalizePath(pathtoffmpeg),
                                     args = cmargs,
