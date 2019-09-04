@@ -1,3 +1,5 @@
 ^avutils\.Rproj$
 ^\.Rproj\.user$
 _testlab/
+^doc$
+^Meta$
