@@ -1,24 +1,20 @@
-#' run the DiViMe diarization module diartk
+#' run the DiViMe vocal classification module vcm
 #'
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with running VM
-#' @param speech_annos character, what kind of speech detection is available, see details
 #' @param vmshutdown logical, should the VM be shut down after the operations are done (by default \code{TRUE})
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
-#' @details \code{speech_annos} needs to be one of the following: \code{"noisemes"}, \code{"opensmile"}, \code{"tocombo"} or \code{"custom"}. Currently, \code{"custom"} is not yet implemented.
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
 #' @export
 
-divime_diarization <- function(audio_loc,
-                               divime_loc,
-                               speech_annos = "noisemes",
-                               vmshutdown = TRUE,
-                               messages = TRUE,
-                               overwrite = FALSE) {
+divime_classify_vox <- function(audio_loc,
+                                divime_loc,
+                                vmshutdown = TRUE,
+                                messages = TRUE,
+                                overwrite = FALSE) {
   # audio_loc = "~/Desktop/test_audio/"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
-  # speech_annos = "noisemes"
 
   audio_loc <- normalizePath(audio_loc)
   divime_loc <- normalizePath(divime_loc)
@@ -38,29 +34,13 @@ divime_diarization <- function(audio_loc,
   paths <- avutils:::handle_filenames(audio_loc = audio_loc,
                                       divime_loc = divime_loc)
 
-  # check for the speech detection data
-  # and set command
-  if (speech_annos == "noisemes") {
-    prefix <- "noisemesSad_"
-    cm <- paste0("ssh -c 'diartk.sh data/ noisemesSad'")
-  }
-  if (speech_annos == "opensmile") {
-    prefix <- "opensmileSad_"
-    cm <- paste0("ssh -c 'diartk.sh data/ opensmileSad'")
-  }
-  if (speech_annos == "tocombo") {
-    prefix <- "tocomboSad_"
-    cm <- paste0("ssh -c 'diartk.sh data/ tocomboSad'")
-  }
-
-  sad <- paste0(prefix, paths$root, ".rttm")
-  sadtarget <- paste0(divime_loc, "/data/", sad)
-  sadsource <- paste0(audio_loc, "/", paths$folder, sad)
+  # set command
+  cm <- paste0("ssh -c 'vcm.sh data/'")
 
   logres <- data.frame(audio = paths$filestoprocess,
-                       sadfile = NA,
-                       sadcopy = NA,
-                       sadremove = NA,
+                       yunifile = NA,
+                       yunicopy = NA,
+                       yuniremove = NA,
                        output = NA,
                        audiocopy = NA,
                        audioremove = NA,
@@ -73,11 +53,24 @@ divime_diarization <- function(audio_loc,
     logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
                                      to = paths$audiotarget[i])
 
-    # only run if the sad source was found...
-    if (file.exists(sadsource[i])) {
-      logres$sadfile[i] <- sad[i]
-      logres$sadcopy[i] <- file.copy(from = sadsource[i],
-                                     to = sadtarget[i])
+    # only run if the yuni source was found in the source folder...
+    yunifile <- list.files(path = audio_loc, pattern = paths$root[i], recursive = TRUE, ignore.case = TRUE, full.names = FALSE)
+    yunifile <- yunifile[grep(pattern = "yunitat", x = yunifile)]
+    yunifile <- unlist(strsplit(yunifile, "/", fixed = TRUE))
+    yunifile <- yunifile[length(yunifile)]
+
+    check <- FALSE
+    if (length(yunifile) == 1) {
+      yunifrom <- paste0(audio_loc, "/", paths$folder[i], yunifile)
+      yunito <- paste0(divime_loc, "/data/", paste0("yunitator_universal_", paths$root[i], ".rttm"))
+      if (file.exists(yunifrom)) {
+        check <- TRUE
+      }
+    }
+    if (check) {
+      logres$yunifile[i] <- yunifile
+      logres$yunicopy[i] <- file.copy(from = yunifrom,
+                                     to = yunito)
 
       WD <- getwd()
       setwd(divime_loc)
@@ -85,11 +78,11 @@ divime_diarization <- function(audio_loc,
       setwd(WD)
 
       logres$audioremove[i] <- file.remove(paths$audiotarget[i])
-      logres$sadremove[i] <- file.remove(sadtarget[i])
+      logres$yuniremove[i] <- file.remove(yunito)
 
       output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
                                 recursive = FALSE,
-                                pattern = "diartk_")
+                                pattern = "vcm_")
 
       outpath <- paste0(audio_loc, "/", paths$folder[i], output_file)
 
@@ -100,8 +93,13 @@ divime_diarization <- function(audio_loc,
 
       logres$output[i] <- output_file
 
+      # clean up
+      rm(yunifrom, yunito, outpath, output_file)
+
     }
 
+    # more clean up
+    rm(yunifile)
   }
 
   # shut down if requested

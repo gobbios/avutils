@@ -1,25 +1,21 @@
-#' run a DiViMe SAD module
+#' run the DiViMe talker type module (yunitate)
 #'
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with a VM
-#' @param module character, which module to execute (default is \code{"noisemes"}), see details
 #' @param vmshutdown logical, should the VM shut down after the operations are done (by default \code{TRUE})
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
-#' @details \code{module=} sets the SAD module to be used: can be either \code{"noisemes"}, \code{"opensmile"} or \code{"tocombo"}
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
 #' @export
 #'
 
-divime_sad <- function(audio_loc,
-                       divime_loc,
-                       module = "noisemes",
-                       vmshutdown = TRUE,
-                       messages = TRUE,
-                       overwrite = FALSE) {
+divime_talkertype <- function(audio_loc,
+                              divime_loc,
+                              vmshutdown = TRUE,
+                              messages = TRUE,
+                              overwrite = FALSE) {
   # audio_loc = "~/Desktop/test_audio/"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
-  # module = "opensmile"
 
   audio_loc <- normalizePath(audio_loc)
   divime_loc <- normalizePath(divime_loc)
@@ -53,9 +49,7 @@ divime_sad <- function(audio_loc,
                        yuniproblem = NA)
 
   # create command depending on the desired module
-  if (module == "noisemes") cm <- paste0("ssh -c 'noisemesSad.sh data/'")
-  if (module == "opensmile") cm <- paste0("ssh -c 'opensmileSad.sh data/'")
-  if (module == "tocombo") cm <- paste0("ssh -c 'tocomboSad.sh data/'")
+  cm <- paste0("ssh -c 'yunitate.sh data/'")
 
   # loop through files
   for (i in 1:nrow(logres)) {
@@ -73,7 +67,7 @@ divime_sad <- function(audio_loc,
 
     output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
                               recursive = TRUE,
-                              pattern = module)
+                              pattern = "yunitat")
 
     # copy output back to source location and remove output from divime location
     outpath <- paste0(audio_loc, "/", paths$folder[i], output_file)
@@ -94,16 +88,9 @@ divime_sad <- function(audio_loc,
       logres$yuniproblem[i] <- FALSE
       if (messages) message(paths$filestoprocess[i], "  -->  ", output_file)
     }
+    # clean up
+    rm(outpath, output_file, X, xres)
 
-    # additional clean up
-    if (module == "opensmile") {
-      # fn <- unlist(strsplit(filestoprocessroots[i], split = "/", fixed = TRUE))
-      # fn <- fn[length(fn)]
-      fn <- paste0(divime_loc, "/data/", paths$root[i], ".txt")
-      if (file.exists(fn)) {
-        file.remove(fn)
-      }
-    }
   }
 
   # shut down if requested

@@ -10,7 +10,7 @@
 #'
 split_audio <- function(filein, split, pathout = NULL, pathtosox = getOption("avutils_sox")) {
   xin <- normalizePath(filein)
-  if (!file.exists(xin)) stop("video file not found", call. = FALSE)
+  if (!file.exists(xin)) stop("audio file not found", call. = FALSE)
   if (!file.exists(pathtosox)) stop("sox binary not found", call. = FALSE)
 
   temp <- unlist(strsplit(x = xin, split = "/", fixed = TRUE))
@@ -23,8 +23,6 @@ split_audio <- function(filein, split, pathout = NULL, pathtosox = getOption("av
   } else {
     targetloc <- paste(pathout, newfilename, sep = "/")
   }
-
-
 
   cm <- paste(pathtosox, xin, targetloc, "trim 0", split, ": newfile : restart" )
   system(command = cm, intern = TRUE)

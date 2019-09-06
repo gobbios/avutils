@@ -1,11 +1,11 @@
 #' test DiViMe VM
 #'
-#' @param divime_loc path where DiViMe installed
+#' @param divime_loc path where DiViMe is installed
 #'
 #' @return textual output
 #' @export
 
-test_divime <- function(divime_loc) {
+divime_test <- function(divime_loc) {
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
 
   if (file.exists(paste0(divime_loc, "/launcher/test.sh"))) {
