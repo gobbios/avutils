@@ -6,15 +6,19 @@
 #'
 
 test_binaries <- function() {
-  res <- system(paste(getOption("avutils_ffmpeg"), "-version"),
-                intern = TRUE)
+  res <- system2(command = getOption("avutils_ffmpeg"),
+                 args = "-version",
+                 stdout = TRUE,
+                 stderr = TRUE)
   if(length(res) > 0) {
     res <- unlist(strsplit(res[1], split = " ", fixed = TRUE))[3]
     message("ffmpeg seems to work; version: ", res)
   }
 
-  res <- system(paste(getOption("avutils_sox"), "--version"),
-                intern = TRUE)
+  res <- system2(command = getOption("avutils_sox"),
+                 args = "--version",
+                 stdout = TRUE,
+                 stderr = TRUE)
   if(length(res) > 0) {
     res <- unlist(strsplit(res[1], split = " ", fixed = TRUE))
     res <- res[length(res)]

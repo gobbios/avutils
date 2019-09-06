@@ -11,14 +11,19 @@
 audio_info <- function(filein, pathtosox = getOption("avutils_sox")) {
   if (!file.exists(pathtosox)) stop("sox binary not found", call. = FALSE)
 
+  filein <- normalizePath(filein, winslash = "/")
+
   out <- data.frame(filename = filein, channels = NA, samplerate = NA,
                     resol = NA, samples = NA, duration = NA, format = NA,
                     filesize = NA, filesize_sox = NA)
   for (i in 1:nrow(out)) {
     if (!file.exists(filein[i])) stop("file not found", call. = FALSE)
 
-    cm <- paste(pathtosox, "--i", paste0("'", filein[i], "'"))
-    res <- system(cm, intern = TRUE)
+    cm <- paste("--i", filein[i])
+    res <- system2(command = pathtosox,
+                   args = cm,
+                   stdout = TRUE,
+                   stderr = TRUE)
     res1 <- unlist(strsplit(x = res, split = ":", fixed = TRUE))
     res1 <- gsub(pattern = " ", replacement = "", x = res1)
     res2 <- unlist(strsplit(x = res, split = " ", fixed = TRUE))

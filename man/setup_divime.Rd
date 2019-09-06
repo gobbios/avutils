@@ -4,14 +4,21 @@
 \alias{setup_divime}
 \title{setup DiViMe}
 \usage{
-setup_divime(divime_loc)
+setup_divime(divime_loc, memoryoverride = 2048)
 }
 \arguments{
 \item{divime_loc}{path where the virtual machine should be installed, directory will be created if it doesn't exist}
+
+\item{memoryoverride}{numeric value for the memory allocated to the VM (by default 2048, i.e. the default setting from DiViMi), see details}
 }
 \value{
 creates a directory, clones the DiViMe repository into it and starts the virtual machine
 }
 \description{
 setup DiViMe
+}
+\details{
+with the default value allocated to the VM's memory, you might run into trouble analyzing larger files. Apparently a value of 4096 should work (although I personally use 6144 to be safe). Note that you probably shouldn't use more than about half of the memory your actual machine has...
+
+Also note that this process can take a long time to execute (expect about one hour depending on your internet connection and computer power)
 }

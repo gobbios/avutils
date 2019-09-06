@@ -17,9 +17,9 @@ convert_audio <- function(filein,
                           pathout = NULL,
                           pathtoffmpeg = getOption("avutils_ffmpeg")) {
 
-  filein = "~/Downloads/john_oliver_replies_to_jack_warner.mp3"
-  outformat = list(filetype = "wav", res = 44100, mono = TRUE); pathout = NULL
-  set_binaries(pathtoffmpeg = "~/Documents/utilities/ffmpeg"); pathtoffmpeg = getOption("avutils_ffmpeg")
+  # filein = "~/Downloads/john_oliver_replies_to_jack_warner.mp3"
+  # outformat = list(filetype = "wav", res = 44100, mono = TRUE); pathout = NULL
+  # set_binaries(pathtoffmpeg = "~/Documents/utilities/ffmpeg"); pathtoffmpeg = getOption("avutils_ffmpeg")
 
   xin <- normalizePath(filein)
   if (!file.exists(xin)) stop("audio file not found", call. = FALSE)

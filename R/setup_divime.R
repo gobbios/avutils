@@ -1,12 +1,18 @@
 #' setup DiViMe
 #'
 #' @param divime_loc path where the virtual machine should be installed, directory will be created if it doesn't exist
+#' @param memoryoverride numeric value for the memory allocated to the VM (by default 2048, i.e. the default setting from DiViMi), see details
+#' @details with the default value allocated to the VM's memory, you might run into trouble analyzing larger files. Apparently a value of 4096 should work (although I personally use 6144 to be safe). Note that you probably shouldn't use more than about half of the memory your actual machine has...
 #'
+#' Also note that this process can take a long time to execute (expect about one hour depending on your internet connection and computer power)
 #' @return creates a directory, clones the DiViMe repository into it and starts the virtual machine
 #' @export
 #'
-setup_divime <- function(divime_loc) {
-  # divime_loc = "/Volumes/Data/VM2/ooo"
+setup_divime <- function(divime_loc, memoryoverride = 2048) {
+  # memoryoverride = 6144
+  # divime_loc = "/Volumes/Data/VMX2"
+
+  divime_loc <- normalizePath(divime_loc, winslash = "/", mustWork = FALSE)
 
   if (dir.exists(divime_loc)) {
     if (length(list.files(divime_loc)) > 0) {
@@ -16,12 +22,23 @@ setup_divime <- function(divime_loc) {
   } else {
     dir.create(divime_loc, recursive = TRUE)
   }
-  divime_loc <- normalizePath(divime_loc)
 
   WD <- getwd()
   setwd(divime_loc)
+  # clone git repository
   system2(command = Sys.which("git"), args = "clone https://github.com/srvk/DiViMe")
   setwd(paste0(divime_loc, "/DiViMe"))
+
+  # allocate memory
+  vf <- readLines("Vagrantfile")
+  loc <- grep(pattern = "vbox.memory", x = vf)
+  if (length(loc) == 1) {
+    temp <- vf[loc]
+    vf[loc] <- gsub(pattern = "[[:digit:]]{4,4}", x = temp, replacement = memoryoverride)
+    writeLines(vf, "Vagrantfile")
+  }
+
+  # start to build the VM for the first time...
   system2(command = Sys.which("vagrant"), args = "up")
   setwd(WD)
 }

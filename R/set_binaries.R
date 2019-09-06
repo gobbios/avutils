@@ -13,13 +13,13 @@ set_binaries <- function(pathtoffmpeg = Sys.which("ffmpeg"), pathtosox = Sys.whi
   if (pathtoffmpeg == "") {
     message("ffmpeg not in the path variable")
   } else {
-    options(avutils_ffmpeg = normalizePath(pathtoffmpeg))
+    options(avutils_ffmpeg = normalizePath(pathtoffmpeg, winslash = "/"))
     message("ffmpeg set to this location: ", as.character(getOption("avutils_ffmpeg")))
   }
   if (pathtosox == "") {
     message("sox not in the path variable")
   } else {
-    options(avutils_sox = normalizePath(pathtosox))
+    options(avutils_sox = normalizePath(pathtosox, winslash = "/"))
     message("sox set to this location: ", as.character(getOption("avutils_sox")))
   }
 }

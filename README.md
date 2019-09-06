@@ -22,7 +22,9 @@ Requirements:
 
   * for audio and video processing: `sox` binary (https://sourceforge.net/projects/sox/) and `ffmpeg` binary (https://ffmpeg.org/download.html). These don't need to be installed, but you should make sure that you know the location of the files on your system.
   
-  * for DiViMe tools: `vagrant` software installed (e.g. https://releases.hashicorp.com/vagrant/)
+  * for DiViMe tools: `vagrant` software installed (e.g. https://releases.hashicorp.com/vagrant/) and `VirtualBox` (https://www.virtualbox.org/wiki/Download_Old_Builds_5_2)
+  
+  * if you have a Windows machine, you'll also need `git`
 
 To install the package, use:
 
@@ -31,3 +33,12 @@ To install the package, use:
 `install_github("gobbios/avutils")`
 
 [link to](doc/audiooperations.html)
+
+
+# FAQ
+
+For larger audio files, some of the DiViMe tools appear to not work properly, i.e. the resulting rttm files only contain data up to a certain time point (about 10 minutes in my case). One suggested solution for this problem is the following:
+
+  - go to your DiViMe location and open the file `vagrantfile` with some text editor and increase the number behind `vbox.memory=` to some larger number (currently I use 6144)
+  
+  - destroy the VM and up it again
