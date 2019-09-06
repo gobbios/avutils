@@ -22,3 +22,16 @@ a vector with the paths to the split files
 \description{
 split audio file into chunks of defined length
 }
+\examples{
+\dontrun{
+set_binaries(pathtoffmpeg = "~/Documents/utilities/ffmpeg",
+             pathtosox = "~/Documents/utilities/sox")
+tdir <- tempdir()
+w1 <- sine(freq = 440, duration = 1.3, bit = 32, stereo = TRUE, xunit = "time")
+writeWave(w1, filename = file.path(tdir, "file1.wav"))
+tdir
+x <- list.files(tdir, pattern = "\\\\.wav$", full.names = TRUE)
+audio_info(filein = x)
+y <- split_audio(filein = x, split = 0.4)
+audio_info(filein = y)}
+}

@@ -12,6 +12,8 @@
 video_info <- function(filein, pathtoffmpeg = getOption("avutils_ffmpeg")) {
   if (!file.exists(pathtoffmpeg)) stop("ffmpeg binary not found", call. = FALSE)
 
+  filein <- normalizePath(filein, winslash = "/")
+
   out <- data.frame(filein = filein, video_format = NA,
                     duration = NA, bitrate = NA,
                     resol = NA, width = NA, height = NA, fps = NA,
@@ -19,7 +21,7 @@ video_info <- function(filein, pathtoffmpeg = getOption("avutils_ffmpeg")) {
   for (i in 1:nrow(out)) {
     if (!file.exists(filein[i])) stop("file not found", call. = FALSE)
 
-    cmargs <- paste("-i", paste0("'", filein[i], "'"))
+    cmargs <- paste("-i", shQuote(filein[i]))
 
     res <- suppressWarnings(system2(command = normalizePath(pathtoffmpeg),
                                     args = cmargs,

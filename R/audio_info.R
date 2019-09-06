@@ -19,7 +19,7 @@ audio_info <- function(filein, pathtosox = getOption("avutils_sox")) {
   for (i in 1:nrow(out)) {
     if (!file.exists(filein[i])) stop("file not found", call. = FALSE)
 
-    cm <- paste("--i", filein[i])
+    cm <- paste("--i", shQuote(filein[i]))
     res <- system2(command = pathtosox,
                    args = cm,
                    stdout = TRUE,

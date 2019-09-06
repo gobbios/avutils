@@ -16,7 +16,7 @@ extract_audio <- function(videofile,
                           messages = TRUE,
                           progbar = FALSE,
                           pathtoffmpeg = getOption("avutils_ffmpeg")) {
-  xin <- normalizePath(videofile)
+  xin <- normalizePath(videofile, winslash = "/")
   if (!file.exists(pathtoffmpeg)) stop("ffmpeg binary not found", call. = FALSE)
 
   if (progbar) pb <- txtProgressBar(min = 0, max = length(xin),
@@ -37,16 +37,17 @@ extract_audio <- function(videofile,
       temp[length(temp)] <- newfilename
       targetloc <- paste(temp, collapse = "/")
     } else {
+      pathout <- normalizePath(pathout, winslash = "/")
       targetloc <- paste(pathout, newfilename, sep = "/")
     }
 
     cmargs <- paste("-i",
-                    paste0("'", xin[i], "'"),
+                    shQuote(xin[i]),
                     "-y -ar 44100 -ac 1",
-                    paste0("'", targetloc, "'"),
+                    shQuote(targetloc),
                     "-hide_banner")
     xres <- suppressWarnings(
-      system2(command = normalizePath(pathtoffmpeg),
+      system2(command = normalizePath(pathtoffmpeg, winslash = "/"),
               args = cmargs,
               stderr = TRUE,
               stdout = TRUE))
