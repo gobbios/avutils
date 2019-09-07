@@ -1,7 +1,7 @@
 #' status and handling of VM
 #'
 #' @param divime_loc character, path to DiViMe directory
-#' @param what character, what to do: see details
+#' @param what character, what to do, \code{"status"} (default), \code{"start"}, \code{"suspend"}, or \code{"halt"}, see details
 #' @param silent logical, should a message be printed
 #' @details \code{what=} can be one of the following:
 #' \itemize{
@@ -43,7 +43,6 @@ divime_vagrant_state <- function(divime_loc, what = "status", silent = FALSE) {
     res <- res[grep("default   ", x = res)]
     res <- trimws(unlist(strsplit(res, "default")))
     res <- res[res != ""]
-
   }
   setwd(WD)
 

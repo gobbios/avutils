@@ -9,7 +9,7 @@ divime_vagrant_state(divime_loc, what = "status", silent = FALSE)
 \arguments{
 \item{divime_loc}{character, path to DiViMe directory}
 
-\item{what}{character, what to do: see details}
+\item{what}{character, what to do, \code{"status"} (default), \code{"start"}, \code{"suspend"}, or \code{"halt"}, see details}
 
 \item{silent}{logical, should a message be printed}
 }

@@ -93,9 +93,13 @@ divime_classify_vox <- function(audio_loc,
 
       logres$output[i] <- output_file
 
+      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file)
+
       # clean up
       rm(yunifrom, yunito, outpath, output_file)
 
+    } else {
+      if (messages) message(paths$filestoprocess[i], "  -->  ", "XXXXXXXXX")
     }
 
     # more clean up

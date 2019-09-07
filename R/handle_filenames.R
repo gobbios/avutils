@@ -11,10 +11,10 @@ handle_filenames <- function(audio_loc,
   # audio_loc = "~/Desktop/test_audio/"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
 
-  audio_loc <- normalizePath(audio_loc)
-  divime_loc <- normalizePath(divime_loc)
+  audio_loc <- normalizePath(audio_loc, winslash = "/")
+  divime_loc <- normalizePath(divime_loc, winslash = "/")
 
-  pathto <- normalizePath(paste0(divime_loc, "/data/"))
+  pathto <- normalizePath(paste0(divime_loc, "/data/"), winslash = "/")
   filestoprocess <- list.files(audio_loc, pattern = ".wav", recursive = TRUE, ignore.case = TRUE)
 
   res <- data.frame(filestoprocess)
