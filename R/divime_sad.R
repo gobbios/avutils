@@ -19,6 +19,7 @@ divime_sad <- function(audio_loc,
                        overwrite = FALSE) {
   # audio_loc = "~/Desktop/test_audio/"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
+  # vmshutdown = F; messages = TRUE; overwrite = FALSE
   # module = "opensmile"
 
   audio_loc <- normalizePath(audio_loc)
@@ -39,11 +40,6 @@ divime_sad <- function(audio_loc,
   paths <- avutils:::handle_filenames(audio_loc = audio_loc,
                                       divime_loc = divime_loc)
 
-  # run check to see whether file names contain spaces (which are potentially problematic)
-  if (sum(grepl(pattern = " ", x = paths$root)) > 0) {
-    cat("at least one audio file has a space in its name, which might cause problems\n")
-  }
-
   logres <- data.frame(audio = paths$filestoprocess,
                        output = NA,
                        audiocopy = NA,
@@ -61,7 +57,7 @@ divime_sad <- function(audio_loc,
   for (i in 1:nrow(logres)) {
     # copy audio file
     logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
-                                     to = paths$audiotarget[i])
+                                     to = paths$audiotarget_clean[i])
     # deal with working directories
     WD <- getwd()
     setwd(divime_loc)
@@ -69,14 +65,14 @@ divime_sad <- function(audio_loc,
     xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
     setwd(WD)
     # remove audio file
-    logres$audioremove[i] <- file.remove(paths$audiotarget[i])
+    logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
 
-    output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
-                              recursive = TRUE,
-                              pattern = module)
+    output_file <- paste0(module, "Sad_", paths$root_clean[i], ".rttm")
+    output_file_ori <- paste0(module, "Sad_", paths$root[i], ".rttm")
+
 
     # copy output back to source location and remove output from divime location
-    outpath <- paste0(audio_loc, "/", paths$folder[i], output_file)
+    outpath <- paste0(audio_loc, "/", paths$folder[i], output_file_ori)
     logres$resultscopy[i] <- file.copy(from = normalizePath(paste0(divime_loc, "/data/", output_file)),
                                       to = suppressWarnings(normalizePath(outpath)),
                                       overwrite = overwrite)
@@ -92,18 +88,19 @@ divime_sad <- function(audio_loc,
       message("possibly yunitator problem with file: ", paths$filestoprocess[i])
     } else {
       logres$yuniproblem[i] <- FALSE
-      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file)
+      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file_ori)
     }
 
     # additional clean up
     if (module == "opensmile") {
-      # fn <- unlist(strsplit(filestoprocessroots[i], split = "/", fixed = TRUE))
-      # fn <- fn[length(fn)]
-      fn <- paste0(divime_loc, "/data/", paths$root[i], ".txt")
+      fn <- paste0(divime_loc, "/data/", paths$root_clean[i], ".txt")
       if (file.exists(fn)) {
         file.remove(fn)
       }
     }
+    # clean up
+    rm(outpath, output_file, output_file_ori, X, xres)
+
   }
 
   # shut down if requested

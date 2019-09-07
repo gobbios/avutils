@@ -4,7 +4,9 @@
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with a VM
 #'
-#' @return a data.frame
+#' @details the functions also cleans file names (temporarily) to get rid of spaces and special characters in file names, which otherwise would cause problems with some of the DiViMe tools
+#'
+#' @return a data.frame with various versions of file paths and file names
 
 handle_filenames <- function(audio_loc,
                              divime_loc) {
@@ -24,6 +26,20 @@ handle_filenames <- function(audio_loc,
   # get filenames without extension and subfolders
   fileroots <- unlist(lapply(folderlocs, function(X)X[length(X)]))
   res$root <- unlist(strsplit(fileroots, split = "(?i).wav"))
+  # deal with special characters
+  res$root_clean <- gsub(pattern = " ",
+                         replacement = "_",
+                         x = res$root,
+                         fixed = TRUE)
+  res$root_clean <- gsub(pattern = "(",
+                         replacement = "_",
+                         x = res$root_clean,
+                         fixed = TRUE)
+  res$root_clean <- gsub(pattern = ")",
+                         replacement = "_",
+                         x = res$root_clean,
+                         fixed = TRUE)
+
   # the folder substructure
   folders <- lapply(folderlocs, function(X)X[-length(X)])
   i = 1
@@ -40,6 +56,7 @@ handle_filenames <- function(audio_loc,
   # paths for the audio files (for copying)
   res$audiosource <- paste0(audio_loc, "/", filestoprocess)
   res$audiotarget <- paste0(pathto, "/", res$root, ".wav")
+  res$audiotarget_clean <- paste0(pathto, "/", res$root_clean, ".wav")
   res
 
 }

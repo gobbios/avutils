@@ -18,7 +18,7 @@ divime_diarization <- function(audio_loc,
                                overwrite = FALSE) {
   # audio_loc = "~/Desktop/test_audio/"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
-  # speech_annos = "noisemes"
+  # speech_annos = "opensmile"; vmshutdown = F; messages = TRUE; overwrite = FALSE
 
   audio_loc <- normalizePath(audio_loc)
   divime_loc <- normalizePath(divime_loc)
@@ -54,7 +54,8 @@ divime_diarization <- function(audio_loc,
   }
 
   sad <- paste0(prefix, paths$root, ".rttm")
-  sadtarget <- paste0(divime_loc, "/data/", sad)
+  sad_clean <- paste0(prefix, paths$root_clean, ".rttm")
+  sadtarget <- paste0(divime_loc, "/data/", sad_clean)
   sadsource <- paste0(audio_loc, "/", paths$folder, sad)
 
   logres <- data.frame(audio = paths$filestoprocess,
@@ -71,7 +72,7 @@ divime_diarization <- function(audio_loc,
   for (i in 1:nrow(logres)) {
     # copy audio
     logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
-                                     to = paths$audiotarget[i])
+                                     to = paths$audiotarget_clean[i])
 
     # only run if the sad source was found...
     if (file.exists(sadsource[i])) {
@@ -84,23 +85,26 @@ divime_diarization <- function(audio_loc,
       xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
       setwd(WD)
 
-      logres$audioremove[i] <- file.remove(paths$audiotarget[i])
+      # remove source files (audio and SAD)
+      logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
       logres$sadremove[i] <- file.remove(sadtarget[i])
 
-      output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
-                                recursive = FALSE,
-                                pattern = "diartk_")
+      # output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
+      #                           recursive = FALSE,
+      #                           pattern = "diartk_")
+      output_file <- paste0("diartk_", speech_annos, "Sad_", paths$root_clean[i], ".rttm")
+      output_file_ori <- paste0("diartk_", speech_annos, "Sad_", paths$root[i], ".rttm")
 
-      outpath <- paste0(audio_loc, "/", paths$folder[i], output_file)
+      outpath <- paste0(audio_loc, "/", paths$folder[i], output_file_ori)
 
       logres$resultscopy[i] <- file.copy(from = paste0(divime_loc, "/data/", output_file),
                                          to = suppressWarnings(outpath),
                                          overwrite = overwrite)
       logres$resultsremove[i] <- file.remove(paste0(divime_loc, "/data/", output_file))
 
-      logres$output[i] <- output_file
+      logres$output[i] <- output_file_ori
 
-      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file)
+      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file_ori)
     } else {
       if (messages) message(paths$filestoprocess[i], "  -->  ", "XXXXXXXXX")
     }

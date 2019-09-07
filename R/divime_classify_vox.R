@@ -15,6 +15,7 @@ divime_classify_vox <- function(audio_loc,
                                 overwrite = FALSE) {
   # audio_loc = "~/Desktop/test_audio/"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
+  # vmshutdown = F; messages = TRUE; overwrite = FALSE
 
   audio_loc <- normalizePath(audio_loc)
   divime_loc <- normalizePath(divime_loc)
@@ -51,24 +52,14 @@ divime_classify_vox <- function(audio_loc,
   for (i in 1:nrow(logres)) {
     # copy audio
     logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
-                                     to = paths$audiotarget[i])
+                                     to = paths$audiotarget_clean[i])
 
     # only run if the yuni source was found in the source folder...
-    yunifile <- list.files(path = audio_loc, pattern = paths$root[i], recursive = TRUE, ignore.case = TRUE, full.names = FALSE)
-    yunifile <- yunifile[grep(pattern = "yunitat", x = yunifile)]
-    yunifile <- unlist(strsplit(yunifile, "/", fixed = TRUE))
-    yunifile <- yunifile[length(yunifile)]
+    yunifrom <- paste0(audio_loc, "/", paths$folder[i], "yunitator_old_", paths$root[i], ".rttm")
+    yunito <- paste0(divime_loc, "/data/", paste0("yunitator_universal_", paths$root_clean[i], ".rttm"))
 
-    check <- FALSE
-    if (length(yunifile) == 1) {
-      yunifrom <- paste0(audio_loc, "/", paths$folder[i], yunifile)
-      yunito <- paste0(divime_loc, "/data/", paste0("yunitator_universal_", paths$root[i], ".rttm"))
-      if (file.exists(yunifrom)) {
-        check <- TRUE
-      }
-    }
-    if (check) {
-      logres$yunifile[i] <- yunifile
+    if (file.exists(yunifrom)) {
+      logres$yunifile[i] <- paste0("yunitator_old_", paths$root[i], ".rttm")
       logres$yunicopy[i] <- file.copy(from = yunifrom,
                                      to = yunito)
 
@@ -77,33 +68,32 @@ divime_classify_vox <- function(audio_loc,
       xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
       setwd(WD)
 
-      logres$audioremove[i] <- file.remove(paths$audiotarget[i])
+      logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
       logres$yuniremove[i] <- file.remove(yunito)
 
-      output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
-                                recursive = FALSE,
-                                pattern = "vcm_")
+      output_file <- paste0("vcm_", paths$root_clean[i], ".rttm")
+      output_file_ori <- paste0("vcm_", paths$root[i], ".rttm")
 
-      outpath <- paste0(audio_loc, "/", paths$folder[i], output_file)
+      outpath <- paste0(audio_loc, "/", paths$folder[i], output_file_ori)
 
       logres$resultscopy[i] <- file.copy(from = paste0(divime_loc, "/data/", output_file),
                                          to = suppressWarnings(outpath),
                                          overwrite = overwrite)
       logres$resultsremove[i] <- file.remove(paste0(divime_loc, "/data/", output_file))
 
-      logres$output[i] <- output_file
+      logres$output[i] <- output_file_ori
 
-      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file)
+      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file_ori)
 
       # clean up
-      rm(yunifrom, yunito, outpath, output_file)
+      rm(outpath, output_file, output_file_ori, xres)
 
     } else {
       if (messages) message(paths$filestoprocess[i], "  -->  ", "XXXXXXXXX")
     }
 
     # more clean up
-    rm(yunifile)
+    rm(yunifrom, yunito)
   }
 
   # shut down if requested

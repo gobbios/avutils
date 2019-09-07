@@ -12,8 +12,11 @@ handle_filenames(audio_loc, divime_loc)
 \item{divime_loc}{character, path to the DiViMe directory with a VM}
 }
 \value{
-a data.frame
+a data.frame with various versions of file paths and file names
 }
 \description{
 file and folder names
+}
+\details{
+the functions also cleans file names (temporarily) to get rid of spaces and special characters in file names, which otherwise would cause problems with some of the DiViMe tools
 }
