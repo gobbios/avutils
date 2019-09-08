@@ -57,6 +57,9 @@ handle_filenames <- function(audio_loc,
   res$audiosource <- paste0(audio_loc, "/", filestoprocess)
   res$audiotarget <- paste0(pathto, "/", res$root, ".wav")
   res$audiotarget_clean <- paste0(pathto, "/", res$root_clean, ".wav")
+
+  # file size
+  res$size <- round(file.size(res$audiosource)/1024000, 2)
   res
 
 }
