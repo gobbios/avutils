@@ -17,7 +17,10 @@ handle_filenames <- function(audio_loc,
   divime_loc <- normalizePath(divime_loc, winslash = "/")
 
   pathto <- normalizePath(paste0(divime_loc, "/data/"), winslash = "/")
-  filestoprocess <- list.files(audio_loc, pattern = ".wav", recursive = TRUE, ignore.case = TRUE)
+  filestoprocess <- list.files(audio_loc,
+                               pattern = ".wav",
+                               recursive = TRUE,
+                               ignore.case = TRUE)
 
   res <- data.frame(filestoprocess)
 
@@ -42,7 +45,6 @@ handle_filenames <- function(audio_loc,
 
   # the folder substructure
   folders <- lapply(folderlocs, function(X)X[-length(X)])
-  i = 1
   for (i in 1:length(filestoprocess)) {
     if (length(folders[[i]]) == 0) {
       res$folder[i] <- ""
@@ -59,7 +61,7 @@ handle_filenames <- function(audio_loc,
   res$audiotarget_clean <- paste0(pathto, "/", res$root_clean, ".wav")
 
   # file size
-  res$size <- round(file.size(res$audiosource)/1024000, 2)
+  res$size <- round(file.size(res$audiosource) / 1024000, 2)
   res
 
 }

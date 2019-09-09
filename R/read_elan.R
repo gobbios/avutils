@@ -22,12 +22,10 @@ read_elan <- function(x) {
   # read actual tiers with annotations
   tierlocs <- which(xml_name(raw) == "TIER")
   alltiers <- raw[tierlocs]
-  i = 3
   for (i in 1:length(tierlocs)) {
     tierid <- xml_attr(alltiers[[i]], "TIER_ID")
     tier <- xml_children(alltiers[i])
     annolocs <- which(xml_name(tier) == "ANNOTATION")
-    k = annolocs[1]
     for (k in annolocs) {
       anno <- xml_children(tier[[k]])
       res <- rbind(res, NA)
@@ -54,7 +52,6 @@ read_elan <- function(x) {
   if (length(notiminglabels) > 0) {
     timingres <- matrix(ncol = 2, nrow = length(notiminglabels))
     timingres[, 1] <- notiminglabels
-    i = 1
     for (i in 1:nrow(timingres)) {
       continueloop <- TRUE
       rewritetemp <- TRUE
@@ -76,7 +73,6 @@ read_elan <- function(x) {
                                                    call. = FALSE)
 
   # now fill the timings
-  i = 1
   for (i in 1:nrow(timingres)) {
     child <- timingres[i, 1]
     parent <- timingres[i, 2]

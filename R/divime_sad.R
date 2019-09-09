@@ -75,7 +75,6 @@ divime_sad <- function(audio_loc,
     # if it already exists, we can skip the processing in the VM
     output_exists <- file.exists(output_file_to)
 
-
     if (!(!overwrite & output_exists)) {
       # copy audio file
       logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
@@ -85,7 +84,10 @@ divime_sad <- function(audio_loc,
       setwd(divime_loc)
 
       # run bash command
-      xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
+      xres <- system2(command = vagrant,
+                      args = cm,
+                      stdout = TRUE,
+                      stderr = TRUE)
       setwd(WD)
 
       # copy output back to source location from divime location
@@ -104,11 +106,17 @@ divime_sad <- function(audio_loc,
       X <- xres[grep("[[:digit:]]{1,10} Killed", xres)]
       if (length(X) > 0) {
         logres$yuniproblem[i] <- TRUE
-        if (messages) message("[POTENTIAL PROBLEM]   :", paths$filestoprocess[i], "  -->  ", output_file)
-        message("possibly yunitator problem with file: ", paths$filestoprocess[i])
+        if (messages) message("[POTENTIAL PROBLEM]   :",
+                              paths$filestoprocess[i],
+                              "  -->  ",
+                              output_file)
+        message("possibly yunitator problem with file: ",
+                paths$filestoprocess[i])
       } else {
         logres$yuniproblem[i] <- FALSE
-        if (messages) message(paths$filestoprocess[i], "  -->  ", output_file_ori)
+        if (messages) message(paths$filestoprocess[i],
+                              "  -->  ",
+                              output_file_ori)
       }
 
       # additional clean up

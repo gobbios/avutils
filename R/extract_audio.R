@@ -57,7 +57,8 @@ extract_audio <- function(videofile,
       if (messages) message(xin[i], "  -->  ", targetloc)
     } else {
       if (attr(xres, "status") == 1) {
-        warning("file ", xin[i], " is broken and has not been processed", call. = FALSE)
+        warning("file ", xin[i], " is broken and has not been processed",
+                call. = FALSE)
         res[i, 2] <- NA
         if (messages) message("!!! ", xin[i], "  X-X-X>X  ", targetloc, " !!!")
       }

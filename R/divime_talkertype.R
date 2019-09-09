@@ -37,6 +37,9 @@ divime_talkertype <- function(audio_loc,
                                       divime_loc = divime_loc)
 
   logres <- data.frame(audio = paths$filestoprocess,
+                       size = paths$size,
+                       processed = FALSE,
+                       ptime = NA,
                        output = NA,
                        audiocopy = NA,
                        audioremove = NA,
@@ -49,47 +52,87 @@ divime_talkertype <- function(audio_loc,
 
   # loop through files
   for (i in 1:nrow(logres)) {
-    # copy audio file
-    logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
-                                     to = paths$audiotarget_clean[i])
-    # deal with working directories
-    WD <- getwd()
-    setwd(divime_loc)
-    # run bash command
-    xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
-    setwd(WD)
-    # remove audio file
-    logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
+    # take time stamp
+    t1 <- Sys.time()
 
-    output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
-                              recursive = TRUE,
-                              pattern = "yunitat")
+    # create names and locations for output rttm
     output_file <- paste0("yunitator_old_", paths$root_clean[i], ".rttm")
     output_file_ori <- paste0("yunitator_old_", paths$root[i], ".rttm")
+    output_file_to <- normalizePath(paste0(audio_loc, "/", paths$folder[i], output_file_ori),
+                                    winslash = "/",
+                                    mustWork = FALSE)
+    output_file_from <- normalizePath(paste0(divime_loc, "/data/", output_file),
+                                      winslash = "/",
+                                      mustWork = FALSE)
+    # if overwrite = FALSE, continue only if the target file does not yet exist
+    # if it already exists, we can skip the processing in the VM
+    output_exists <- file.exists(output_file_to)
+    if (!(!overwrite & output_exists)) {
+      # copy audio file
+      logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
+                                       to = paths$audiotarget_clean[i])
 
+      # deal with working directories
+      WD <- getwd()
+      setwd(divime_loc)
 
-    # copy output back to source location and remove output from divime location
-    outpath <- paste0(audio_loc, "/", paths$folder[i], output_file_ori)
-    logres$resultscopy[i] <- file.copy(from = normalizePath(paste0(divime_loc, "/data/", output_file)),
-                                      to = suppressWarnings(normalizePath(outpath)),
-                                      overwrite = overwrite)
-    logres$resultsremove[i] <- file.remove(normalizePath(paste0(divime_loc, "/data/", output_file)))
+      # run bash command
+      xres <- system2(command = vagrant,
+                      args = cm,
+                      stdout = TRUE,
+                      stderr = TRUE)
+      setwd(WD)
 
-    logres$output[i] <- output_file_ori
+      # copy output back to source location from divime location
+      logres$resultscopy[i] <- file.copy(from = output_file_from,
+                                         to = output_file_to,
+                                         overwrite = overwrite)
+      # clean audio file and output from divimi location
+      logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
+      logres$resultsremove[i] <- file.remove(output_file_from)
 
-    # check for yunitator problem and log it
-    X <- xres[grep("[[:digit:]]{1,10} Killed", xres)]
-    if (length(X) > 0) {
-      logres$yuniproblem[i] <- TRUE
-      if (messages) message("[POTENTIAL PROBLEM]   :", paths$filestoprocess[i], "  -->  ", output_file)
-      message("possibly yunitator problem with file: ", paths$filestoprocess[i])
-    } else {
-      logres$yuniproblem[i] <- FALSE
-      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file_ori)
+      logres$output[i] <- output_file_ori
+      logres$processed[i] <- TRUE
+
+      # check for yunitator problem and log it
+      X <- xres[grep("[[:digit:]]{1,10} Killed", xres)]
+      if (length(X) > 0) {
+        logres$yuniproblem[i] <- TRUE
+        if (messages) message("[POTENTIAL PROBLEM]   :",
+                              paths$filestoprocess[i],
+                              "  -->  ",
+                              output_file)
+        message("possibly yunitator problem with file: ",
+                paths$filestoprocess[i])
+      } else {
+        logres$yuniproblem[i] <- FALSE
+        if (messages) message(paths$filestoprocess[i],
+                              "  -->  ",
+                              output_file_ori)
+      }
+
+      # clean up
+      rm(X, xres)
     }
-    # clean up
-    rm(outpath, output_file, output_file_ori, X, xres)
 
+    # clean up
+    rm(output_exists, output_file, output_file_ori, output_file_to)
+
+    t2 <- Sys.time()
+    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, unit = "min"), 3))
+
+    # predict time left
+    temp <- na.omit(logres[, c("ptime", "size")])
+    sizes <- logres$size[is.na(logres$ptime)]
+    if (nrow(temp) > 3) {
+      tempres <- lm(ptime ~ size, temp)
+      if (length(sizes) > 0) {
+        timeleft <- round(sum(predict(tempres,
+                                      newdata = data.frame(size = sizes))),
+                          digits = 1)
+        cat("expected time until finish: ", timeleft, " minutes\n")
+      }
+    }
   }
 
   # shut down if requested

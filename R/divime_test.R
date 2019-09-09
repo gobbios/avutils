@@ -6,8 +6,6 @@
 #' @export
 
 divime_test <- function(divime_loc) {
-  # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
-
   if (file.exists(paste0(divime_loc, "/launcher/test.sh"))) {
     WD <- getwd()
     setwd(divime_loc)
@@ -16,5 +14,4 @@ divime_test <- function(divime_loc) {
   } else {
     message("DiViMe directory not found")
   }
-
 }

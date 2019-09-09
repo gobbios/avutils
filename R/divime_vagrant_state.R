@@ -26,20 +26,28 @@ divime_vagrant_state <- function(divime_loc, what = "status", silent = FALSE) {
   WD <- getwd()
   setwd(divime_loc)
   if (what == "status") {
-    res <- system2(command = Sys.which("vagrant"), args = "status", stdout = TRUE)
+    res <- system2(command = Sys.which("vagrant"),
+                   args = "status",
+                   stdout = TRUE)
     res <- res[grep("default   ", x = res)]
     res <- trimws(unlist(strsplit(res, "default")))
     res <- res[res != ""]
     textres <- unlist(strsplit(res, " "))[1]
   }
   if (what == "suspend") {
-    res <- system2(command = Sys.which("vagrant"), args = "suspend", stdout = TRUE)
+    res <- system2(command = Sys.which("vagrant"),
+                   args = "suspend",
+                   stdout = TRUE)
   }
   if (what == "halt") {
-    res <- system2(command = Sys.which("vagrant"), args = "halt", stdout = TRUE)
+    res <- system2(command = Sys.which("vagrant"),
+                   args = "halt",
+                   stdout = TRUE)
   }
   if (what == "start") {
-    res <- system2(command = Sys.which("vagrant"), args = "up", stdout = TRUE)
+    res <- system2(command = Sys.which("vagrant"),
+                   args = "up",
+                   stdout = TRUE)
     res <- res[grep("default   ", x = res)]
     res <- trimws(unlist(strsplit(res, "default")))
     res <- res[res != ""]

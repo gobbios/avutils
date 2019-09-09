@@ -23,4 +23,3 @@ set_binaries <- function(pathtoffmpeg = Sys.which("ffmpeg"), pathtosox = Sys.whi
     message("sox set to this location: ", as.character(getOption("avutils_sox")))
   }
 }
-

@@ -26,7 +26,8 @@ divime_vagrant_setup <- function(divime_loc, memoryoverride = 2048) {
   WD <- getwd()
   setwd(divime_loc)
   # clone git repository
-  system2(command = Sys.which("git"), args = "clone https://github.com/srvk/DiViMe")
+  system2(command = Sys.which("git"),
+          args = "clone https://github.com/srvk/DiViMe")
   setwd(paste0(divime_loc, "/DiViMe"))
 
   # allocate memory
@@ -34,7 +35,8 @@ divime_vagrant_setup <- function(divime_loc, memoryoverride = 2048) {
   loc <- grep(pattern = "vbox.memory", x = vf)
   if (length(loc) == 1) {
     temp <- vf[loc]
-    vf[loc] <- gsub(pattern = "[[:digit:]]{4,4}", x = temp, replacement = memoryoverride)
+    vf[loc] <- gsub(pattern = "[[:digit:]]{4,4}", x = temp,
+                    replacement = memoryoverride)
     writeLines(vf, "Vagrantfile")
   }
 
@@ -48,4 +50,3 @@ divime_vagrant_setup <- function(divime_loc, memoryoverride = 2048) {
   system2(command = Sys.which("vagrant"), args = "up")
   setwd(WD)
 }
-

@@ -38,13 +38,14 @@ split_audio <- function(filein, split, pathout = NULL, pathtosox = getOption("av
   }
 
   cm <- paste(shQuote(xin), shQuote(targetloc), "trim 0", split, ": newfile : restart" )
-  # system(command = cm, intern = TRUE)
   system2(command = pathtosox, args = cm, stdout = TRUE, stderr = TRUE)
   outpath <- unlist(strsplit(x = targetloc, split = "/", fixed = TRUE))
   outpath <- outpath[-length(outpath)]
   outpath <- paste(outpath, collapse = "/")
   nameroot <-  unlist(strsplit(x = targetloc, split = "/", fixed = TRUE))
-  nameroot <- unlist(strsplit(nameroot[length(nameroot)], split = ".", fixed = TRUE))
+  nameroot <- unlist(strsplit(nameroot[length(nameroot)],
+                              split = ".",
+                              fixed = TRUE))
   nameroot <- paste(nameroot[-length(nameroot)], collapse = ".")
 
   list.files(outpath, pattern = nameroot, full.names = TRUE)

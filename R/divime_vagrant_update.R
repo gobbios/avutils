@@ -27,12 +27,12 @@ divime_vagrant_update <- function(divime_loc, memoryoverride = 2048) {
   if (cont) {
     WD <- getwd()
     setwd(divime_loc)
-    xres <- system2(command = Sys.which("vagrant"), args = "destroy -f", stdout = TRUE, stderr = TRUE)
+    xres <- system2(command = Sys.which("vagrant"),
+                    args = "destroy -f",
+                    stdout = TRUE,
+                    stderr = TRUE)
     setwd("..")
-    # file.remove(list.files(all.files = TRUE, recursive = TRUE))
     system2(command = "rm", args = "-R DiViMe")
-    # system2(command = Sys.which("git"), args = "clone https://github.com/srvk/DiViMe")
-    # system2(command = "cd", args = "DiViMe")
     divime_vagrant_setup(divime_loc = getwd(), memoryoverride = 6144)
 
     setwd(WD)

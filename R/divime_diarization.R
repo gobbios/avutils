@@ -29,7 +29,7 @@ divime_diarization <- function(audio_loc,
   vm_running <- divime_vagrant_state(divime_loc = divime_loc,
                                      what = "status",
                                      silent = TRUE)
-  if(!vm_running) {
+  if (!vm_running) {
     divime_vagrant_state(divime_loc = divime_loc,
                          what = "start",
                          silent = TRUE)
@@ -38,27 +38,10 @@ divime_diarization <- function(audio_loc,
   paths <- avutils:::handle_filenames(audio_loc = audio_loc,
                                       divime_loc = divime_loc)
 
-  # check for the speech detection data
-  # and set command
-  if (speech_annos == "noisemes") {
-    prefix <- "noisemesSad_"
-    cm <- paste0("ssh -c 'diartk.sh data/ noisemesSad'")
-  }
-  if (speech_annos == "opensmile") {
-    prefix <- "opensmileSad_"
-    cm <- paste0("ssh -c 'diartk.sh data/ opensmileSad'")
-  }
-  if (speech_annos == "tocombo") {
-    prefix <- "tocomboSad_"
-    cm <- paste0("ssh -c 'diartk.sh data/ tocomboSad'")
-  }
-
-  sad <- paste0(prefix, paths$root, ".rttm")
-  sad_clean <- paste0(prefix, paths$root_clean, ".rttm")
-  sadtarget <- paste0(divime_loc, "/data/", sad_clean)
-  sadsource <- paste0(audio_loc, "/", paths$folder, sad)
-
   logres <- data.frame(audio = paths$filestoprocess,
+                       size = paths$size,
+                       processed = FALSE,
+                       ptime = NA,
                        sadfile = NA,
                        sadcopy = NA,
                        sadremove = NA,
@@ -66,50 +49,96 @@ divime_diarization <- function(audio_loc,
                        audiocopy = NA,
                        audioremove = NA,
                        resultscopy = NA,
-                       resultsremove = NA) #, yuniproblem = NA
+                       resultsremove = NA)
+
+  # check for the speech detection data
+  # and set command
+  prefix <- paste0(speech_annos, "Sad_")
+  cm <- paste0("ssh -c 'diartk.sh data/ ", speech_annos, "Sad'")
+
+  sad <- paste0(prefix, paths$root, ".rttm")
+  sad_clean <- paste0(prefix, paths$root_clean, ".rttm")
+  sadtarget <- paste0(divime_loc, "/data/", sad_clean)
+  sadsource <- paste0(audio_loc, "/", paths$folder, sad)
 
   # loop through files
   for (i in 1:nrow(logres)) {
-    # copy audio
-    logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
-                                     to = paths$audiotarget_clean[i])
+    # take time stamp
+    t1 <- Sys.time()
 
     # only run if the sad source was found...
     if (file.exists(sadsource[i])) {
-      logres$sadfile[i] <- sad[i]
-      logres$sadcopy[i] <- file.copy(from = sadsource[i],
-                                     to = sadtarget[i])
-
-      WD <- getwd()
-      setwd(divime_loc)
-      xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
-      setwd(WD)
-
-      # remove source files (audio and SAD)
-      logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
-      logres$sadremove[i] <- file.remove(sadtarget[i])
-
-      # output_file <- list.files(normalizePath(paste0(divime_loc, "/data")),
-      #                           recursive = FALSE,
-      #                           pattern = "diartk_")
       output_file <- paste0("diartk_", speech_annos, "Sad_", paths$root_clean[i], ".rttm")
       output_file_ori <- paste0("diartk_", speech_annos, "Sad_", paths$root[i], ".rttm")
+      output_file_to <- normalizePath(paste0(audio_loc, "/", paths$folder[i], output_file_ori),
+                                      winslash = "/",
+                                      mustWork = FALSE)
+      output_file_from <- normalizePath(paste0(divime_loc, "/data/", output_file),
+                                        winslash = "/",
+                                        mustWork = FALSE)
 
-      outpath <- paste0(audio_loc, "/", paths$folder[i], output_file_ori)
+      # if overwrite = FALSE, continue only if the target file does not yet exist
+      # if it already exists, we can skip the processing in the VM
+      output_exists <- file.exists(output_file_to)
 
-      logres$resultscopy[i] <- file.copy(from = paste0(divime_loc, "/data/", output_file),
-                                         to = suppressWarnings(outpath),
-                                         overwrite = overwrite)
-      logres$resultsremove[i] <- file.remove(paste0(divime_loc, "/data/", output_file))
+      if (!(!overwrite & output_exists)) {
+        # copy audio
+        logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
+                                         to = paths$audiotarget_clean[i])
+        # copy sad file
+        logres$sadfile[i] <- sad[i]
+        logres$sadcopy[i] <- file.copy(from = sadsource[i],
+                                       to = sadtarget[i])
+        # deal with working directories
+        WD <- getwd()
+        setwd(divime_loc)
 
-      logres$output[i] <- output_file_ori
+        # run bash command
+        xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
+        setwd(WD)
 
-      if (messages) message(paths$filestoprocess[i], "  -->  ", output_file_ori)
+        # remove source files (audio and SAD)
+        logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
+        logres$sadremove[i] <- file.remove(sadtarget[i])
+
+        # copy output back to source location from divime location
+        logres$resultscopy[i] <- file.copy(from = output_file_from,
+                                           to = output_file_to,
+                                           overwrite = overwrite)
+        logres$resultsremove[i] <- file.remove(output_file_from)
+
+        logres$output[i] <- output_file_ori
+        logres$processed[i] <- TRUE
+
+        if (messages) message(paths$filestoprocess[i], "  -->  ", output_file_ori)
+
+        # clean up
+        rm(xres, WD)
+
+      } # skip if not overwrite and output exists
+
+      # clean up
+      rm(output_exists, output_file, output_file_from, output_file_ori, output_file_to)
     } else {
       if (messages) message(paths$filestoprocess[i], "  -->  ", "XXXXXXXXX")
+    } # only do if sad file exists
+
+    # time stamp again
+    t2 <- Sys.time()
+    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, unit = "min"), 3))
+
+    # predict time left
+    temp <- na.omit(logres[, c("ptime", "size")])
+    sizes <- logres$size[is.na(logres$ptime)]
+    if (nrow(temp) > 3) {
+      tempres <- lm(ptime ~ size, temp)
+      if (length(sizes) > 0) {
+        timeleft <- round(sum(predict(tempres, newdata = data.frame(size = sizes))), 1)
+        cat("expected time until finish: ", timeleft, " minutes\n")
+      }
     }
 
-  }
+  } # go through file by file loop
 
   # shut down if requested
   if (vmshutdown) {
