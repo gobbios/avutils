@@ -1,22 +1,26 @@
 # avutils
 
-Some utilities dealing with audio and video (based on `ffmpeg` and `sox`) and dealing with ELAN .eaf files. In addition, it's an attempt to provide an R interface to the [DiViMe tools](https://divime.readthedocs.io/en/latest/index.html).
+This package is an attempt to provide an R interface to the [DiViMe tools](https://divime.readthedocs.io/en/latest/index.html). In addition, it provides some utilities dealing with audio and video (based on `ffmpeg` and `sox`) and dealing with ELAN .eaf files. 
 
-I wrote this package on a MacOS system and I don't know whether it will work in Windows (but suspect it should work with Linux).
+I wrote and tested this package on a MacOS system. Testing in Windows was very limitied up to now and I suspect there might be some glitches specific to how file paths are handled in Windows.
 
 Current functionality:
 
-  * get info about audio and video files and some basic file manipulations (extracting audio from video, split audio files)
+  * get info about audio and video files (duration, size, bit rate etc) and some basic file manipulations (extracting audio from video, split audio files)
 
-  * `read_elan`: extract annotations and time stamps, separated by tiers, from ELAN `.eaf` files
+  * `read_elan` extracts annotations and time stamps, separated by tiers, from ELAN `.eaf` files
   
   * set-up a virtual machine to run the DiViMe tools
   
   * run specific DiViMe tools, currently:
   
-    - SAD noisemse
+    - SAD noisemse, SAD opensmile, SAD tocombo
+    
+    - diartk
     
     - yunitator
+    
+    - vcm
 
 Requirements:
 
@@ -37,8 +41,5 @@ To install the package, use:
 
 # FAQ
 
-For larger audio files, some of the DiViMe tools appear to not work properly, i.e. the resulting rttm files only contain data up to a certain time point (about 10 minutes in my case). One suggested solution for this problem is the following:
 
-  - go to your DiViMe location and open the file `vagrantfile` with some text editor and increase the number behind `vbox.memory=` to some larger number (currently I use 6144)
-  
-  - destroy the VM and up it again
+

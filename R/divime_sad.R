@@ -44,6 +44,7 @@ divime_sad <- function(audio_loc,
                        size = paths$size,
                        processed = FALSE,
                        ptime = NA,
+                       outlines = NA,
                        output = NA,
                        audiocopy = NA,
                        audioremove = NA,
@@ -89,6 +90,9 @@ divime_sad <- function(audio_loc,
                       stdout = TRUE,
                       stderr = TRUE)
       setwd(WD)
+
+      # log number of lines in output
+      logres$outlines[i] <- length(readLines(output_file_from))
 
       # copy output back to source location from divime location
       logres$resultscopy[i] <- file.copy(from = output_file_from,
@@ -140,7 +144,7 @@ divime_sad <- function(audio_loc,
     # predict time left
     temp <- na.omit(logres[, c("ptime", "size")])
     sizes <- logres$size[is.na(logres$ptime)]
-    if (nrow(temp) > 3) {
+    if (nrow(temp) > 1) {
       tempres <- lm(ptime ~ size, temp)
       if (length(sizes) > 0) {
         timeleft <- round(sum(predict(tempres, newdata = data.frame(size = sizes))), 1)

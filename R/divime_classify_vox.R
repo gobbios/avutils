@@ -39,6 +39,7 @@ divime_classify_vox <- function(audio_loc,
                        size = paths$size,
                        processed = FALSE,
                        ptime = NA,
+                       outlines = NA,
                        yunifile = NA,
                        yunicopy = NA,
                        yuniremove = NA,
@@ -88,6 +89,9 @@ divime_classify_vox <- function(audio_loc,
         xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
         setwd(WD)
 
+        # log number of lines in output
+        logres$outlines[i] <- length(readLines(output_file_from))
+
         # remove source files (audio and ynui)
         logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
         logres$yuniremove[i] <- file.remove(yunito)
@@ -127,7 +131,7 @@ divime_classify_vox <- function(audio_loc,
     # predict time left
     temp <- na.omit(logres[, c("ptime", "size")])
     sizes <- logres$size[is.na(logres$ptime)]
-    if (nrow(temp) > 3) {
+    if (nrow(temp) > 1) {
       tempres <- lm(ptime ~ size, temp)
       if (length(sizes) > 0) {
         timeleft <- round(sum(predict(tempres, newdata = data.frame(size = sizes))), 1)
