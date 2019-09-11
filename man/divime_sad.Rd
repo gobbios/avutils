@@ -4,7 +4,7 @@
 \alias{divime_sad}
 \title{run a DiViMe SAD module}
 \usage{
-divime_sad(audio_loc, divime_loc, module = "noisemes",
+divime_sad(audio_loc, divime_loc, module = "noisemes", vmstart = TRUE,
   vmshutdown = TRUE, messages = TRUE, overwrite = FALSE)
 }
 \arguments{
@@ -13,6 +13,8 @@ divime_sad(audio_loc, divime_loc, module = "noisemes",
 \item{divime_loc}{character, path to the DiViMe directory with a VM}
 
 \item{module}{character, which module to execute (default is \code{"noisemes"}), see details}
+
+\item{vmstart}{logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.}
 
 \item{vmshutdown}{logical, should the VM shut down after the operations are done (by default \code{TRUE})}
 

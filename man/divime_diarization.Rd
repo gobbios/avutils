@@ -5,7 +5,8 @@
 \title{run the DiViMe diarization module diartk}
 \usage{
 divime_diarization(audio_loc, divime_loc, speech_annos = "noisemes",
-  vmshutdown = TRUE, messages = TRUE, overwrite = FALSE)
+  vmstart = TRUE, vmshutdown = TRUE, messages = TRUE,
+  overwrite = FALSE)
 }
 \arguments{
 \item{audio_loc}{character, path to the audio files}
@@ -13,6 +14,8 @@ divime_diarization(audio_loc, divime_loc, speech_annos = "noisemes",
 \item{divime_loc}{character, path to the DiViMe directory with running VM}
 
 \item{speech_annos}{character, what kind of speech detection is available, see details}
+
+\item{vmstart}{logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.}
 
 \item{vmshutdown}{logical, should the VM be shut down after the operations are done (by default \code{TRUE})}
 

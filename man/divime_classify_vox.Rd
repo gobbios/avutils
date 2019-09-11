@@ -4,13 +4,15 @@
 \alias{divime_classify_vox}
 \title{run the DiViMe vocal classification module vcm}
 \usage{
-divime_classify_vox(audio_loc, divime_loc, vmshutdown = TRUE,
-  messages = TRUE, overwrite = FALSE)
+divime_classify_vox(audio_loc, divime_loc, vmstart = TRUE,
+  vmshutdown = TRUE, messages = TRUE, overwrite = FALSE)
 }
 \arguments{
 \item{audio_loc}{character, path to the audio files}
 
 \item{divime_loc}{character, path to the DiViMe directory with running VM}
+
+\item{vmstart}{logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.}
 
 \item{vmshutdown}{logical, should the VM be shut down after the operations are done (by default \code{TRUE})}
 

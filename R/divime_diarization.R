@@ -3,6 +3,7 @@
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with running VM
 #' @param speech_annos character, what kind of speech detection is available, see details
+#' @param vmstart logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.
 #' @param vmshutdown logical, should the VM be shut down after the operations are done (by default \code{TRUE})
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
@@ -13,6 +14,7 @@
 divime_diarization <- function(audio_loc,
                                divime_loc,
                                speech_annos = "noisemes",
+                               vmstart = TRUE,
                                vmshutdown = TRUE,
                                messages = TRUE,
                                overwrite = FALSE) {
@@ -26,14 +28,17 @@ divime_diarization <- function(audio_loc,
   vagrant <- Sys.which("vagrant")
 
   # check VM state and start if necessary
-  vm_running <- divime_vagrant_state(divime_loc = divime_loc,
-                                     what = "status",
-                                     silent = TRUE)
-  if (!vm_running) {
-    divime_vagrant_state(divime_loc = divime_loc,
-                         what = "start",
-                         silent = TRUE)
+  if (vmstart) {
+    vm_running <- divime_vagrant_state(divime_loc = divime_loc,
+                                       what = "status",
+                                       silent = TRUE)
+    if (!vm_running) {
+      divime_vagrant_state(divime_loc = divime_loc,
+                           what = "start",
+                           silent = TRUE)
+    }
   }
+
 
   paths <- avutils:::handle_filenames(audio_loc = audio_loc,
                                       divime_loc = divime_loc)
