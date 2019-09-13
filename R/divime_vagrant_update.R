@@ -33,7 +33,7 @@ divime_vagrant_update <- function(divime_loc, memoryoverride = 2048) {
                     stderr = TRUE)
     setwd("..")
     system2(command = "rm", args = "-R DiViMe")
-    divime_vagrant_setup(divime_loc = getwd(), memoryoverride = 6144)
+    divime_vagrant_setup(divime_loc = getwd(), memoryoverride = memoryoverride)
 
     setwd(WD)
   }

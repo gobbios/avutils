@@ -1,0 +1,184 @@
+---
+title: "DiViMe tools with `avutils`"
+output: rmarkdown::html_vignette
+  # pdf_document
+vignette: >
+  %\VignetteIndexEntry{divime}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, message=FALSE}
+library(avutils)
+```
+
+# Overview 
+
+The idea here is to provide R functions that wrap up the bash commands normally used to invoke the virtual machine with the DiViMe tools. The functions are by and large calls using the `system()` or `system2()` functions.
+
+What you need as requirement is the `vagrant` software and the `VirtualBox` installed, which provide the environment in which you can set up and run your virtual machine, which in effect gives you access to the DiViMe tools. 
+
+If you are on Windows you might also need `git`. If you are on a Mac chances are you have got `git` already.
+
+For more details see https://divime.readthedocs.io/en/latest/.
+
+**For Windows users**: whenever file paths need to be specified please use single forward slashes, e.g. `c:/data/myaudiofiles`
+
+# Set up
+
+## Requirements
+
+First off, you will need the following R packages installed:
+
+  - `xml2`
+  
+  - `tuneR`
+
+  - `parallel`
+
+
+Regarding the DiViMe tools, you will require a fair amount of disk space on the drive where you are going to install the virtual machine (25GB+).
+
+You also need sufficient working memory, at least 8GB. 
+
+The DiViMe documentation also lists at least two processor cores as requirement but allows adapting in case your computer only has one core. The function to set up the VM (described below) will check how many cores you have and adapt the installation process if necessary.
+
+Regardless of whether you are using Windows or MacOS you will need `vagrant` and `VirtualBox`. I can't be sure whether the package works with all combinations of versions of these two programs, so if you want to play it safe, you use `vagrant` 2.2.4 and `VirtualBox` 5.2.28, which are the versions that I used while writing this package.
+
+If you use Windows, you probably also need `git` (https://git-scm.com/download/win), and I expect that version differences here don't make any difference so take the most recent version.
+
+Once you installed everything, you can check whether so far all is set up correctly by using (you probably need to restart your computer though):
+
+```{r}
+system2(Sys.which("vagrant"), "-v")
+system2(Sys.which("git"), "--version")
+```
+
+If this results in some meaningful output, i.e. you get some info about about the versions installed, then you are good to go.
+
+## Set up the DiViMe virtual machine
+
+This step describes the function that sets up the virtual machine. You can also omit this step and follow the instructions described here: https://divime.readthedocs.io/en/latest/install.html. In either case you need a running internet connection. If you already have a virtual machine installed, you can skip this section and go ahead to the next about testing whether your virtual machine can be accessed from R.
+
+The function `divime_vagrant_setup` will take care of these steps without need for using bash commands. There are three things to note here:
+
+  - You need to choose a location where to install the virtual machine. (remember that the drive needs plenty free space)
+  
+  - By default, the virtual machine gets allocated 2GB of RAM. However, this might be not be enough to run all the DiViMe tools. You can (and probably should) set the memory higher with the argument `memoryoverride`, to about half of the RAM that your computer has. For example, if you have 8GB of RAM, set `memoryoverride = 4096`.
+  
+  - Finally, note that the process of setting up the virtual machine will take quite some time: expect at least 20 minutes, up to an hour.
+
+```{r, eval = FALSE}
+# with a Mac
+divime_vagrant_setup(divime_loc = "/Volumes/Data/VMX", memoryoverride = 4096)
+# with Windows
+divime_vagrant_setup(divime_loc = "C:/Data/VMX", memoryoverride = 4096)
+```
+
+## Testing your setup
+
+### Testing the virtual machine
+
+Once the setup step is completed, let's test whether we can communicate with the virtual machine from within R. For this we use `divime_vagrant_state()`, which allows checking or changing the state of the virtual machine. Note that you need to ammend the path of the installation with `DiViMe/`. 
+
+```{r, eval=FALSE}
+# with a Mac
+divime_vagrant_state(divime_loc = "/Volumes/Data/VMX/DiViMe/", what = "status")
+# with Windows
+divime_vagrant_state(divime_loc = "C:/Data/VMX/DiViMe/", what = "status")
+```
+
+If this results in a printed message "`running (virtualbox)`", things are looking good. If you don't get this message, try:
+
+```{r, eval=FALSE}
+# with a Mac
+divime_vagrant_state(divime_loc = "/Volumes/Data/VMX/DiViMe/", what = "start")
+# with Windows
+divime_vagrant_state(divime_loc = "C:/Data/VMX/DiViMe/", what = "start")
+```
+
+
+### Testing the DiViMe tools
+
+If the above steps were successful, you can run the test protocol of the DiViMe package. Running this will take a few minutes.
+
+```{r, eval=FALSE}
+# with a Mac
+divime_test(divime_loc = "/Volumes/Data/VMX/DiViMe/")
+# with Windows
+divime_test(divime_loc = "C:/Data/VMX/DiViMe/")
+```
+
+This step downloads a sound file from TalkBank and runs this file (a 5-minute segment) through most of the tools in the DiViMe package. The output of this function should be self-explanatory if successful.
+
+# Using the `divime_` functions
+
+Currently, there are the following functions available to run specific DiViMe tools:
+
+  - `divime_sad()`: runs SAD modules with the option to choose between `opensmile`, `noisemes` and `tocombo`
+  
+  - `divime_diarization()`: runs `diartk` with your choice of existing SAD output
+
+  - `divime_talkertype()`: runs `yunitate`
+  
+  - `divime_classify_vox()`: runs `vcm`
+  
+  - `divime_fullnoisemes()`: runs the `noisemes` module but outputs all found noiseme types (including non-speech)
+  
+  - `divime_run_all()`: runs all the above tools in one go
+  
+The general idea of how these functions work is the same for all:
+
+  - Specify where your VM is located.
+
+  - Specify a location where you have your audio files stored.
+  
+  - for `divime_sad()` you need to specify which SAD module you wish to run with the `module=` argument
+  
+  - for `divime_diarization()` you need to specify what kind of existing SADs you want to use with the `speech_annos=` argument (sorry for the different argument names, I will eventually make them the same for both functions...)
+  
+What the functions then do is to copy your audio file to your DiViMe location, have the DiViMe tools process them there, and copy the output (.rttm file(s)) back to the location of your audio files. After that is done, the files will be deleted from the DiViMe location again.
+
+During these steps there are again a few things to note:
+  
+  - one major difference of this package to the instructions of the DiViMe docs is that you can keep your files wherever you want, i.e. you don't need to copy them manually to the DiViMe folder...
+  
+  - one consequence of this is that you should in fact store your files *outside* the DiViMe location because files in the DiViMe/data folder will be deleted... 
+  
+  - also note that if you run any of the `divime_` functions, the default is that any existing output is *not* overwritten if it already exists. You can/have to (if desired) force overwriting of existing results (i.e. .rttm files) by setting the `overwrite=` argument to `TRUE`.
+  
+
+In practice, working with the `divime_` functions could look like this.
+
+```{r, eval = FALSE}
+# Mac
+myaudio <- "/Volumes/Data/audio"      # location for audio files
+divime <- "/Volumes/Data/VMX/DiViMe/" # location for DiViMe VM
+
+# Windows
+myaudio <- "D:/Data/audio"      # location for audio files
+divime <- "C:/Data/VMX/DiViMe/" # location for DiViMe VM
+```
+
+
+If your audio location contains two .wav files, e.g. 'test1.wav' and test2.wav', running the following command will add two more files to this location ('opensmileSad_test1.rttm' and 'opensmileSad_test2.rttm').
+
+```{r, eval = FALSE}
+divime_sad(divime_loc = divime, audio_loc = myaudio, module = "opensmile")
+```
+
+If you then want to run the diarization tool, the following function will add two more files to your audio location ('diartk_opensmileSad_test1.rttm' and 'diartk_opensmileSad_test2.rttm').
+
+```{r, eval=FALSE}
+divime_diarization(divime_loc = divime, audio_loc = myaudio, speech_annos = "opensmile")
+```
+

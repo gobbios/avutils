@@ -35,9 +35,23 @@ divime_vagrant_setup <- function(divime_loc, memoryoverride = 2048) {
   loc <- grep(pattern = "vbox.memory", x = vf)
   if (length(loc) == 1) {
     temp <- vf[loc]
-    vf[loc] <- gsub(pattern = "[[:digit:]]{4,4}", x = temp,
+    vf[loc] <- gsub(pattern = "[[:digit:]]{4,4}",
+                    x = temp,
                     replacement = memoryoverride)
     writeLines(vf, "Vagrantfile")
+  }
+
+  # reset CPU value if necessary
+  if (parallel::detectCores() == 1) {
+    vf <- readLines("Vagrantfile")
+    loc <- grep(pattern = "vbox.cpus", x = vf)
+    if (length(loc) == 1) {
+      temp <- vf[loc]
+      vf[loc] <- gsub(pattern = "[[:digit:]]{1,1}",
+                      x = temp,
+                      replacement = 1)
+      writeLines(vf, "Vagrantfile")
+    }
   }
 
   # install plugins

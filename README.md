@@ -24,19 +24,18 @@ Current functionality:
 
 Requirements:
 
-  * for audio and video processing: `sox` binary (https://sourceforge.net/projects/sox/) and `ffmpeg` binary (https://ffmpeg.org/download.html). These don't need to be installed, but you should make sure that you know the location of the files on your system.
+  * for audio and video processing: `sox` binary (https://sourceforge.net/projects/sox/) and `ffmpeg` binary (https://ffmpeg.org/download.html). These don't need to be installed, but you should make sure that you know the location of the files on your system. Actually, if you are using Windows, you might to *install* them after all...
   
   * for DiViMe tools: `vagrant` software installed (e.g. https://releases.hashicorp.com/vagrant/) and `VirtualBox` (https://www.virtualbox.org/wiki/Download_Old_Builds_5_2)
   
   * if you have a Windows machine, you'll also need `git`
 
-To install the package, use:
+To install the R package, use:
 
 `library(devtools)`
 
 `install_github("gobbios/avutils")`
 
-[link to](doc/audiooperations.html)
 
 
 # FAQ
