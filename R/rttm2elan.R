@@ -9,6 +9,8 @@
 #'
 #' Also note that you need to specify an audio file, even if it does not exist (or is not available on your machine at this time). There are two reasons for this: first it is needed for establishing the output file name. Second, the ELAN file needs the location of the audio. When opening the .eaf file created with this function in ELAN and if the audio file does not exist in the location provided, ELAN will ask you to locate it.
 #'
+#' In terms of tiers: the function will always contain an empty 'default' tier. Any additional annotations will go in different tiers, depending on the kind of rttm file that was supplied.
+#'
 #' @return writes a file
 #' @export
 #' @importFrom utils read.table
@@ -60,26 +62,50 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
   names(time_order) <- rep("TIME_SLOT", nrow(rttm) * 2)
 
   ## annotations
-  tier1 <- structure(list(),
-                     DEFAULT_LOCALE = "us",
-                     LINGUISTIC_TYPE_REF = "default-lt",
-                     TIER_ID = "default")
+  # how many are needed?
+  ntiers <- length(unique(rttm[, 8]))
+  # check for tier names
+  temp <- as.character(rttm[1, 2])
+  rttm[, 8] <- gsub(pattern = paste0(temp, "_"), replacement = "", x = as.character(rttm[, 8]))
+  tiernames <- unique(rttm[, 8])
+  # create tiers as lists plus one default tier
+  tier_default <- structure(list(),
+                            DEFAULT_LOCALE = "us",
+                            LINGUISTIC_TYPE_REF = "default-lt",
+                            TIER_ID = "default")
+  for (i in tiernames) {
+    temp <- structure(list(),
+                      DEFAULT_LOCALE = "us",
+                      LINGUISTIC_TYPE_REF = "default-lt",
+                      TIER_ID = i)
+    assign(x = paste0("tier_", i), value = temp)
+  }
 
   cnt <- 1
   i=1
   for (i in 1:nrow(rttm)) {
     t1 <- paste0("ts", cnt)
     t2 <- paste0("ts", cnt + 1)
-
     temp_anno <- structure(list(ANNOTATION_VALUE = rttm[i, 8]))
     temp_anno <- structure(list(ALIGNABLE_ANNOTATION = structure(list(ANNOTATION_VALUE = temp_anno),
                                                                  ANNOTATION_ID = paste0("a", i),
                                                                  TIME_SLOT_REF1 = t1,
                                                                  TIME_SLOT_REF2 = t2)))
-    tier1[[length(tier1) + 1]] <- temp_anno
+    # which tier to write to
+    tier <- paste0("tier_", rttm[i, 8])
+    # get a temp copy, write the anno into it, and put it back
+    temp <- get(x = tier)
+    temp[[length(temp) + 1]] <- temp_anno
+    assign(x = tier, value = temp)
     cnt <- cnt + 2
   }
-  names(tier1) <- rep("ANNOTATION", nrow(rttm))
+
+  # and now name all list elements appropriately
+  for (tier in paste0("tier_", tiernames)) {
+    temp <- get(x = tier)
+    names(temp) <- rep("ANNOTATION", length(temp))
+    assign(x = tier, value = temp)
+  }
 
   # audio locations and meta data...
   media_descriptor <- structure(list(),
@@ -103,15 +129,24 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
 
   ANNOTATION_DOCUMENT <- structure(list(HEADER = header,
                                         TIME_ORDER = time_order,
-                                        TIER = tier1,
                                         LINGUISTIC_TYPE = linguistic_type,
-                                        LOCALE = locale),
+                                        LOCALE = locale,
+                                        TIER = tier_default
+                                        #TIER = tier1
+                                        ),
                                    'AUTHOR' = "",
                                    DATE = "2019-09-19T20:17:07+01:00",
                                    FORMAT = "3.0",
                                    VERSION = "3.0",
                                    'xmlns:xsi' = "http://www.w3.org/2001/XMLSchema-instance",
                                    'xsi:noNamespaceSchemaLocation' = "http://www.mpi.nl/tools/elan/EAFv3.0.xsd")
+  # and add the tiers
+  for (i in 1:ntiers) {
+    temp <- get(x = paste0("tier_", tiernames[i]))
+    ANNOTATION_DOCUMENT[[length(ANNOTATION_DOCUMENT) + 1]] <- temp
+    names(ANNOTATION_DOCUMENT)[length(ANNOTATION_DOCUMENT)] <- "TIER"
+  }
+
 
   res <- list(ANNOTATION_DOCUMENT = ANNOTATION_DOCUMENT)
   res <- as_xml_document(res)

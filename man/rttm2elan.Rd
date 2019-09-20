@@ -23,4 +23,6 @@ A very crude translator from rttm files to ELAN format
 the output file is named as the audio file, except for the file extension, e.g. if the audio file is 34_Ab.wav then the output from this function will be 34_Ab.eaf. By default the location for writing this new file is the same as the audio file. If the audio file is not found, or the folder in which it supposedly resides does not exist, the output will be written to location of the rttm file. You can also specify a folder to where you want to write the output in the \code{targetloc=} argument.
 
 Also note that you need to specify an audio file, even if it does not exist (or is not available on your machine at this time). There are two reasons for this: first it is needed for establishing the output file name. Second, the ELAN file needs the location of the audio. When opening the .eaf file created with this function in ELAN and if the audio file does not exist in the location provided, ELAN will ask you to locate it.
+
+In terms of tiers: the function will always contain an empty 'default' tier. Any additional annotations will go in different tiers, depending on the kind of rttm file that was supplied.
 }
