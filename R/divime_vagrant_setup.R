@@ -7,6 +7,7 @@
 #' Also note that this process can take a long time to execute (expect at least 20 min up to one hour depending on your internet connection and computer power)
 #' @return creates a directory, clones the DiViMe repository into it and starts the virtual machine
 #' @export
+#' @importFrom parallel detectCores
 #'
 divime_vagrant_setup <- function(divime_loc, memoryoverride = 2048) {
   # memoryoverride = 6144

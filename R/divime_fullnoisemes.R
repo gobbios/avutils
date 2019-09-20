@@ -137,7 +137,7 @@ divime_fullnoisemes <- function(audio_loc,
     rm(output_exists, output_file, output_file_from, output_file_ori, output_file_to)
 
     t2 <- Sys.time()
-    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, unit = "min"), 3))
+    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, units = "min"), 3))
 
     # predict time left
     temp <- na.omit(logres[, c("ptime", "size")])

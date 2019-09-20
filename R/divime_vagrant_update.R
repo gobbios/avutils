@@ -8,6 +8,7 @@
 #'
 #' Also note that this process can take a long time to execute (expect at least 20 min up to one hour depending on your internet connection and computer power)
 #' @export
+#' @importFrom utils askYesNo
 #' @return creates a directory, clones the DiViMe repository into it and starts the virtual machine
 
 divime_vagrant_update <- function(divime_loc, memoryoverride = 2048) {

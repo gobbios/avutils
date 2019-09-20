@@ -8,6 +8,7 @@
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
 #' @export
+#' @importFrom stats lm na.omit predict
 #'
 
 divime_talkertype <- function(audio_loc,
@@ -127,7 +128,7 @@ divime_talkertype <- function(audio_loc,
     rm(output_exists, output_file, output_file_ori, output_file_to)
 
     t2 <- Sys.time()
-    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, unit = "min"), 3))
+    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, units = "min"), 3))
 
     # predict time left
     temp <- na.omit(logres[, c("ptime", "size")])

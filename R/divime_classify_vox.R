@@ -131,7 +131,7 @@ divime_classify_vox <- function(audio_loc,
 
     # time stamp again
     t2 <- Sys.time()
-    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, unit = "min"), 3))
+    logres$ptime[i] <- as.numeric(round(difftime(t2, t1, units = "min"), 3))
 
     # predict time left
     temp <- na.omit(logres[, c("ptime", "size")])
