@@ -66,20 +66,19 @@ read_elan <- function(x) {
           rewritetemp <- FALSE
         }
       }
-
     }
-  }
-  if (!all(timingres[, 2] %in% timinglabels)) stop("something went wrong...",
-                                                   call. = FALSE)
+    if (!all(timingres[, 2] %in% timinglabels)) stop("something went wrong...",
+                                                     call. = FALSE)
 
-  # now fill the timings
-  for (i in 1:nrow(timingres)) {
-    child <- timingres[i, 1]
-    parent <- timingres[i, 2]
-    times <- res[res[, "label"] == parent, c("start", "end"), drop = FALSE]
-    res[which(res[, "label"] == child), c("start", "end")] <- times
-  }
+    # now fill the timings
+    for (i in 1:nrow(timingres)) {
+      child <- timingres[i, 1]
+      parent <- timingres[i, 2]
+      times <- res[res[, "label"] == parent, c("start", "end"), drop = FALSE]
+      res[which(res[, "label"] == child), c("start", "end")] <- times
+    }
 
+  }
 
   # create clean output
   xres <- data.frame(tier = factor(res[, "tier"]),
