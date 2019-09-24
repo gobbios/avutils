@@ -3,3 +3,4 @@
 _testlab/
 ^doc$
 ^Meta$
+inst/synthetic_speech.pfsx

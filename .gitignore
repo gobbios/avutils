@@ -1,5 +1,6 @@
 _testlab/
 .DS_Store
+inst/synthetic_speech.pfsx
 # History files
 .Rhistory
 .Rapp.history

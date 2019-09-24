@@ -8,7 +8,9 @@ Current functionality:
 
   * get info about audio and video files (duration, size, bit rate etc) and some basic file manipulations (extracting audio from video, split audio files)
 
-  * `read_elan` extracts annotations and time stamps, separated by tiers, from ELAN `.eaf` files
+  * `read_elan` extracts annotations and time stamps, separated by tiers, from ELAN `.eaf` files (fairly experimental)
+  
+  * `rrtm2elan` writes an `.eaf` file that can be opened in ELAN (very experimental)
   
   * set-up a virtual machine to run the DiViMe tools
   
@@ -29,8 +31,10 @@ Requirements:
   * for DiViMe tools: `vagrant` software installed (e.g. https://releases.hashicorp.com/vagrant/) and `VirtualBox` (https://www.virtualbox.org/wiki/Download_Old_Builds_5_2)
   
   * if you have a Windows machine, you'll also need `git`
+  
+  * if you have a Mac, you might need to install `Xcode` in order to get `git` running
 
-To install the R package, use:
+And finally, in order to install the actual R package, use:
 
 `library(devtools)`
 
