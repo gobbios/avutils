@@ -74,12 +74,13 @@ segment_annotations <- function(xdata, segment_dur, timecols = c("start", "end")
     xlines <- which(xdata[, timecols[2]] <= cutpoints[i])
     xdata$cat[xlines] <- i
   }
+  xdata$cat <- factor(xdata$cat, levels = 1:length(cutpoints))
 
   # and add new durations (per segment)
   xdata$xdur <- xdata[, timecols[2]] - xdata[, timecols[1]]
 
   # run sanity checks
-  if (sum(xdata$xdur) != totdur) {
+  if (round(sum(xdata$xdur), 4) != round(totdur, 4)) {
     warning("something went wrong: the durations don't add up", call. = FALSE)
   }
   if (max(xdata$xdur) > segment_dur) {

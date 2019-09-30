@@ -89,6 +89,6 @@ collapse_tiers <- function(xdata, timecols = c("start", "end"), end_is_dur = FAL
     }
   }
 
-  res
+  as.data.frame(res)
 }
 
