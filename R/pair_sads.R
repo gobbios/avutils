@@ -5,14 +5,26 @@
 #' @param nlines numeric, the number of lines in output graphic
 #' @param from numeric, starting point for selecting a subset of time
 #' @param to numeric, starting point for selecting a subset of time
-#' @param overlap numeric, the time increment for calculating overlap, by default \code{NULL}, i.e. no overlap is calculated
+#' @param overlap_res numeric, the time resolution for calculating overlap, by default \code{NULL}, i.e. no overlap is calculated, see \code{\link{annotation_overlap}}
 #' @param ... additional parameters for elan files (which tiers/annotations to ignore), see \code{\link{collapse_tiers}}
-#' @importFrom graphics axis box plot segments
+#' @importFrom graphics axis box plot segments points
+#' @importFrom grDevices adjustcolor
 #' @return a numeric vector with proportions of agreement between the two SADs
 #' @export
+#' @examples
+#' x1 <- system.file("synthetic_speech.eaf", package = "avutils")
+#' x2 <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")
+#' # no overlap calculation
+#' pair_sads(x1 = x1, x2 = x2, nlines = 2)
+#' # fairly crude time resolution for overlap calculation
+#' pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 10)
+#' # slightly higher time resolution
+#' pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 100)
+#' # even more fine-grained
+#' pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 1000)
 
-pair_sads <- function(x1, x2, nlines = 5, from = NULL, to = NULL, overlap = NULL, ...) {
-  # read and process files
+pair_sads <- function(x1, x2, nlines = 5, from = NULL, to = NULL, overlap_res = NULL, ...) {
+  # read and process input files
   for (i in 1:2) {
     temp <- ifelse (i == 1, x1, x2)
     if (grepl(pattern = ".eaf", temp, fixed = TRUE)) {
@@ -56,15 +68,19 @@ pair_sads <- function(x1, x2, nlines = 5, from = NULL, to = NULL, overlap = NULL
        xlim = c(0, trange),
        ylim = c(nlines + 1, 0))
   ylabs <- character()
-  ovvals <- character()
-  i=1
+  ovvals <- numeric()
+  if (!is.null(overlap_res)) {
+    xvals <- seq(from = 0, to = trange, length.out = overlap_res + 1)
+    axis(3, at = xvals, tcl = -0.1, labels = NA)
+  }
+  i=2
   for (i in 1:nlines) {
     pd1 <- p1[p1$cat == i, ]
     pd2 <- p2[p2$cat == i, ]
     pd1[, 1:2] <- pd1[, 1:2] - ((i - 1) * trange)
     pd2[, 1:2] <- pd2[, 1:2] - ((i - 1) * trange)
-    pd1$y <- i + 0.1
-    pd2$y <- i - 0.1
+    pd1$y <- i - 0.1
+    pd2$y <- i + 0.1
 
     l1 <- round((i - 1) * trange + from, 1)
     l2 <- round(i * trange + from, 1)
@@ -73,26 +89,21 @@ pair_sads <- function(x1, x2, nlines = 5, from = NULL, to = NULL, overlap = NULL
     segments(x0 = pd1$start, y0 = pd1$y, x1 = pd1$end, y1 = pd1$y)
     segments(x0 = pd2$start, y0 = pd2$y, x1 = pd2$end, y1 = pd2$y)
     # calculate overlap
-    ov <- ""
-    if (!is.null(overlap)) {
-      if (nrow(pd1) == 0 & nrow(pd2) == 0) {
-        ov <- 1
-      } else {
-        xvals <- matrix(seq(0, trange, by = overlap), ncol = 1)
-        xvals <- cbind(xvals, NA, NA)
-        for (k in 1:(nrow(xvals) - 1)) {
-          xvals[k, 2] <- sum(xvals[k, 1] >= pd1[, 1] & xvals[k + 1, 1] <= pd1[, 2])
-          xvals[k, 3] <- sum(xvals[k, 1] >= pd2[, 1] & xvals[k + 1, 1] <= pd2[, 2])
-        }
-        xvals <- xvals[-nrow(xvals), ]
-        ov <- round(sum(xvals[, 2] == xvals[, 3])/nrow(xvals), 2)
-      }
+    ov <- NA
+    if (!is.null(overlap_res)) {
+      ov <- annotation_overlap(x1 = pd1, x2 = pd2, return_raw = TRUE,
+                               seg_length = trange, overlap_res = overlap_res)
+      px <- xvals
+      px <- px[(ov * i) == 0]
+      py <- rep(i, length(px))
+      points(x = px, y = py, pch = 16, col = adjustcolor("red", 0.2), cex = 0.5)
+      ov <- mean(ov)
     }
     ovvals <- c(ovvals, ov)
   }
 
   axis(2, at = 1:nlines, tick = FALSE, labels = ylabs, las = 1, cex.axis = 0.5)
-  axis(4, at = 1:nlines, tick = FALSE, labels = ovvals, las = 1, cex.axis = 0.5)
+  axis(4, at = 1:nlines, tick = FALSE, labels = round(ovvals, 2), las = 1, cex.axis = 0.5)
   axis(1)
   box()
 

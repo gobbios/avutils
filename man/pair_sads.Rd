@@ -5,7 +5,7 @@
 \title{visual comparison of speech analysers}
 \usage{
 pair_sads(x1, x2, nlines = 5, from = NULL, to = NULL,
-  overlap = NULL, ...)
+  overlap_res = NULL, ...)
 }
 \arguments{
 \item{x1}{character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
@@ -18,7 +18,7 @@ pair_sads(x1, x2, nlines = 5, from = NULL, to = NULL,
 
 \item{to}{numeric, starting point for selecting a subset of time}
 
-\item{overlap}{numeric, the time increment for calculating overlap, by default \code{NULL}, i.e. no overlap is calculated}
+\item{overlap_res}{numeric, the time resolution for calculating overlap, by default \code{NULL}, i.e. no overlap is calculated, see \code{\link{annotation_overlap}}}
 
 \item{...}{additional parameters for elan files (which tiers/annotations to ignore), see \code{\link{collapse_tiers}}}
 }
@@ -27,4 +27,12 @@ a numeric vector with proportions of agreement between the two SADs
 }
 \description{
 visual comparison of speech analysers
+}
+\examples{
+x1 <- system.file("synthetic_speech.eaf", package = "avutils")
+x2 <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")
+pair_sads(x1 = x1, x2 = x2, nlines = 2)
+pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 10)
+pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 100)
+pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 1000)
 }
