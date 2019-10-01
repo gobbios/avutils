@@ -7,27 +7,32 @@
 #'
 
 summary_elan <- function(x) {
-  x <- read_elan(x)
+  X <- read_elan(x)
 
-  res <- data.frame(tier = levels(x$tier))
+  # file name
+  res <- data.frame(filename = rep(basename(x), nlevels(X$tier)))
+
+  # tier names
+  res$tier <- levels(X$tier)
 
   # number of annotations
-  res$n_anno <- tapply(x$content, x$tier, length)
+  res$n_anno <- tapply(X$content, X$tier, length)
 
   # mean duration of annotations
-  dur <- x$end - x$start
-  res$mean_dur <- round(tapply(dur, x$tier, mean)/1000, 2)
+  dur <- X$end - X$start
+  res$mean_dur <- round(tapply(dur, X$tier, mean)/1000, 2)
 
   # check for empty/NA annotation values
-  foo <- function(X) length(which(X == "" | X == " " | is.na(X)))
-  res$empty_anno <- tapply(x$content, x$tier, foo)
+  foo <- function(xdata) {
+    length(which(xdata == "" | xdata == " " | is.na(xdata)))
+  }
+  res$empty_anno <- tapply(X$content, X$tier, foo)
+
+  # count annos
+  annos <- names(sort(table(as.character(X$content)), decreasing = TRUE))
 
   # most frequent anno
-  foo <- function(X) {
-    X <- sort(table(as.character(X)), decreasing = TRUE)
-    names(X)[1]
-  }
-  res$most_freq_anno <- tapply(x$content, x$tier, foo)
+  res$most_freq_anno <- annos[1]
 
-  res
+  list(summary = res, annos = annos)
 }

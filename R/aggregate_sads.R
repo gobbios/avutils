@@ -2,7 +2,7 @@
 #'
 #' for validation purposes
 #'
-#' @param sadloc character, the location of the DiViMe SAD results
+#' @param sadloc character, the location of the DiViMe SAD result files (rttm)
 #' @param elanloc character, the location of the ELAN .eaf files
 #' @param segment_dur duration for the length of a segment (default is \code{60} (seconds))
 #' @param ... additional parameters for elan files (which tiers/annotations to ignore), see \code{\link{collapse_tiers}}
@@ -10,10 +10,6 @@
 #' @return a \code{data.frame} with columns for each of the SADs and the duration of speech per segment
 #' @export
 #'
-
-# elanloc <- "~/Dropbox/DIVIME data/_elan files"
-# sadloc <- "~/Dropbox/DIVIME data"
-# segment_dur = 60
 aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
 
   # read elan if provided
@@ -29,6 +25,14 @@ aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
     n_roots <- basename(n_files)
     n_roots <- unlist(lapply(strsplit(n_roots, split = "noisemesSad_"), function(X)X[2]))
     n_roots <- unlist(strsplit(n_roots, ".rttm", fixed = TRUE))
+
+    nfull_files <- list.files(sadloc, pattern = "noisemesFul_", full.names = TRUE)
+    nfull_files <- nfull_files[!grepl("diartk_", nfull_files)]
+    nfull_roots <- basename(nfull_files)
+    nfull_roots <- unlist(lapply(strsplit(nfull_roots, split = "noisemesFull_"), function(X)X[2]))
+    if (!is.null(nfull_roots)) {
+      nfull_roots <- unlist(strsplit(nfull_roots, ".rttm", fixed = TRUE))
+    }
 
     t_files <- list.files(sadloc, pattern = "tocomboSad_", full.names = TRUE)
     t_files <- t_files[!grepl("diartk_", t_files)]
@@ -79,6 +83,19 @@ aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
     tocombo <- tapply(tocombo$xdur, INDEX = tocombo$cat, sum)
     tocombo[is.na(tocombo)] <- 0
 
+    noisemes_noise <- paste0(sadloc, "/noisemesFull_", root, ".rttm")
+    noisemes_noise <- read.table(noisemes_noise, header = FALSE)
+    noisemes_noise <- noisemes_noise[noisemes_noise$V8 == "noise_ongoing", ]
+    if (nrow(noisemes_noise) > 0) {
+      noisemes_noise <- collapse_tiers(xdata = noisemes_noise, timecols = c("V4", "V5"), end_is_dur = TRUE)
+      noisemes_noise <- segment_annotations(xdata = noisemes_noise, segment_dur = segment_dur, timecols = c("V4", "xend"), end_is_dur = FALSE)
+      noisemes_noise <- tapply(noisemes_noise$xdur, INDEX = noisemes_noise$cat, sum)
+      noisemes_noise[is.na(noisemes_noise)] <- 0
+    } else {
+      noisemes_noise <- NULL
+    }
+
+
 
     # combine data
     xmax <- max(as.numeric(c(rev(names(tocombo))[1],
@@ -93,9 +110,15 @@ aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
     tempres$opensmile <- NA
     tempres$tocombo <- NA
     tempres$elan <- NA
+    tempres$noise <- NA
 
-    k = 1
     for (k in 1:nrow(tempres)) {
+      if (!is.null(noisemes_noise)) {
+        if (tempres$n[k] %in% names(noisemes_noise)) {
+          tempres$noise[k] <- noisemes_noise[as.character(k)]
+        }
+      }
+
       if (tempres$n[k] %in% names(noisemes)) {
         tempres$noisemes[k] <- noisemes[as.character(k)]
       }
@@ -111,7 +134,7 @@ aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
     }
 
     res <- rbind(res, tempres)
-    rm(tempres, elan, noisemes, tocombo, opensmile, root, k, xmax)
+    rm(tempres, elan, noisemes, noisemes_noise, tocombo, opensmile, root, k, xmax)
 
   }
 
@@ -119,6 +142,7 @@ aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
   res$tocombo[is.na(res$tocombo)] <- 0
   res$noisemes[is.na(res$noisemes)] <- 0
   res$opensmile[is.na(res$opensmile)] <- 0
+  res$noise[is.na(res$noise)] <- 0
 
   res <- droplevels(na.omit(res))
   rownames(res) <- NULL

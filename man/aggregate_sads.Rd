@@ -7,7 +7,7 @@
 aggregate_sads(sadloc, elanloc, segment_dur = 60, ...)
 }
 \arguments{
-\item{sadloc}{character, the location of the DiViMe SAD results}
+\item{sadloc}{character, the location of the DiViMe SAD result files (rttm)}
 
 \item{elanloc}{character, the location of the ELAN .eaf files}
 

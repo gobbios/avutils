@@ -55,7 +55,7 @@ collapse_tiers <- function(xdata, timecols = c("start", "end"), end_is_dur = FAL
   while (continue) {
     # take first row (reference) and check for any overlap with subsequent rows
     starts <- xd[2:nrow(xd), 1]
-    ends <- xd[2:nrow(xd), 2]
+    # ends <- xd[2:nrow(xd), 2]
     # target starts after reference start but before reference's end
     check1 <- starts > xd[1, 1] & starts < xd[1, 2]
     if (TRUE %in% check1) {
