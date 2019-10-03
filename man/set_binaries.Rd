@@ -21,5 +21,5 @@ set options with locations to ffmpeg and sox binaries
 \details{
 this function sets some of R's global options.
 
-these settings are presumably temporary, i.e. the settings are lost when R is restarted
+the settings are temporary, i.e. the settings are lost when R is restarted
 }

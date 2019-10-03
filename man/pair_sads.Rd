@@ -31,8 +31,12 @@ visual comparison of speech analysers
 \examples{
 x1 <- system.file("synthetic_speech.eaf", package = "avutils")
 x2 <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")
+# no overlap calculation
 pair_sads(x1 = x1, x2 = x2, nlines = 2)
+# fairly crude time resolution for overlap calculation
 pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 10)
+# slightly higher time resolution
 pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 100)
+# even more fine-grained
 pair_sads(x1 = x1, x2 = x2, nlines = 2, overlap_res = 1000)
 }

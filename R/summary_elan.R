@@ -32,7 +32,10 @@ summary_elan <- function(x) {
   annos <- names(sort(table(as.character(X$content)), decreasing = TRUE))
 
   # most frequent anno
-  res$most_freq_anno <- annos[1]
+  foo <- function(xdata) {
+    names(sort(table(as.character(xdata)), decreasing = TRUE))[1]
+  }
+  res$most_freq_anno <- tapply(X$content, X$tier, foo)
 
   list(summary = res, annos = annos)
 }

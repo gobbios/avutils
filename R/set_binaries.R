@@ -4,7 +4,7 @@
 #' @param pathtosox character, path to sox binary, by default looks for it in the path variable
 #' @details this function sets some of R's global options.
 #'
-#' these settings are presumably temporary, i.e. the settings are lost when R is restarted
+#' the settings are temporary, i.e. the settings are lost when R is restarted
 #' @return a message
 #' @export
 #'

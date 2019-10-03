@@ -19,13 +19,13 @@ annotation_overlap(x1, x2, seg_length = NULL, overlap_res = 100,
 \item{return_raw}{logical, by default \code{FALSE}, i.e. return the proportion. Otherwise return a 0/1 vector where 1 indicates a congruent comparison.}
 }
 \value{
-a numeric value of overlap proportion
+a numeric value of overlap proportion, or a 0/1 vector.
 }
 \description{
 calculate overlap between two binary annotation sets
 }
 \details{
-This function works like this. Given the total duration of an annotation file (e.g. 60 seconds), create a sequence of test values between 0 and the duration in steps determined by \code{overlap_res}. For example, if the resolution is 100 and the duration is 60 seconds, these values will be 0, 0.6, 1.2, 1.8 etc. (Technically, this corresponds to 100 + 1 values). Now, for each of these test values, check in \code{x1} and \code{x2} whether an annotation exists that comprises this value (or not). In our example this would lead to 100 \emph{pairs} of values (i.e. 100 comparisons). Each comparison can be either congruent (i.e. the test value is either covered in both \code{x1} and \code{x2}, or neither in \code{x1} and \code{x2}), or a comparison can be incongruent, i.e. it's covered in \code{x1} or \code{x2}. From this, we can calculate the proportion of comparisons that are congruent, which is the result of this function.
+The function works like this. Given the total duration of an annotation file (e.g. 60 seconds), create a sequence of test values between 0 and the duration in steps determined by \code{overlap_res}. For example, if the resolution is 100 and the duration is 60 seconds, these values will be 0, 0.6, 1.2, 1.8 etc. (Technically, this corresponds to 100 + 1 values). Now, for each of these test values, check in \code{x1} and \code{x2} whether an annotation exists that comprises this value (or not). In our example this would lead to 100 \emph{pairs} of values (i.e. 100 comparisons). Each comparison can be either congruent (i.e. the test value is either covered in both \code{x1} and \code{x2}, or neither in \code{x1} and \code{x2}), or a comparison can be incongruent, i.e. it's covered in \code{x1} or \code{x2}. From this, we can calculate the proportion of comparisons that are congruent, which is the result of this function.
 
 For now, the function returns \code{NA} if one of the two annotation sets contains no data. If both annotation sets are empty, the function will return \code{1}.
 }
