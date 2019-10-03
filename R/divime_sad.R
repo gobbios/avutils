@@ -3,18 +3,23 @@
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with a VM
 #' @param module character, which module to execute (default is \code{"noisemes"}), see details
+#' @param splitaudio logical, should audio files be split into smaller chunks, default is \code{FALSE}, see details
 #' @param vmstart logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.
 #' @param vmshutdown logical, should the VM shut down after the operations are done (by default \code{TRUE})
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
 #' @details \code{module=} sets the SAD module to be used: can be either \code{"noisemes"}, \code{"opensmile"} or \code{"tocombo"}
+#'
+#' It appears that some of the modules have difficulties with larger audio files (opensmile and noisemes). Hence, setting \code{split_audio} to \code{TRUE} will split the source audio into chunks of 2 minutes temporarilly. Note that this step requires the \code{sox} utility available (see \code{\link{set_binaries}} and \code{\link{split_audio}}).
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
 #' @export
+#' @importFrom utils write.table
 #'
 
 divime_sad <- function(audio_loc,
                        divime_loc,
                        module = "noisemes",
+                       splitaudio = FALSE,
                        vmstart = TRUE,
                        vmshutdown = TRUE,
                        messages = TRUE,
@@ -22,7 +27,23 @@ divime_sad <- function(audio_loc,
   # audio_loc = "~/Desktop/test_audio/"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
   # vmshutdown = F; messages = TRUE; overwrite = TRUE
-  # module = "opensmile"
+  # module = "noisemes"; splitaudio = FALSE
+
+  # check whether sox is available
+  if (splitaudio) {
+    allgood <- FALSE
+    if (!is.null(getOption("avutils_sox"))) {
+      allgood <- TRUE
+    }
+    if (Sys.which("sox") != "") {
+      allgood <- TRUE
+    }
+    if (!allgood) {
+      stop("sox not found for splitting audio files")
+    }
+    splitdur <- 110
+  }
+
 
   audio_loc <- normalizePath(audio_loc)
   divime_loc <- normalizePath(divime_loc)
@@ -81,9 +102,17 @@ divime_sad <- function(audio_loc,
     output_exists <- file.exists(output_file_to)
 
     if (!(!overwrite & output_exists)) {
-      # copy audio file
-      logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
-                                       to = paths$audiotarget_clean[i])
+      # copy audio file (either entirely or split)
+      if (splitaudio) {
+        splitfiles <- split_audio(filein = paths$audiosource[i],
+                                  split = splitdur,
+                                  pathout = dirname(paths$audiotarget_clean[i]))
+        if (sum(!file.exists(splitfiles)) == 0) logres$audiocopy[i] <- TRUE
+      } else {
+        logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
+                                         to = paths$audiotarget_clean[i])
+      }
+
       # deal with working directories
       WD <- getwd()
       setwd(divime_loc)
@@ -95,48 +124,86 @@ divime_sad <- function(audio_loc,
                       stderr = TRUE)
       setwd(WD)
 
-      # log number of lines in output
-      logres$outlines[i] <- length(readLines(output_file_from))
-
-      # copy output back to source location from divime location
-      logres$resultscopy[i] <- file.copy(from = output_file_from,
-                                         to = output_file_to,
-                                         overwrite = overwrite)
-
-      # clean audio file and output from divimi location
-      logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
-      logres$resultsremove[i] <- file.remove(output_file_from)
-
-      logres$output[i] <- output_file_ori
-      logres$processed[i] <- TRUE
-
-      # check for yunitator problem and log it
-      X <- xres[grep("[[:digit:]]{1,10} Killed", xres)]
-      if (length(X) > 0) {
-        logres$yuniproblem[i] <- TRUE
-        if (messages) message("[POTENTIAL PROBLEM]   :",
-                              paths$filestoprocess[i],
-                              "  -->  ",
-                              output_file)
-        message("possibly yunitator problem with file: ",
-                paths$filestoprocess[i])
+      # remove audio file(s) from divimi location
+      if (splitaudio) {
+        temp <- file.remove(splitfiles)
+        if (sum(temp) == length(splitfiles)) logres$audioremove[i] <- TRUE
+        # and get names of rttm files (for merging into single rttm later)
+        rttm_files <- list.files(dirname(splitfiles[1]),
+                                 pattern = ".rttm",
+                                 full.names = TRUE)
       } else {
-        logres$yuniproblem[i] <- FALSE
-        if (messages) message(paths$filestoprocess[i],
-                              "  -->  ",
-                              output_file_ori)
+        logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
       }
 
-      # additional clean up
-      if (module == "opensmile") {
-        fn <- paste0(divime_loc, "/data/", paths$root_clean[i], ".txt")
-        if (file.exists(fn)) {
-          file.remove(fn)
+
+      # check for success
+      success <- TRUE
+      if (module == "tocombo") {
+        if ("MATLAB:nomem" %in% xres) {
+          success <- FALSE
+          message("'tocombo' produced MatLab memory error. Split audio file?")
+        }
+        if (sum(grepl("[[:digit:]]{1,10} Killed", xres)) > 0) {
+          success <- FALSE
+          message("'tocombo' produced error './get_TOcomboSAD_output_v3'. (process killed). Split audio file?")
         }
       }
-      # clean up
-      rm(X, xres)
 
+
+
+
+
+      if (success) {
+        # merge multiple rttm files if necessary
+        if (splitaudio) {
+          r <- combine_rttm(rttm_files = rttm_files, split_dur = splitdur,
+                            basename = as.character(paths$root[i]))
+          write.table(x = r, file = output_file_from, sep = " ",
+                      quote = FALSE, row.names = FALSE, col.names = FALSE)
+          file.remove(rttm_files)
+        }
+
+        # log number of lines in output
+        logres$outlines[i] <- length(readLines(output_file_from))
+
+        # copy output back to source location from divime location
+        logres$resultscopy[i] <- file.copy(from = output_file_from,
+                                           to = output_file_to,
+                                           overwrite = overwrite)
+        # remove output from divimi location
+        logres$resultsremove[i] <- file.remove(output_file_from)
+
+        logres$output[i] <- output_file_ori
+        logres$processed[i] <- TRUE
+
+        # check for yunitator problem and log it
+        X <- xres[grep("[[:digit:]]{1,10} Killed", xres)]
+        if (length(X) > 0) {
+          logres$yuniproblem[i] <- TRUE
+          if (messages) message("[POTENTIAL PROBLEM]   :",
+                                paths$filestoprocess[i],
+                                "  -->  ",
+                                output_file)
+          message("possibly yunitator problem with file: ",
+                  paths$filestoprocess[i])
+        } else {
+          logres$yuniproblem[i] <- FALSE
+          if (messages) message(paths$filestoprocess[i],
+                                "  -->  ",
+                                output_file_ori)
+        }
+        # additional clean up
+        if (module == "opensmile") {
+          fn <- paste0(divime_loc, "/data/", paths$root_clean[i], ".txt")
+          if (file.exists(fn)) {
+            file.remove(fn)
+          }
+        }
+        rm(X)
+      }
+      # clean up
+      rm(xres)
     }
 
     # clean up
