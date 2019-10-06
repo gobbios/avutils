@@ -7,10 +7,10 @@
 summary_elan(x)
 }
 \arguments{
-\item{x}{either character string, providing the path to the elan file, or an \code{xml_document} (read by \code{xml2::read_xml()})}
+\item{x}{either character string, providing the path to the elan file(s)}
 }
 \value{
-a data frame
+a list with two elements. The first is a data.frame with summaries and the second is a character vector with annotations ordered by their number of occurences (first is the most frequent)
 }
 \description{
 summarize Elan .eaf file

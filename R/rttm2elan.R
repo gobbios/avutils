@@ -5,11 +5,13 @@
 #' @param audiofile path to audio file
 #' @param targetloc path to targt location, \code{NULL} by default, see details
 #'
-#' @details the output file is named as the audio file, except for the file extension, e.g. if the audio file is 34_Ab.wav then the output from this function will be 34_Ab.eaf. By default the location for writing this new file is the same as the audio file. If the audio file is not found, or the folder in which it supposedly resides does not exist, the output will be written to location of the rttm file. You can also specify a folder to where you want to write the output in the \code{targetloc=} argument.
+#' @details the output file is named as the audio file, except for the file extension and a prefix \code{out_}, e.g. if the audio file is 34_Ab.wav then the output from this function will be out_34_Ab.eaf. By default the location for writing this new file is the same as the audio file. If the audio file is not found, or the folder in which it supposedly resides does not exist, the output will be written to location of the rttm file. You can also specify a folder to where you want to write the output in the \code{targetloc=} argument.
 #'
 #' Also note that you need to specify an audio file, even if it does not exist (or is not available on your machine at this time). There are two reasons for this: first it is needed for establishing the output file name. Second, the ELAN file needs the location of the audio. When opening the .eaf file created with this function in ELAN and if the audio file does not exist in the location provided, ELAN will ask you to locate it.
 #'
 #' In terms of tiers: the function will always contain an empty 'default' tier. Any additional annotations will go in different tiers, depending on the kind of rttm file that was supplied.
+#'
+#' Further, the function assumes that the first column in the rttm file corresponds to the tier and the 8th column contains the content for the annotation.
 #'
 #' @return writes a file
 #' @export
@@ -29,10 +31,13 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
   # rttm ----------------------------------------------------------------
   rttmfile <- normalizePath(rttmfile, winslash = "/", mustWork = TRUE)
   rttm <- read.table(rttmfile, header = FALSE)
+  colnames(rttm)[c(1, 4, 5, 8)] <- c("tier", "start", "dur", "anno_val")
+
 
   # file name for output
-  # is based on audio file name (regardless of whether it exists)
+  # is based on audio file name (regardless of whether this file actually exists)
   outname <- gsub(pattern = ".wav", replacement = ".eaf", x = basename(audiofile), fixed = TRUE)
+  outname <- paste0("out_", outname)
 
   # and location for output
   if (is.null(targetloc)) {
@@ -63,11 +68,11 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
 
   ## annotations
   # how many are needed?
-  ntiers <- length(unique(rttm[, 8]))
+  ntiers <- length(unique(rttm$tier))
   # check for tier names
-  temp <- as.character(rttm[1, 2])
-  rttm[, 8] <- gsub(pattern = paste0(temp, "_"), replacement = "", x = as.character(rttm[, 8]))
-  tiernames <- unique(rttm[, 8])
+  # temp <- as.character(rttm[1, 2])
+  # rttm[, 8] <- gsub(pattern = paste0(temp, "_"), replacement = "", x = as.character(rttm[, 8]))
+  tiernames <- unique(as.character(rttm$tier))
   # create tiers as lists plus one default tier
   tier_default <- structure(list(),
                             DEFAULT_LOCALE = "us",
@@ -86,13 +91,15 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
   for (i in 1:nrow(rttm)) {
     t1 <- paste0("ts", cnt)
     t2 <- paste0("ts", cnt + 1)
-    temp_anno <- structure(list(ANNOTATION_VALUE = rttm[i, 8]))
+    # temp_anno <- structure(list(ANNOTATION_VALUE = rttm[i, 8]))
+    temp_anno <- structure(list(ANNOTATION_VALUE = rttm$anno_val[i]))
     temp_anno <- structure(list(ALIGNABLE_ANNOTATION = structure(list(ANNOTATION_VALUE = temp_anno),
                                                                  ANNOTATION_ID = paste0("a", i),
                                                                  TIME_SLOT_REF1 = t1,
                                                                  TIME_SLOT_REF2 = t2)))
     # which tier to write to
-    tier <- paste0("tier_", rttm[i, 8])
+    # tier <- paste0("tier_", rttm[i, 8])
+    tier <- paste0("tier_", rttm$tier[i])
     # get a temp copy, write the anno into it, and put it back
     temp <- get(x = tier)
     temp[[length(temp) + 1]] <- temp_anno
