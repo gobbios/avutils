@@ -13,7 +13,7 @@
 #'
 #' Further, the function assumes that the first column in the rttm file corresponds to the tier and the 8th column contains the content for the annotation.
 #'
-#' @return writes a file
+#' @return writes a file and returns the path to this file
 #' @export
 #' @importFrom utils read.table
 #' @importFrom xml2 as_xml_document write_xml
@@ -161,4 +161,9 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
   # deal with output location
   out <- paste0(outloc, "/", outname)
   x <- write_xml(res, file = out, options = "format")
+  if (file.exists(out)) {
+    return(out)
+  } else {
+    return(NULL)
+  }
 }

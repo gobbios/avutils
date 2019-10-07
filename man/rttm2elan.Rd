@@ -14,7 +14,7 @@ rttm2elan(rttmfile, audiofile, targetloc = NULL)
 \item{targetloc}{path to targt location, \code{NULL} by default, see details}
 }
 \value{
-writes a file
+writes a file and returns the path to this file
 }
 \description{
 A very crude translator from rttm files to ELAN format

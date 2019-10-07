@@ -21,11 +21,13 @@ add2elan(elanfile, audiofile, tocombo = NULL, noisemes = NULL,
 \item{noisemesFull}{character, path to noisemesFull rttm (optional)}
 }
 \value{
-nothing, but a file is created in the same location as \code{audiofile}
+a file is created in the same location as \code{audiofile} and the path to it is returned as character
 }
 \description{
 add DiViMe SAD annotations to ELAN file
 }
 \details{
-This function can take a long time to finish (due to the conversion from an intermediate .rttm file to ELAN .eaf).
+This is bascially a wrapper for \code{\link{rttm2elan}}, which takes care of homogenizing the format of .rttm files when they come from different sources (ELAN and DiViMe tools).
+
+Note also that this function can take a long time to finish (due to the conversion from an intermediate .rttm file to ELAN .eaf).
 }

@@ -7,8 +7,10 @@
 #' @param opensmile character, path to opensmile rttm (optional)
 #' @param noisemesFull character, path to noisemesFull rttm (optional)
 #'
-#' @details This function can take a long time to finish (due to the conversion from an intermediate .rttm file to ELAN .eaf).
-#' @return nothing, but a file is created in the same location as \code{audiofile}
+#' @details This is bascially a wrapper for \code{\link{rttm2elan}}, which takes care of homogenizing the format of .rttm files when they come from different sources (ELAN and DiViMe tools).
+#'
+#' Note also that this function can take a long time to finish (due to the conversion from an intermediate .rttm file to ELAN .eaf).
+#' @return a file is created in the same location as \code{audiofile} and the path to it is returned as character
 #' @export
 #'
 
@@ -61,6 +63,10 @@ add2elan <- function(elanfile, audiofile, tocombo = NULL, noisemes = NULL, opens
               col.names = FALSE, quote = FALSE, row.names = FALSE)
 
   # convert to ELAN
-  rttm2elan(rttmfile = paste0(tdir, "/", outname1), audiofile = audiofile)
-
+  res <- rttm2elan(rttmfile = paste0(tdir, "/", outname1), audiofile = audiofile)
+  if (file.exists(res)) {
+    return(res)
+  } else {
+    return(NULL)
+  }
 }
