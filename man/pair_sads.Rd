@@ -2,10 +2,10 @@
 % Please edit documentation in R/pair_sads.R
 \name{pair_sads}
 \alias{pair_sads}
-\title{visual comparison of speech analysers}
+\title{visual comparison of speech analysers and overlap calculations}
 \usage{
 pair_sads(x1, x2, nlines = 5, from = NULL, to = NULL,
-  overlap_res = NULL, ...)
+  overlap_res = NULL, doplot = TRUE, ...)
 }
 \arguments{
 \item{x1}{character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
@@ -20,13 +20,15 @@ pair_sads(x1, x2, nlines = 5, from = NULL, to = NULL,
 
 \item{overlap_res}{numeric, the time resolution for calculating overlap, by default \code{NULL}, i.e. no overlap is calculated, see \code{\link{annotation_overlap}}}
 
+\item{doplot}{logical, should the plot actually be produced}
+
 \item{...}{additional parameters for elan files (which tiers/annotations to ignore), see \code{\link{collapse_tiers}}}
 }
 \value{
 a numeric vector with proportions of agreement between the two SADs
 }
 \description{
-visual comparison of speech analysers
+visual comparison of speech analysers and overlap calculations
 }
 \examples{
 x1 <- system.file("synthetic_speech.eaf", package = "avutils")
