@@ -29,6 +29,12 @@
 #' segment_annotations(elanfile, segment_dur = 500)
 
 segment_annotations <- function(xdata, segment_dur, timecols = c("start", "end"), end_is_dur = FALSE) {
+  # special case when xdata is empty
+  if (nrow(xdata) == 0) {
+    res <- data.frame(start = 0, end = 0, cat = NA, xdur = 0)
+    return(res[-1, ])
+  }
+
   # calculate total sum of anno durations (for sanity check)
   if (end_is_dur) {
     totdur <- sum(xdata[, timecols[2]])

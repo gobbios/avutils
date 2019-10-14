@@ -18,5 +18,7 @@ Depends:
   parallel
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    lme4,
+    MuMIn
 VignetteBuilder: knitr

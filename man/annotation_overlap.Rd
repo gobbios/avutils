@@ -25,9 +25,9 @@ a numeric value of overlap proportion, or a 0/1 vector.
 calculate overlap between two binary annotation sets
 }
 \details{
-The function works like this. Given the total duration of an annotation file (e.g. 60 seconds), create a sequence of test values between 0 and the duration in steps determined by \code{overlap_res}. For example, if the resolution is 100 and the duration is 60 seconds, these values will be 0, 0.6, 1.2, 1.8 etc. (Technically, this corresponds to 100 + 1 values). Now, for each of these test values, check in \code{x1} and \code{x2} whether an annotation exists that comprises this value (or not). In our example this would lead to 100 \emph{pairs} of values (i.e. 100 comparisons). Each comparison can be either congruent (i.e. the test value is either covered in both \code{x1} and \code{x2}, or neither in \code{x1} and \code{x2}), or a comparison can be incongruent, i.e. it's covered in \code{x1} or \code{x2}. From this, we can calculate the proportion of comparisons that are congruent, which is the result of this function.
+The function works like this. The total duration is segmented into \code{overlap_res} segments. The midpoints of these segments serve as test values. For example, if the resolution is 100 and the duration is 60 seconds, we will obtain 100 segments of 0.6 seconds each. The test values lay in the center of each segment, i.e. at 0.3, 0.9, 1.2 etc. Now, for each of these test values, check in \code{x1} and \code{x2} whether an annotation exists.
 
-For now, the function returns \code{NA} if one of the two annotation sets contains no data. If both annotation sets are empty, the function will return \code{1}.
+Also, this function is more of a 'helper' function, that primarily is used inside the \code{\link{evaluate_sad}} function.
 }
 \examples{
 x1 <- data.frame(start = c(1, 4, 7), end = c(2.3, 4.2, 8))
@@ -37,4 +37,13 @@ annotation_overlap(x1, x2, seg_length = 60)
 # one annotation set is empty
 x3 <- x2[0, ]
 annotation_overlap(x1, x3)
+# with 'real' data
+x1 <- read.table(system.file("noisemesSAD_synthetic_speech.rttm", package = "avutils"))
+colnames(x1)[c(4, 5)] <- c("start", "end")
+x1$end <- x1$start + x1$end
+x2 <- read_elan(system.file("synthetic_speech.eaf", package = "avutils"))
+x2$start <- x2$start/1000
+x2$end <- x2$end/1000
+annotation_overlap(x1, x2, overlap_res = 10)
+annotation_overlap(x1, x2, overlap_res = 10, return_raw = TRUE)
 }
