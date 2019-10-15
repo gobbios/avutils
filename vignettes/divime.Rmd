@@ -52,9 +52,11 @@ You also need sufficient working memory, at least 8GB.
 
 The DiViMe documentation also lists at least two processor cores as requirement but allows adapting in case your computer only has one core. The function to set up the VM (described below) will check how many cores you have and adapt the installation process if necessary.
 
-Regardless of whether you are using Windows or MacOS you will need `vagrant` and `VirtualBox`. I can't be sure whether the package works with all combinations of versions of these two programs, so if you want to play it safe, you use `vagrant` 2.2.4 and `VirtualBox` 5.2.28, which are the versions that I used while writing this package.
+Regardless of whether you are using **Windows or MacOS** you will need `vagrant` and `VirtualBox`. I can't be sure whether the package works with all combinations of versions of these two programs, so if you want to play it safe, you use `vagrant` 2.2.4 and `VirtualBox` 5.2.28, which are the versions that I used while writing this package.
 
-If you use Windows, you probably also need `git` (https://git-scm.com/download/win), and I expect that version differences here don't make any difference so take the most recent version.
+If you use **Windows**, you probably also need `git` (https://git-scm.com/download/win), and I expect that version differences here don't make any difference so take the most recent version.
+
+If you use a **Mac**, you might need to install `Xcode` in order to get access to `git`, but I'm not sure about this. So, try the test first that is mentioned just below and only if that fails, go ahead and install `Xcode`. 
 
 Once you installed everything, you can check whether so far all is set up correctly by using (you probably need to restart your computer though):
 
@@ -155,7 +157,6 @@ During these steps there are again a few things to note:
   - one consequence of this is that you should in fact store your files *outside* the DiViMe location because files in the DiViMe/data folder will be deleted... 
   
   - also note that if you run any of the `divime_` functions, the default is that any existing output is *not* overwritten if it already exists. You can/have to (if desired) force overwriting of existing results (i.e. .rttm files) by setting the `overwrite=` argument to `TRUE`.
-  
 
 In practice, working with the `divime_` functions could look like this.
 
@@ -181,4 +182,90 @@ If you then want to run the diarization tool, the following function will add tw
 ```{r, eval=FALSE}
 divime_diarization(divime_loc = divime, audio_loc = myaudio, speech_annos = "opensmile")
 ```
+
+
+
+
+
+# Evaluation of speech detection
+
+We start by providing the paths to two annotation files (one manually coded with ELAN, one the output from noisemes), which are part of the package and relate to an audio file that I made up with synthetic speech.
+
+```{r}
+# a 'test' file
+x1 <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")
+# the gold standard reference (manual coding)
+x2 <- system.file("synthetic_speech.eaf", package = "avutils")
+```
+
+The first example is 'normal' in that both files contain detected speech and the overlap between the two annotation sets is fairly good.
+
+```{r, out.width="50%"}
+evaluate_sad(x1 = x1, x2 = x2, overlap_res = 500)
+```
+
+Let's first consider the graphical output. We see two sets of lines, one black and one gold, which refer to the 'test' file (`x1`) and the reference file (or the 'gold standard', `x2` in our case). The lines represent the speech detected in both annotation sets. When you use ELAN files, note that the function will take all annotations from all tiers and consider them speech. If you want to exclude certain annotations or tiers, you can exclude them by providing the relevant arguments (see `?collapse_tiers` for more details on this). On the left side, we can see the time stamps (in seconds) that are covered. 
+
+The next thing to note is the top horizontal axis (evaluation points). The corresponding argument (`overlap_res=`) controls how many evaluation points are used. At each evaluation point, the function compares the two annotation sets with respect to whether an annotation exists at this point or not. This is somewhat contrasting the evaluation pipeline in the Python version, where each individual sample is evaluated.
+
+The last type of information provided by the graphic are red circles between the two line sets. These circles (if present) indicate a mismatch between the two annotation sets, i.e. one file has speech detected at this point while the other has not.
+
+The numerical output provides three types of information. First, the *false alarm* rate, which takes all evaluation points that show no speech in the standard `x2` and calculates the proportion of evaluation points that (falsly) contain speech in the test file `x1`. The *missed speech* rate is the opposite, that is the proportion of no-speech points in `x1` when there is speech in the standard `x2`. Finally, there is the *total* congruence, which is just the total proportion of all evaluation points where `x1` has the same value as `x2`. So, for FA and MSR, small values close to 0 are better, while for the total 1 is the best value. 
+
+For a proper evaluation, keep in mind to set `overlap_res=` to a reasonably large value. One rule of thumb could be to use ten evaluation points per second recording, which would provide precision to the tenth of a second. 
+
+## Visual versus numerical results
+
+In order to aid visual assessment, `evaluate_sad()` allows to break the display into multiple rows and/or to select a time segment within the file. Note that when you 'break' the file over multiple segments, all the evaluation metrics are returned for each segment separately. In the specific example that follows, note that in the last segment, there are no false alarms at all.
+
+```{r}
+# break the display over 5 segments
+evaluate_sad(x1 = x1, x2 = x2, nsegments = 5, overlap_res = 100)
+```
+
+You can also select a time window. (the example here corresponds roughly to the second segment from just above).
+
+```{r}
+evaluate_sad(x1 = x1, x2 = x2, from = 9.46, to = 18.94, overlap_res = 100)
+```
+
+
+## Special cases
+
+The DiViMe manual considers special cases when one or two of the files submitted contain no speech. Let's look at this with an example where we use predefined segments of the example files.
+
+First, we consider the special case where the gold/manual annotation is empty and also the SAD module detected no speech.
+
+```{r, out.width="50%"}
+evaluate_sad(x1 = x1, x2 = x2, nsegments = 1, from = 27, to = 28, overlap_res = 10)
+```
+
+As expected, both FA and MSR are 0 (as defined in the DiViMe manual).
+
+Second, we consider the next case where the gold/manual annotation is empty but the SAD module detected some speech.
+
+```{r, out.width="50%"}
+evaluate_sad(x1 = x1, x2 = x2, nsegments = 1, from = 27, to = 28.3, overlap_res = 10)
+```
+
+Here we see that the false alarm rate is 1 while the missed speech rate is set to 0.
+
+And finally, the case where there was speech in the gold standard, but the SAD module didn't detect anything:
+
+```{r, out.width="50%"}
+evaluate_sad(x1 = x1, x2 = x2, nsegments = 1, from = 23.2, to = 25, overlap_res = 10)
+```
+
+Here, FA = 0 and MSR is 1.
+
+## splitting files
+
+```{r, echo=2:4, fig.width=8, fig.height=3.5, out.width="100%"}
+par(mfrow = c(1, 3), family = "serif")
+evaluate_sad(x1 = x1, x2 = x2, nsegments = 2, from = 27, to = 28, overlap_res = 10)
+evaluate_sad(x1 = x1, x2 = x2, nsegments = 2, from = 27, to = 28.3, overlap_res = 10)
+evaluate_sad(x1 = x1, x2 = x2, nsegments = 2, from = 23.2, to = 25, overlap_res = 10)
+```
+
+
 

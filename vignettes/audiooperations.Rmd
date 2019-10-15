@@ -1,6 +1,8 @@
 ---
 title: "audiooperations"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    keep_md: true
 vignette: >
   %\VignetteIndexEntry{audiooperations}
   %\VignetteEncoding{UTF-8}
@@ -83,5 +85,15 @@ audio_info(filein = x[2])
 
 We can also split files.
 
+```{r}
+split_audio(filein = x[1], split = 0.42)
+y <- list.files(tdir, pattern = "split", full.names = TRUE)
+ai <- audio_info(filein = y)
+# and check whether durations match
+audio_info(filein = x[1])$duration
+sum(ai$duration)
+audio_info(filein = x[1])$samples
+sum(ai$samples)
+```
 
 
