@@ -11,6 +11,7 @@
 #' @importFrom graphics axis box plot segments points
 #' @importFrom grDevices adjustcolor
 #' @return a data.frame with proportions of agreement between the two SADs
+#' @importFrom graphics mtext par
 #' @export
 #' @examples
 #' x1 <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")

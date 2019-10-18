@@ -64,8 +64,21 @@ test_binaries()
 Next, we can test some more. For this, we create a temporary folder (one that is deleted as soon as you close R). Then we generate some sound, and save it as wave file into this temporary folder. This is done instead of providing an example wave file.
 
 ```{r}
-tdir <- tempdir()
+tdir <- normalizePath(tempdir(), winslash = "/")
+```
 
+You can make R open this location in your file browser:
+
+```{r, eval=FALSE}
+# Windows:
+shell.exec(tdir)
+
+# Mac:
+system2("open", tdir)
+```
+
+
+```{r}
 w1 <- sine(freq = 440, duration = 0.9, bit = 32, stereo = TRUE, xunit = "time")
 writeWave(w1, filename = file.path(tdir, "file1.wav"))
 w2 <- noise(kind = "white", duration = 3.65, bit = 64, stereo = FALSE, xunit = "time")
@@ -87,7 +100,7 @@ We can also split files.
 
 ```{r}
 split_audio(filein = x[1], split = 0.42)
-y <- list.files(tdir, pattern = "split", full.names = TRUE)
+y <- list.files(tdir, pattern = "file1_", full.names = TRUE)
 ai <- audio_info(filein = y)
 # and check whether durations match
 audio_info(filein = x[1])$duration

@@ -71,7 +71,6 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
   ntiers <- length(unique(rttm$tier))
   # check for tier names
   # temp <- as.character(rttm[1, 2])
-  # rttm[, 8] <- gsub(pattern = paste0(temp, "_"), replacement = "", x = as.character(rttm[, 8]))
   tiernames <- unique(as.character(rttm$tier))
   # create tiers as lists plus one default tier
   tier_default <- structure(list(),
@@ -91,14 +90,12 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
   for (i in 1:nrow(rttm)) {
     t1 <- paste0("ts", cnt)
     t2 <- paste0("ts", cnt + 1)
-    # temp_anno <- structure(list(ANNOTATION_VALUE = rttm[i, 8]))
     temp_anno <- structure(list(ANNOTATION_VALUE = rttm$anno_val[i]))
     temp_anno <- structure(list(ALIGNABLE_ANNOTATION = structure(list(ANNOTATION_VALUE = temp_anno),
                                                                  ANNOTATION_ID = paste0("a", i),
                                                                  TIME_SLOT_REF1 = t1,
                                                                  TIME_SLOT_REF2 = t2)))
     # which tier to write to
-    # tier <- paste0("tier_", rttm[i, 8])
     tier <- paste0("tier_", rttm$tier[i])
     # get a temp copy, write the anno into it, and put it back
     temp <- get(x = tier)
