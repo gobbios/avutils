@@ -20,5 +20,6 @@ Suggests:
     knitr,
     rmarkdown,
     lme4,
-    MuMIn
+    MuMIn,
+    testthat (>= 2.1.0)
 VignetteBuilder: knitr

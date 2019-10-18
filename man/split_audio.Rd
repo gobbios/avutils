@@ -2,17 +2,19 @@
 % Please edit documentation in R/split_audio.R
 \name{split_audio}
 \alias{split_audio}
-\title{split audio file into chunks of defined length}
+\title{split audio file into chunks of regular or irregular length}
 \usage{
-split_audio(filein, split, pathout = NULL,
+split_audio(filein, split, pathout = NULL, ndigits = NULL,
   pathtosox = getOption("avutils_sox"))
 }
 \arguments{
 \item{filein}{character, path to input audio}
 
-\item{split}{numeric, duration of split in seconds}
+\item{split}{numeric or a data.frame, see details}
 
 \item{pathout}{character, path were output is stored, by default the same as the source}
+
+\item{ndigits}{numeric, the number of characters a time step should comprise (see details and \code{\link{leadingzeros}})}
 
 \item{pathtosox}{character, path to sox binary}
 }
@@ -20,7 +22,12 @@ split_audio(filein, split, pathout = NULL,
 a vector with the paths to the split files
 }
 \description{
-split audio file into chunks of defined length
+split audio file into chunks of regular or irregular length
+}
+\details{
+The \code{split=} argument can be supplied in two ways. If you supply a single number the input file will be split into file of equal lengths (determined by \code{split=} in seconds). If you supply a data.frame, it is assumed this is a .rttm file, where the fourth column reflects the starting point and the fifth column determines the length of the segment.
+
+Output files have the time stamps appended in the file name (unit of milliseconds) in the form of filename_fromtime_totime.wav. The \code{ndigits=} argument determines the number of characters the two time chunks have.
 }
 \examples{
 \dontrun{
@@ -33,5 +40,18 @@ tdir
 x <- list.files(tdir, pattern = "\\\\.wav$", full.names = TRUE)
 audio_info(filein = x)
 y <- split_audio(filein = x, split = 0.4)
-audio_info(filein = y)}
+audio_info(filein = y)
+
+x <- system.file("synthetic_speech.wav", package = "avutils")
+res <- split_audio(filein = x, split = 10, pathout = tdir)
+audio_info(filein = res)
+# remove files
+file.remove(res)
+
+# using and .rttm file as input
+split <- read.table(system.file("opensmileSad_synthetic_speech.rttm", package = "avutils"))
+head(split)
+res <- split_audio(filein = x, split = split, pathout = tdir)
+audio_info(filein = res)
+}
 }
