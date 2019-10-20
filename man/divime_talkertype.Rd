@@ -4,13 +4,16 @@
 \alias{divime_talkertype}
 \title{run the DiViMe talker type module (yunitate)}
 \usage{
-divime_talkertype(audio_loc, divime_loc, vmstart = TRUE,
-  vmshutdown = TRUE, messages = TRUE, overwrite = FALSE)
+divime_talkertype(audio_loc, divime_loc, marvinator = FALSE,
+  vmstart = TRUE, vmshutdown = TRUE, messages = TRUE,
+  overwrite = FALSE)
 }
 \arguments{
 \item{audio_loc}{character, path to the audio files}
 
 \item{divime_loc}{character, path to the DiViMe directory with a VM}
+
+\item{marvinator}{logical, run Marvin's version of yunitator, by default \code{FALSE} (for backwards compatibility)}
 
 \item{vmstart}{logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.}
 
@@ -25,4 +28,7 @@ a data.frame with the locations of the created rttm files and some diagnostics
 }
 \description{
 run the DiViMe talker type module (yunitate)
+}
+\details{
+If \code{marvinator = TRUE} then the output file will be 'yunitator_english_X.rttm', where 'X' is the file name of the audio file. If \code{marvinator = FALSE}, then the resulting file will be named 'yunitator_old_X.rttm'.
 }

@@ -4,13 +4,16 @@
 \alias{divime_classify_vox}
 \title{run the DiViMe vocal classification module vcm}
 \usage{
-divime_classify_vox(audio_loc, divime_loc, vmstart = TRUE,
-  vmshutdown = TRUE, messages = TRUE, overwrite = FALSE)
+divime_classify_vox(audio_loc, divime_loc, marvinator = TRUE,
+  vmstart = TRUE, vmshutdown = TRUE, messages = TRUE,
+  overwrite = FALSE)
 }
 \arguments{
 \item{audio_loc}{character, path to the audio files}
 
 \item{divime_loc}{character, path to the DiViMe directory with running VM}
+
+\item{marvinator}{logical, look for Marvin's version of yunitator results, by default \code{TRUE}}
 
 \item{vmstart}{logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.}
 
@@ -25,4 +28,7 @@ a data.frame with the locations of the created rttm files and some diagnostics
 }
 \description{
 run the DiViMe vocal classification module vcm
+}
+\details{
+The \code{marvinator=} argument determines which kind of yunitator file is looked for. If \code{TRUE} the file looked for is 'yunitator_english_X.rttm', where X is the name of the underlying audio file (which is the result of \code{divime_talkertype(..., marvinator = TRUE)}). If \code{FALSE} the file looked for is 'yunitator_old_X.rttm' (which is the result of \code{divime_talkertype(..., marvinator = FALSE)}). If the respective file is not found, the function aborts.
 }

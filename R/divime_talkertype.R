@@ -2,24 +2,28 @@
 #'
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with a VM
+#' @param marvinator logical, run Marvin's version of yunitator, by default \code{FALSE} (for backwards compatibility)
 #' @param vmstart logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.
 #' @param vmshutdown logical, should the VM shut down after the operations are done (by default \code{TRUE})
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
+#' @details If \code{marvinator = TRUE} then the output file will be 'yunitator_english_X.rttm', where 'X' is the file name of the audio file. If \code{marvinator = FALSE}, then the resulting file will be named 'yunitator_old_X.rttm'.
 #' @export
 #' @importFrom stats lm na.omit predict
 #'
 
 divime_talkertype <- function(audio_loc,
                               divime_loc,
+                              marvinator = FALSE,
                               vmstart = TRUE,
                               vmshutdown = TRUE,
                               messages = TRUE,
                               overwrite = FALSE) {
-  # audio_loc = "~/Desktop/test_audio/"
+  # audio_loc = "~/Desktop/test_audio/onefile"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
   # vmshutdown = F; messages = TRUE; overwrite = FALSE
+  # marvinator = TRUE
 
   audio_loc <- normalizePath(audio_loc)
   divime_loc <- normalizePath(divime_loc)
@@ -54,7 +58,14 @@ divime_talkertype <- function(audio_loc,
                        yuniproblem = NA)
 
   # create command depending on the desired module
-  cm <- paste0("ssh -c 'yunitate.sh data/'")
+  if (marvinator) {
+    cm <- paste0("ssh -c 'yunitate.sh data/ english'")
+    fileprefix <- "yunitator_english_"
+  } else {
+    cm <- paste0("ssh -c 'yunitate.sh data/'")
+    fileprefix <- "yunitator_old_"
+  }
+
 
   # loop through files
   for (i in 1:nrow(logres)) {
@@ -62,8 +73,8 @@ divime_talkertype <- function(audio_loc,
     t1 <- Sys.time()
 
     # create names and locations for output rttm
-    output_file <- paste0("yunitator_old_", paths$root_clean[i], ".rttm")
-    output_file_ori <- paste0("yunitator_old_", paths$root[i], ".rttm")
+    output_file <- paste0(fileprefix, paths$root_clean[i], ".rttm")
+    output_file_ori <- paste0(fileprefix, paths$root[i], ".rttm")
     output_file_to <- normalizePath(paste0(audio_loc, "/", paths$folder[i], output_file_ori),
                                     winslash = "/",
                                     mustWork = FALSE)

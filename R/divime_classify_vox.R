@@ -2,22 +2,26 @@
 #'
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with running VM
+#' @param marvinator logical, look for Marvin's version of yunitator results, by default \code{TRUE}
 #' @param vmstart logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.
 #' @param vmshutdown logical, should the VM be shut down after the operations are done (by default \code{TRUE})
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
+#' @details The \code{marvinator=} argument determines which kind of yunitator file is looked for. If \code{TRUE} the file looked for is 'yunitator_english_X.rttm', where X is the name of the underlying audio file (which is the result of \code{divime_talkertype(..., marvinator = TRUE)}). If \code{FALSE} the file looked for is 'yunitator_old_X.rttm' (which is the result of \code{divime_talkertype(..., marvinator = FALSE)}). If the respective file is not found, the function aborts.
 #' @export
 
 divime_classify_vox <- function(audio_loc,
                                 divime_loc,
+                                marvinator = TRUE,
                                 vmstart = TRUE,
                                 vmshutdown = TRUE,
                                 messages = TRUE,
                                 overwrite = FALSE) {
-  # audio_loc = "~/Desktop/test_audio/"
+  # audio_loc = "~/Desktop/test_audio/onefile"
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
   # vmshutdown = F; messages = TRUE; overwrite = FALSE
+  # marvinator = TRUE
 
   audio_loc <- normalizePath(audio_loc)
   divime_loc <- normalizePath(divime_loc)
@@ -35,7 +39,6 @@ divime_classify_vox <- function(audio_loc,
                            silent = TRUE)
     }
   }
-
 
   paths <- avutils:::handle_filenames(audio_loc = audio_loc,
                                       divime_loc = divime_loc)
@@ -55,7 +58,16 @@ divime_classify_vox <- function(audio_loc,
                        resultsremove = NA) #, yuniproblem = NA
 
   # set command
-  cm <- paste0("ssh -c 'vcm.sh data/'")
+  if (marvinator) {
+    cm <- paste0("ssh -c 'vcm.sh data/ english'")
+    fileprefix <- "yunitator_english_"
+    outprefix <- "yunitator_english_"
+  } else {
+    cm <- paste0("ssh -c 'vcm.sh data/'")
+    fileprefix <- "yunitator_old_"
+    outprefix <- "yunitator_universal_"
+  }
+
 
   # loop through files
   for (i in 1:nrow(logres)) {
@@ -63,8 +75,8 @@ divime_classify_vox <- function(audio_loc,
     t1 <- Sys.time()
 
     # only run if the yuni source was found in the source folder...
-    yunifrom <- paste0(audio_loc, "/", paths$folder[i], "yunitator_old_", paths$root[i], ".rttm")
-    yunito <- paste0(divime_loc, "/data/", paste0("yunitator_universal_", paths$root_clean[i], ".rttm"))
+    yunifrom <- paste0(audio_loc, "/", paths$folder[i], fileprefix, paths$root[i], ".rttm")
+    yunito <- paste0(divime_loc, "/data/", paste0(outprefix, paths$root_clean[i], ".rttm"))
 
     if (file.exists(yunifrom)) {
       output_file <- paste0("vcm_", paths$root_clean[i], ".rttm")
@@ -83,7 +95,7 @@ divime_classify_vox <- function(audio_loc,
         # copy audio
         logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
                                          to = paths$audiotarget_clean[i])
-        logres$yunifile[i] <- paste0("yunitator_old_", paths$root[i], ".rttm")
+        logres$yunifile[i] <- paste0(fileprefix, paths$root[i], ".rttm")
         logres$yunicopy[i] <- file.copy(from = yunifrom,
                                         to = yunito)
         # deal with working directories
