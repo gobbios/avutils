@@ -25,6 +25,121 @@ library(avutils)
 
 The idea here is to provide R functions that wrap up the bash commands normally used to invoke the virtual machine with the DiViMe tools. The functions are by and large calls using the `system()` or `system2()` functions.
 
+```{r, echo=FALSE, fig.width=8, fig.height=4.5}
+par(family = "serif", mar = c(0, 0, 0, 0))
+plot(0, 0, type = "n", xlim = c(0, 50), ylim = c(20, 0), axes = FALSE, ann = FALSE)
+textcex <- 0.4
+r <- FALSE
+
+cds <- c(1, 4, 9, 2)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "speech activity detection", cex = textcex)
+
+cds <- c(1, 6, 9, 8)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "divime_sad()", cex = textcex, family = "mono")
+
+cds <- c(1, 10, 9, 14)
+labs <- "noisemesSad_X.rttm\nopensmileSad_X.rttm\ntocomboSad_X.rttm"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+cds <- c(1, 16, 9, 20)
+labs <- "noisemesSad.sh\nopensmileSad.sh\ntocomboSad.sh"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+
+
+# diarization -------------------------------------------------------------
+
+cds <- c(11, 4, 19, 2)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "talker diarization", cex = textcex)
+
+cds <- c(11, 6, 19, 8)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "divime_diarization(speech_annos = ...)", cex = textcex, family = "mono")
+
+cds <- c(11, 10, 19, 14)
+labs <- "diartk_noisemesSad_X.rttm\ndiartk_opensmileSad_X.rttm\ndiartk_tocomboSad_X.rttm"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+cds <- c(11, 16, 19, 20)
+labs <- "diartk.sh ... noisemesSad\ndiartk.sh ... opensmileSad\ndiartk.sh ... tocomboSad"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+# talker type -------------------------------------------------------------
+
+cds <- c(21, 4, 29, 2)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "talker type", cex = textcex)
+
+cds <- c(21, 6, 29, 8)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "divime_talkertype(marvinator = ...)", cex = textcex, family = "mono")
+
+cds <- c(21, 10, 29, 14)
+labs <- "yunitator_old_X.rttm\nyunitator_english_X.rttm"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+cds <- c(21, 16, 29, 20)
+labs <- "yunitate.sh\nyunitate.sh ... english"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+
+# vocalization classification -------------------------------------------------------------
+
+cds <- c(31, 4, 39, 2)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "classify vocalizations", cex = textcex)
+
+cds <- c(31, 6, 39, 8)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "divime_classify_vox(marvinator = ...)", cex = textcex, family = "mono")
+
+cds <- c(31, 10, 39, 14)
+labs <- "vcm_X.rttm\nvcm_english_X.rttm"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+cds <- c(31, 16, 39, 20)
+labs <- "vcm.sh\nvcm.sh ... english"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+
+# word count -------------------------------------------------------------
+
+cds <- c(41, 4, 49, 2)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "word count", cex = textcex)
+
+cds <- c(41, 6, 49, 8)
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = "divime_wordcount(speech_annos = ...)", cex = textcex, family = "mono")
+
+cds <- c(41, 10, 49, 14)
+labs <- "WCE_noisemesSad_X.rttm\nWCE_opensmileSad_X.rttm\nWCE_tocomboSad_X.rttm\nWCE_yunitator_english_X.rttm"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+
+cds <- c(41, 16, 49, 20)
+labs <- "WCE_from_SAD_outputs.sh ... noisemesSad\nWCE_from_SAD_outputs.sh ... opensmileSad\nWCE_from_SAD_outputs.sh ... tocomboSad\nWCE_from_SAD_outputs.sh ... english"
+if(r) rect(cds[1], cds[2], cds[3], cds[4])
+text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+```
+
+
+
+# Set up
+
+## Requirements
+
 What you need as requirement is the `vagrant` software and the `VirtualBox` installed, which provide the environment in which you can set up and run your virtual machine, which in effect gives you access to the DiViMe tools. 
 
 If you are on Windows you might also need `git`. If you are on a Mac chances are you have got `git` already.
@@ -32,10 +147,6 @@ If you are on Windows you might also need `git`. If you are on a Mac chances are
 For more details see https://divime.readthedocs.io/en/latest/.
 
 **For Windows users**: whenever file paths need to be specified please use single forward slashes, e.g. `c:/data/myaudiofiles`
-
-# Set up
-
-## Requirements
 
 First off, you will need the following R packages installed:
 

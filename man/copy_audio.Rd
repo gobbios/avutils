@@ -23,5 +23,5 @@ logical, indicating whether the file \code{to} exists, i.e. whether copying was 
 copy audio files with optional silence added at the end
 }
 \details{
-In case you want to add silence to the audio file, \code{sox} is required (see \code{\link{set_binaries}} for details).
+In case you want to add silence to the audio file, \code{sox} is required (see \code{\link{set_binaries}} for details). In addition, the function creates an additional temporary copy of the wav file, because \code{sox} also requires 'clean' file names.
 }

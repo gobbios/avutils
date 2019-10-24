@@ -1,4 +1,3 @@
-
 #' file and folder names
 #'
 #' @param audio_loc character, path to the audio files
@@ -30,18 +29,7 @@ handle_filenames <- function(audio_loc,
   fileroots <- unlist(lapply(folderlocs, function(X)X[length(X)]))
   res$root <- unlist(strsplit(fileroots, split = "(?i).wav"))
   # deal with special characters
-  res$root_clean <- gsub(pattern = " ",
-                         replacement = "_",
-                         x = res$root,
-                         fixed = TRUE)
-  res$root_clean <- gsub(pattern = "(",
-                         replacement = "_",
-                         x = res$root_clean,
-                         fixed = TRUE)
-  res$root_clean <- gsub(pattern = ")",
-                         replacement = "_",
-                         x = res$root_clean,
-                         fixed = TRUE)
+  res$root_clean <- clean_filename(res$root)
 
   # the folder substructure
   folders <- lapply(folderlocs, function(X)X[-length(X)])

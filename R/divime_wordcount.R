@@ -111,7 +111,7 @@ divime_wordcount <- function(audio_loc,
         # copy audio
         # logres$audiocopy[i] <- file.copy(from = paths$audiosource[i],
         #                                 to = paths$audiotarget_clean[i])
-        # logres$audiocopy[i] <- copy_audio(from = paths$audiosource[i], to = paths$audiotarget_clean[i], ...)
+        logres$audiocopy[i] <- copy_audio(from = paths$audiosource[i], to = paths$audiotarget_clean[i], ...)
         # logres$audiocopy[i] <- copy_audio(from = paths$audiosource[i], to = paths$audiotarget_clean[i], appendsilence = appendsilence, pathtosox = pathtosox)
         # copy sad file
         logres$sadfile[i] <- sad[i]
