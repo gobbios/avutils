@@ -35,13 +35,14 @@ extract_quantities <- function(path, turntakingthresh = 1, tiernames = NULL) {
   if (type == "rttm") {
     xdata <- read.table(path, header = FALSE, sep = " ")
     colnames(xdata)[c(4, 5, 8)] <- c("start", "dur", "tier")
+    xdata$end <- xdata$start + xdata$dur
     # count vocalizations and total duration of vocalizations
     res1 <- tapply(X = xdata$dur, INDEX = xdata$tier, sum)
     res2 <- tapply(X = xdata$dur, INDEX = xdata$tier, length)
     # turn taking
     xdata$tier <- as.character(xdata$tier)
     # calc inter turn interval
-    xdata$iti <- xdata[, "start"] - c(NA, xdata[-nrow(xdata), "start"])
+    xdata$iti <- xdata[, "start"] - c(NA, xdata[-nrow(xdata), "end"])
     # get previous seg type
     xdata$prev_label <- c(NA, xdata[-nrow(xdata),"tier"])
 
@@ -62,7 +63,7 @@ extract_quantities <- function(path, turntakingthresh = 1, tiernames = NULL) {
 
     xdata$tier <- as.character(xdata$tier)
     # calc inter turn interval
-    xdata$iti <- xdata[, "start"] - c(NA, xdata[-nrow(xdata), "start"])
+    xdata$iti <- xdata[, "start"] - c(NA, xdata[-nrow(xdata), "end"])
     # get previous seg type
     xdata$prev_label <- c(NA, xdata[-nrow(xdata), "tier"])
 

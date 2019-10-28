@@ -1,18 +1,19 @@
 Package: avutils
-Title: What the Package Does (One Line, Title Case)
+Title: various utilities for DiViMe tools and audio processing
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Christof",
+           family = "Neumann",
            role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
+           email = "christofneumann1@gmail.com",
+           comment = c(ORCID = "0000-0002-0236-1219"))
 Description: What the package does (one paragraph).
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.1.1
 Depends:
+  R (>= 3.5.0),
   xml2,
   tuneR,
   parallel
