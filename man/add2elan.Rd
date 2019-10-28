@@ -5,7 +5,7 @@
 \title{add DiViMe SAD annotations to ELAN file}
 \usage{
 add2elan(elanfile, audiofile, tocombo = NULL, noisemes = NULL,
-  opensmile = NULL, noisemesFull = NULL)
+  opensmile = NULL, noisemesFull = NULL, yuni = NULL)
 }
 \arguments{
 \item{elanfile}{character, path to elan file}
@@ -19,6 +19,8 @@ add2elan(elanfile, audiofile, tocombo = NULL, noisemes = NULL,
 \item{opensmile}{character, path to opensmile rttm (optional)}
 
 \item{noisemesFull}{character, path to noisemesFull rttm (optional)}
+
+\item{yuni}{character, path to yunitator_english rttm (optional)}
 }
 \value{
 a file is created in the same location as \code{audiofile} and the path to it is returned as character

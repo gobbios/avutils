@@ -87,8 +87,9 @@ aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
     noisemes_noise <- read.table(noisemes_noise, header = FALSE)
     noisemes_noise <- noisemes_noise[noisemes_noise$V8 == "noise_ongoing", ]
     if (nrow(noisemes_noise) > 0) {
-      noisemes_noise <- collapse_tiers(xdata = noisemes_noise, timecols = c("V4", "V5"), end_is_dur = TRUE)
-      noisemes_noise <- segment_annotations(xdata = noisemes_noise, segment_dur = segment_dur, timecols = c("V4", "xend"), end_is_dur = FALSE)
+      # noisemes_noise <- collapse_tiers(xdata = noisemes_noise, timecols = c("V4", "V5"), end_is_dur = TRUE)
+      # noisemes_noise <- segment_annotations(xdata = noisemes_noise, segment_dur = segment_dur, timecols = c("V4", "xend"), end_is_dur = FALSE)
+      noisemes_noise <- segment_annotations(xdata = noisemes_noise, segment_dur = segment_dur, timecols = c("V4", "V5"), end_is_dur = TRUE)
       noisemes_noise <- tapply(noisemes_noise$xdur, INDEX = noisemes_noise$cat, sum)
       noisemes_noise[is.na(noisemes_noise)] <- 0
     } else {

@@ -6,6 +6,7 @@
 #' @param noisemes character, path to noisemes rttm (optional)
 #' @param opensmile character, path to opensmile rttm (optional)
 #' @param noisemesFull character, path to noisemesFull rttm (optional)
+#' @param yuni character, path to yunitator_english rttm (optional)
 #'
 #' @details This is bascially a wrapper for \code{\link{rttm2elan}}, which takes care of homogenizing the format of .rttm files when they come from different sources (ELAN and DiViMe tools).
 #'
@@ -14,7 +15,7 @@
 #' @export
 #'
 
-add2elan <- function(elanfile, audiofile, tocombo = NULL, noisemes = NULL, opensmile = NULL, noisemesFull = NULL) {
+add2elan <- function(elanfile, audiofile, tocombo = NULL, noisemes = NULL, opensmile = NULL, noisemesFull = NULL, yuni = NULL) {
 
   # read DiViMe and combine
   temp1 <- matrix(ncol = 9, nrow = 0)
@@ -37,6 +38,11 @@ add2elan <- function(elanfile, audiofile, tocombo = NULL, noisemes = NULL, opens
     noif <- read.table(noisemesFull, header = FALSE)
     noif[, 1] <- "noisemesFull"
     temp1 <- rbind(temp1, noif)
+  }
+  if (!is.null(yuni)) {
+    yuni_eng <- read.table(yuni, header = FALSE)
+    yuni_eng[, 1] <- "yunitator_english"
+    temp1 <- rbind(temp1, yuni_eng[, 1:9, drop = FALSE])
   }
 
   # read elan input file

@@ -61,7 +61,8 @@ divime_wordcount <- function(audio_loc,
                        audiocopy = NA,
                        audioremove = NA,
                        resultscopy = NA,
-                       resultsremove = NA)
+                       resultsremove = NA,
+                       empty_sad = FALSE)
 
   # check for the speech detection data
   # and set command
@@ -117,6 +118,10 @@ divime_wordcount <- function(audio_loc,
         logres$sadfile[i] <- sad[i]
         logres$sadcopy[i] <- file.copy(from = sadsource[i],
                                        to = sadtarget[i])
+
+        # check whether SAD file is empty:
+        emptysad <- length(readLines(sadtarget[i])) == 0
+
         # deal with working directories
         WD <- getwd()
         setwd(divime_loc)
@@ -124,6 +129,14 @@ divime_wordcount <- function(audio_loc,
         # run bash command
         xres <- system2(command = vagrant, args = cm, stdout = TRUE, stderr = TRUE)
         setwd(WD)
+
+        # in case of empty input Sad, write an empty output for
+        if (emptysad) {
+          if (!file.exists(output_file_from)) {
+            file.create(output_file_from)
+          }
+          logres$empty_sad[i] <- TRUE
+        }
 
         # log number of lines in output
         logres$outlines[i] <- length(readLines(output_file_from))
@@ -180,6 +193,11 @@ divime_wordcount <- function(audio_loc,
     divime_vagrant_state(divime_loc = divime_loc,
                          what = "halt",
                          silent = TRUE)
+  }
+
+  # print warning if empty files were created:
+  if (sum(logres$empty_sad) > 0) {
+    warning("there were empty input SAD files, hence empty word count files were produced")
   }
 
   logres

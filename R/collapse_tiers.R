@@ -43,10 +43,10 @@ collapse_tiers <- function(xdata, timecols = c("start", "end"), end_is_dur = FAL
   # make matrix for faster computation
   xd <- as.matrix(xdata[, timecols])
   # and remove duplicated rows because they are irrelevant
-  xd <- xd[!duplicated(xd), ]
+  xd <- xd[!duplicated(xd), , drop = FALSE]
   # and reorder
-  xd <- xd[order(xd[, 2]), ]
-  xd <- xd[order(xd[, 1]), ]
+  xd <- xd[order(xd[, 2]), , drop = FALSE]
+  xd <- xd[order(xd[, 1]), , drop = FALSE]
 
   # result matrix
   res <- matrix(ncol = 2, nrow = 0)
