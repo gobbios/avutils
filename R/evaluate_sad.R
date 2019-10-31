@@ -2,11 +2,12 @@
 #'
 #' @param x1 character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format
 #' @param x2 character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format
-#' @param nsegments numeric, the number of segments in which the file is to be split (represented as different lines in output graphic)
+#' @param nsegments numeric, the number of segments in which the file is to be split (represented as different lines in output graphic). Default is \code{1}, i.e. the entire file is considered as one segment.
 #' @param from numeric, starting point for selecting a subset of time
 #' @param to numeric, starting point for selecting a subset of time
 #' @param overlap_res numeric, the time resolution for calculating overlap, by default \code{NULL}, i.e. no overlap is calculated, see \code{\link{annotation_overlap}}
-#' @param doplot logical, should the plot actually be produced
+#' @param doplot logical, should the plot actually be produced (default is \code{TRUE})
+#' @param raw_results logical, should the raw results be returnd, i.e. the values per 'sample' (by default \code{FALSE})
 #' @param ... additional parameters for elan files (which tiers/annotations to ignore), see \code{\link{collapse_tiers}}
 #' @importFrom graphics axis box plot segments points
 #' @importFrom grDevices adjustcolor
@@ -27,7 +28,7 @@
 #' # even more fine-grained and file split into multiple segments
 #' evaluate_sad(x1 = x1, x2 = x2, nsegments = 10, overlap_res = 100)
 
-evaluate_sad <- function(x1, x2, nsegments = 1, from = NULL, to = NULL, overlap_res = NULL, doplot = TRUE, ...) {
+evaluate_sad <- function(x1, x2, nsegments = 1, from = NULL, to = NULL, overlap_res = NULL, doplot = TRUE, raw_results = FALSE, ...) {
   # read and process input files
   for (i in 1:2) {
     temp <- ifelse (i == 1, x1, x2)
@@ -198,6 +199,12 @@ evaluate_sad <- function(x1, x2, nsegments = 1, from = NULL, to = NULL, overlap_
     eres <- NULL
   }
 
-  eres
+
+  if (raw_results) {
+    return(evaldata)
+  } else {
+    return(eres)
+  }
+
 }
 

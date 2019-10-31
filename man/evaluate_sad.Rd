@@ -5,14 +5,14 @@
 \title{evaluation of speech detection tools}
 \usage{
 evaluate_sad(x1, x2, nsegments = 1, from = NULL, to = NULL,
-  overlap_res = NULL, doplot = TRUE, ...)
+  overlap_res = NULL, doplot = TRUE, raw_results = FALSE, ...)
 }
 \arguments{
 \item{x1}{character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
 
 \item{x2}{character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
 
-\item{nsegments}{numeric, the number of segments in which the file is to be split (represented as different lines in output graphic)}
+\item{nsegments}{numeric, the number of segments in which the file is to be split (represented as different lines in output graphic). Default is \code{1}, i.e. the entire file is considered as one segment.}
 
 \item{from}{numeric, starting point for selecting a subset of time}
 
@@ -20,7 +20,9 @@ evaluate_sad(x1, x2, nsegments = 1, from = NULL, to = NULL,
 
 \item{overlap_res}{numeric, the time resolution for calculating overlap, by default \code{NULL}, i.e. no overlap is calculated, see \code{\link{annotation_overlap}}}
 
-\item{doplot}{logical, should the plot actually be produced}
+\item{doplot}{logical, should the plot actually be produced (default is \code{TRUE})}
+
+\item{raw_results}{logical, should the raw results be returnd, i.e. the values per 'sample' (by default \code{FALSE})}
 
 \item{...}{additional parameters for elan files (which tiers/annotations to ignore), see \code{\link{collapse_tiers}}}
 }
