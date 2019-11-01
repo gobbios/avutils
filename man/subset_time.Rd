@@ -41,8 +41,8 @@ elan <- system.file("synthetic_speech_overlap.eaf", package = "avutils")
 x <- read_elan(elan)
 # leave unchanged
 subset_time(x)
-# up to 26
-subset_time(x, to = 26)
-# remove incomplete anno (25.6 - 26.3)
-subset_time(x, to = 26, include_incomplete = FALSE)
+# up to 29
+subset_time(x, to = 29)
+# remove incomplete anno (28.3 - 30.5)
+subset_time(x, to = 29, include_incomplete = FALSE)
 }

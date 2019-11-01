@@ -30,7 +30,7 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
 
   # rttm ----------------------------------------------------------------
   rttmfile <- normalizePath(rttmfile, winslash = "/", mustWork = TRUE)
-  rttm <- read.table(rttmfile, header = FALSE)
+  rttm <- read.table(rttmfile, header = FALSE, sep = " ")
   colnames(rttm)[c(1, 4, 5, 8)] <- c("tier", "start", "dur", "anno_val")
 
 

@@ -14,9 +14,16 @@
 #' read_rttm(rttm)
 #' rttm <- system.file("yunitator_english_synthetic_speech_overlap.rttm", package = "avutils")
 #' read_rttm(rttm)
+#' rttm <- system.file("tocomboSad_synthetic_speech_overlap.rttm", package = "avutils")
+#' read_rttm(rttm)
 read_rttm <- function(x) {
-  x <- read.table(x, header = FALSE, sep = " ")
-  colnames(x)[c(4, 5, 8)] <- c("start", "dur", "tier")
-  x$end <- x$start + x$dur
-  x
+  res <- read.table(x, header = FALSE)
+  # special handling for tocombo files?
+  # if (grepl("tocomboSad_", basename(x)))
+  # colnames(res)[c(7, 10, 14)] <- c("start", "duration", "tier")
+
+  colnames(res)[c(4, 5, 8)] <- c("start", "duration", "tier")
+
+  res$end <- res$start + res$duration
+  res
 }

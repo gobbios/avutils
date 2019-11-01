@@ -4,14 +4,10 @@
 #'
 #' @param xdata data.frame, the data object with annotations (e.g. import from ELAN or .rttm file)
 #' @param segment_dur numeric, the time interval in the relevant unit (no default, see details)
-#' @param timecols character, the column names for start and end of the annotations (default is \code{c("start", "end")}). If there is no 'end' time stamp but only a duration for the annotation, use this column.
-#' @param end_is_dur logical, is the column with the end time actually a duration (by default \code{FALSE}, i.e. end column is treated as a time stamp)
-#' @details the unit of the \code{segment_dur=} argument depends on the unit of time in the source file. ELAN uses milliseconds, while the DiViMe tools typically use seconds.
+#' @param timecols character, the column names for start and end of the annotations (default is \code{c("start", "end")}).
+#' @details note that annotations that cross over a given cut point for a segment will be split into two (or more if an annotation is much longer than the segment duration)
 #'
-#' note that annotations that cross over a given cut point for a segment will be split into two (or more if an annotation is much longer than the segment duration)
-#'
-#' if \code{end_is_dur = TRUE} a new column ('\code{xend}') is added that adds the second time column (which in that case should be a duration) to the start time
-#' @return a data.frame with a new column that indicates which time interval a given annotation belongs to
+#' @return a data.frame with a new column \code{cat} that indicates which time interval a given annotation belongs to
 #' @export
 #' @examples
 #' annos <- LETTERS[1:5]
@@ -26,9 +22,9 @@
 #' # from an ELAN file:
 #' eaf <- system.file("synthetic_speech.eaf", package = "avutils")
 #' elanfile <- read_elan(eaf)
-#' segment_annotations(elanfile, segment_dur = 500)
+#' segment_annotations(elanfile, segment_dur = 0.5)
 
-segment_annotations <- function(xdata, segment_dur, timecols = c("start", "end"), end_is_dur = FALSE) {
+segment_annotations <- function(xdata, segment_dur, timecols = c("start", "end")) {
   # special case when xdata is empty
   if (nrow(xdata) == 0) {
     res <- data.frame(start = 0, end = 0, cat = NA, xdur = 0)
@@ -36,17 +32,7 @@ segment_annotations <- function(xdata, segment_dur, timecols = c("start", "end")
   }
 
   # calculate total sum of anno durations (for sanity check)
-  if (end_is_dur) {
-    totdur <- sum(xdata[, timecols[2]])
-  } else {
-    totdur <- sum(xdata[, timecols[2]] - xdata[, timecols[1]])
-  }
-
-  # handle end time
-  if (end_is_dur) {
-    xdata$xend <- xdata[, timecols[1]] + xdata[, timecols[2]]
-    timecols[2] <- "xend"
-  }
+  totdur <- sum(xdata[, timecols[2]] - xdata[, timecols[1]])
 
   # matrix of time cols
   xd <- as.matrix(xdata[, timecols])

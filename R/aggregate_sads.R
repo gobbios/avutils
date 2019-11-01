@@ -57,46 +57,42 @@ aggregate_sads <- function(sadloc, elanloc, segment_dur = 60, ...) {
     root <- strsplit(basename(elan_files[i]), ".", fixed = TRUE)[[1]][1]
 
     elan <- read_elan(x = elan_files[i])
-    elan <- collapse_tiers(xdata = elan, timecols = c("start", "end"), end_is_dur = FALSE, ...)
-    elan <- segment_annotations(xdata = elan, segment_dur = segment_dur * 1000, timecols = c("start", "end"), end_is_dur = FALSE)
+    elan <- collapse_tiers(xdata = elan, ...)
+    elan <- segment_annotations(xdata = elan, segment_dur = segment_dur)
     elan$dur <- elan$end - elan$start
-    elan <- tapply(elan$dur, INDEX = elan$cat, sum)/1000
+    elan <- tapply(elan$dur, INDEX = elan$cat, sum)
 
     opensmile <- paste0(sadloc, "/opensmileSad_", root, ".rttm")
-    opensmile <- read.table(opensmile, header = FALSE)
-    opensmile <- collapse_tiers(xdata = opensmile, timecols = c("V4", "V5"), end_is_dur = TRUE)
-    opensmile <- segment_annotations(xdata = opensmile, segment_dur = segment_dur, timecols = c("V4", "xend"), end_is_dur = FALSE)
+    opensmile <- read_rttm(opensmile)
+    opensmile <- collapse_tiers(xdata = opensmile)
+    opensmile <- segment_annotations(xdata = opensmile, segment_dur = segment_dur)
     opensmile <- tapply(opensmile$xdur, INDEX = opensmile$cat, sum)
     opensmile[is.na(opensmile)] <- 0
 
     noisemes <- paste0(sadloc, "/noisemesSad_", root, ".rttm")
-    noisemes <- read.table(noisemes, header = FALSE)
-    noisemes <- collapse_tiers(xdata = noisemes, timecols = c("V4", "V5"), end_is_dur = TRUE)
-    noisemes <- segment_annotations(xdata = noisemes, segment_dur = segment_dur, timecols = c("V4", "xend"), end_is_dur = FALSE)
+    noisemes <- read_rttm(noisemes)
+    noisemes <- collapse_tiers(xdata = noisemes)
+    noisemes <- segment_annotations(xdata = noisemes, segment_dur = segment_dur)
     noisemes <- tapply(noisemes$xdur, INDEX = noisemes$cat, sum)
     noisemes[is.na(noisemes)] <- 0
 
     tocombo <- paste0(sadloc, "/tocomboSad_", root, ".rttm")
-    tocombo <- read.table(tocombo, header = FALSE)
-    tocombo <- collapse_tiers(xdata = tocombo, timecols = c("V4", "V5"), end_is_dur = TRUE)
-    tocombo <- segment_annotations(xdata = tocombo, segment_dur = segment_dur, timecols = c("V4", "xend"), end_is_dur = FALSE)
+    tocombo <- read_rttm(tocombo)
+    tocombo <- collapse_tiers(xdata = tocombo)
+    tocombo <- segment_annotations(xdata = tocombo, segment_dur = segment_dur)
     tocombo <- tapply(tocombo$xdur, INDEX = tocombo$cat, sum)
     tocombo[is.na(tocombo)] <- 0
 
     noisemes_noise <- paste0(sadloc, "/noisemesFull_", root, ".rttm")
-    noisemes_noise <- read.table(noisemes_noise, header = FALSE)
-    noisemes_noise <- noisemes_noise[noisemes_noise$V8 == "noise_ongoing", ]
+    noisemes_noise <- read_rttm(noisemes_noise)
+    noisemes_noise <- noisemes_noise[noisemes_noise$tier == "noise_ongoing", ]
     if (nrow(noisemes_noise) > 0) {
-      # noisemes_noise <- collapse_tiers(xdata = noisemes_noise, timecols = c("V4", "V5"), end_is_dur = TRUE)
-      # noisemes_noise <- segment_annotations(xdata = noisemes_noise, segment_dur = segment_dur, timecols = c("V4", "xend"), end_is_dur = FALSE)
-      noisemes_noise <- segment_annotations(xdata = noisemes_noise, segment_dur = segment_dur, timecols = c("V4", "V5"), end_is_dur = TRUE)
+      noisemes_noise <- segment_annotations(xdata = noisemes_noise, segment_dur = segment_dur)
       noisemes_noise <- tapply(noisemes_noise$xdur, INDEX = noisemes_noise$cat, sum)
       noisemes_noise[is.na(noisemes_noise)] <- 0
     } else {
       noisemes_noise <- NULL
     }
-
-
 
     # combine data
     xmax <- max(as.numeric(c(rev(names(tocombo))[1],

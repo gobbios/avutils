@@ -3,8 +3,7 @@
 #' from overlapping tiers
 #'
 #' @param xdata data.frame, the data object with annotations (e.g. import from ELAN or .rttm file)
-#' @param timecols character, the column names for start and end of the annotations (default is \code{c("start", "end")}). If there is no 'end' time stamp but only a duration for the annotation, use this column.
-#' @param end_is_dur logical, is the column with the end time actually a duration (by default \code{FALSE}, i.e. end column is treated as a time stamp)
+#' @param timecols character, the column names for start and end of the annotations (default is \code{c("start", "end")}).
 #' @param ignore_tiers character, at least of length 2, where the first item is the column name for the tiers, and subsequently lists all tier names that should be ignored
 #' @param ignore_annos character, at least of length 2, where the first item is the column name for the annotations, and subsequently lists all annotation values that should be ignored
 #'
@@ -19,19 +18,13 @@
 #' annos <- LETTERS[1:5]
 #' start <- c(14, 17, 45, 65, 70)
 #' end <- c(25, 23, 60, 80, 82)
-#' dur <- end - start
-#' xdata <- data.frame(start, end, dur, annos)
+#' duration <- end - start
+#' xdata <- data.frame(start, end, duration, annos)
 #' # second anno is merged into first because it's completely comprised in the first
 #' # last two annos are 'combined' into one
-#' collapse_tiers(xdata = xdata, timecols = c("start", "end"), end_is_dur = FALSE)
+#' collapse_tiers(xdata = xdata, timecols = c("start", "end"))
 
-collapse_tiers <- function(xdata, timecols = c("start", "end"), end_is_dur = FALSE, ignore_tiers = NULL, ignore_annos = NULL) {
-
-  # handle end time
-  if (end_is_dur) {
-    xdata$xend <- xdata[, timecols[1]] + xdata[, timecols[2]]
-    timecols[2] <- "xend"
-  }
+collapse_tiers <- function(xdata, timecols = c("start", "end"), ignore_tiers = NULL, ignore_annos = NULL) {
 
   if (!is.null(ignore_tiers)) {
     xdata <- xdata[!xdata[, ignore_tiers[1]] %in% ignore_tiers[2:length(ignore_tiers)], ]
@@ -91,4 +84,3 @@ collapse_tiers <- function(xdata, timecols = c("start", "end"), end_is_dur = FAL
 
   as.data.frame(res)
 }
-

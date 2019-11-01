@@ -4,15 +4,13 @@
 \alias{collapse_tiers}
 \title{collapse overlapping annotations}
 \usage{
-collapse_tiers(xdata, timecols = c("start", "end"), end_is_dur = FALSE,
+collapse_tiers(xdata, timecols = c("start", "end"),
   ignore_tiers = NULL, ignore_annos = NULL)
 }
 \arguments{
 \item{xdata}{data.frame, the data object with annotations (e.g. import from ELAN or .rttm file)}
 
-\item{timecols}{character, the column names for start and end of the annotations (default is \code{c("start", "end")}). If there is no 'end' time stamp but only a duration for the annotation, use this column.}
-
-\item{end_is_dur}{logical, is the column with the end time actually a duration (by default \code{FALSE}, i.e. end column is treated as a time stamp)}
+\item{timecols}{character, the column names for start and end of the annotations (default is \code{c("start", "end")}).}
 
 \item{ignore_tiers}{character, at least of length 2, where the first item is the column name for the tiers, and subsequently lists all tier names that should be ignored}
 
@@ -34,9 +32,9 @@ Also, in the process annotations are re-ordered such that start time increases.
 annos <- LETTERS[1:5]
 start <- c(14, 17, 45, 65, 70)
 end <- c(25, 23, 60, 80, 82)
-dur <- end - start
-xdata <- data.frame(start, end, dur, annos)
+duration <- end - start
+xdata <- data.frame(start, end, duration, annos)
 # second anno is merged into first because it's completely comprised in the first
 # last two annos are 'combined' into one
-collapse_tiers(xdata = xdata, timecols = c("start", "end"), end_is_dur = FALSE)
+collapse_tiers(xdata = xdata, timecols = c("start", "end"))
 }

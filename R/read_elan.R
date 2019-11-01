@@ -5,7 +5,9 @@
 #' @importFrom xml2 xml_children xml_name xml_attr xml_text xml_child read_xml
 #' @return a data frame
 #' @export
-#'
+#' @examples
+#' elan <- system.file("synthetic_speech.eaf", package = "avutils")
+#' read_elan(elan)
 
 read_elan <- function(x) {
   if (class(x)[1] == "character") x <- read_xml(x)
@@ -87,5 +89,11 @@ read_elan <- function(x) {
                      content = res[, "content"], stringsAsFactors = FALSE)
   xres <- xres[order(xres$start), ]
   rownames(xres) <- NULL
+
+  # reformat times to milliseconds
+  xres$start <- xres$start/1000
+  xres$end <- xres$end/1000
+  # add duration column
+  xres$duration <- xres$end - xres$start
   xres
 }

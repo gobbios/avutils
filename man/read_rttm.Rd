@@ -25,4 +25,6 @@ rttm <- system.file("noisemesFull_synthetic_speech_overlap.rttm", package = "avu
 read_rttm(rttm)
 rttm <- system.file("yunitator_english_synthetic_speech_overlap.rttm", package = "avutils")
 read_rttm(rttm)
+rttm <- system.file("tocomboSad_synthetic_speech_overlap.rttm", package = "avutils")
+read_rttm(rttm)
 }

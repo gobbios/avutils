@@ -34,8 +34,8 @@ evaluate_sad <- function(x1, x2, nsegments = 1, from = NULL, to = NULL, overlap_
     temp <- ifelse (i == 1, x1, x2)
     if (grepl(pattern = ".eaf", temp, fixed = TRUE)) {
       temp <- read_elan(temp)
-      temp$start <- temp$start/1000
-      temp$end <- temp$end/1000
+      # temp$start <- temp$start/1000
+      # temp$end <- temp$end/1000
       temp <- collapse_tiers(temp, ...)
     } else {
       temp <- read.table(temp, header = FALSE)

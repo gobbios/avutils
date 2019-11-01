@@ -49,8 +49,6 @@ add2elan <- function(elanfile, audiofile, tocombo = NULL, noisemes = NULL, opens
   temp2 <- read_elan(elanfile)
   temp2 <- data.frame(as.character(temp2$tier), NA, NA, temp2$start,
                       temp2$end - temp2$start, NA, NA, temp2$content, NA)
-  temp2[, 4] <- temp2[, 4]/1000
-  temp2[, 5] <- temp2[, 5]/1000
   temp2[, 8] <- gsub(pattern = " ", replacement = "_", x = temp2[, 8])
   temp2[, 1] <- gsub(pattern = " ", replacement = "_", x = temp2[, 1])
   colnames(temp2) <- paste0("V", 1:9)

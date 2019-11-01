@@ -21,12 +21,8 @@
 #' x3 <- x2[0, ]
 #' annotation_overlap(x1, x3)
 #' # with 'real' data
-#' x1 <- read.table(system.file("noisemesSAD_synthetic_speech.rttm", package = "avutils"))
-#' colnames(x1)[c(4, 5)] <- c("start", "end")
-#' x1$end <- x1$start + x1$end
+#' x1 <- read_rttm(system.file("noisemesSAD_synthetic_speech.rttm", package = "avutils"))
 #' x2 <- read_elan(system.file("synthetic_speech.eaf", package = "avutils"))
-#' x2$start <- x2$start/1000
-#' x2$end <- x2$end/1000
 #' annotation_overlap(x1, x2, overlap_res = 10)
 #' annotation_overlap(x1, x2, overlap_res = 10, return_raw = TRUE)
 

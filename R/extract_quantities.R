@@ -33,21 +33,7 @@ extract_quantities <- function(path, turntakingthresh = 1, tiernames = NULL) {
   }
 
   if (type == "rttm") {
-    xdata <- read.table(path, header = FALSE, sep = " ")
-    colnames(xdata)[c(4, 5, 8)] <- c("start", "dur", "tier")
-    xdata$end <- xdata$start + xdata$dur
-    # count vocalizations and total duration of vocalizations
-    res1 <- tapply(X = xdata$dur, INDEX = xdata$tier, sum)
-    res2 <- tapply(X = xdata$dur, INDEX = xdata$tier, length)
-    # turn taking
-    xdata$tier <- as.character(xdata$tier)
-    # calc inter turn interval
-    xdata$iti <- xdata[, "start"] - c(NA, xdata[-nrow(xdata), "end"])
-    # get previous seg type
-    xdata$prev_label <- c(NA, xdata[-nrow(xdata),"tier"])
-
-    xdata$turn <- ifelse((xdata$tier %in% targetchild & xdata$prev_label %in% adults & xdata$iti < turntakingthresh) | (xdata$tier %in% adults & xdata$prev_label %in% targetchild & xdata$iti < turntakingthresh), 1, 0)
-    res3 <- sum(xdata$turn)
+    xdata <- read_rttm(x = path)
   }
 
 
@@ -56,20 +42,20 @@ extract_quantities <- function(path, turntakingthresh = 1, tiernames = NULL) {
     xdata <- read_elan(x = path)
     xdata <- xdata[xdata$tier %in% c(targetchild, adults), ]
     xdata <- droplevels(xdata[xdata$content %in% c("s", "s?"), ])
-    xdata$start <- xdata$start / 1000
-    xdata$end <- xdata$end / 1000
-    res1 <- tapply(X = xdata$end - xdata$start, INDEX = xdata$tier, sum)
-    res2 <- tapply(X = xdata$start, INDEX = xdata$tier, length)
-
-    xdata$tier <- as.character(xdata$tier)
-    # calc inter turn interval
-    xdata$iti <- xdata[, "start"] - c(NA, xdata[-nrow(xdata), "end"])
-    # get previous seg type
-    xdata$prev_label <- c(NA, xdata[-nrow(xdata), "tier"])
-
-    xdata$turn <- ifelse((xdata$tier %in% targetchild & xdata$prev_label %in% adults & xdata$iti < turntakingthresh) | (xdata$tier %in% adults & xdata$prev_label %in% targetchild & xdata$iti < turntakingthresh), 1, 0)
-    res3 <- sum(xdata$turn)
   }
+
+  # count vocalizations and total duration of vocalizations
+  res1 <- tapply(X = xdata$duration, INDEX = xdata$tier, sum)
+  res2 <- tapply(X = xdata$duration, INDEX = xdata$tier, length)
+  # turn taking
+  xdata$tier <- as.character(xdata$tier)
+  # calc inter turn interval
+  xdata$iti <- xdata[, "start"] - c(NA, xdata[-nrow(xdata), "end"])
+  # get previous seg type
+  xdata$prev_label <- c(NA, xdata[-nrow(xdata),"tier"])
+  # mark turns
+  xdata$turn <- ifelse((xdata$tier %in% targetchild & xdata$prev_label %in% adults & xdata$iti < turntakingthresh) | (xdata$tier %in% adults & xdata$prev_label %in% targetchild & xdata$iti < turntakingthresh), 1, 0)
+  res3 <- sum(xdata$turn)
 
   list(cum_dur = res1, voc_count = res2, turns = res3)
 }

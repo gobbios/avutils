@@ -15,3 +15,7 @@ a data frame
 \description{
 read annotations from Elan .eaf file
 }
+\examples{
+elan <- system.file("synthetic_speech.eaf", package = "avutils")
+read_elan(elan)
+}

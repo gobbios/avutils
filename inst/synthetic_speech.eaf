@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ANNOTATION_DOCUMENT AUTHOR="" DATE="2019-10-01T14:07:13+01:00" FORMAT="3.0" VERSION="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv3.0.xsd">
+<ANNOTATION_DOCUMENT AUTHOR="" DATE="2019-11-01T15:06:08+01:00" FORMAT="3.0" VERSION="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv3.0.xsd">
     <HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
         <MEDIA_DESCRIPTOR MEDIA_URL="file:///Users/christofneumann/Dropbox/work/avutils/inst/synthetic_speech.wav" MIME_TYPE="audio/x-wav" RELATIVE_MEDIA_URL="./synthetic_speech.wav"/>
         <PROPERTY NAME="URN">urn:nl-mpi-tools-elan-eaf:95a17ff9-ab15-40a3-be9c-4aa724cb0202</PROPERTY>
@@ -7,9 +7,9 @@
     </HEADER>
     <TIME_ORDER>
         <TIME_SLOT TIME_SLOT_ID="ts1" TIME_VALUE="420"/>
-        <TIME_SLOT TIME_SLOT_ID="ts2" TIME_VALUE="3190"/>
+        <TIME_SLOT TIME_SLOT_ID="ts2" TIME_VALUE="3178"/>
         <TIME_SLOT TIME_SLOT_ID="ts3" TIME_VALUE="5400"/>
-        <TIME_SLOT TIME_SLOT_ID="ts4" TIME_VALUE="7670"/>
+        <TIME_SLOT TIME_SLOT_ID="ts4" TIME_VALUE="7657"/>
         <TIME_SLOT TIME_SLOT_ID="ts5" TIME_VALUE="10355"/>
         <TIME_SLOT TIME_SLOT_ID="ts6" TIME_VALUE="13445"/>
         <TIME_SLOT TIME_SLOT_ID="ts7" TIME_VALUE="15870"/>
