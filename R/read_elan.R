@@ -10,6 +10,7 @@
 #' read_elan(elan)
 
 read_elan <- function(x) {
+  fn <- x
   if (class(x)[1] == "character") x <- read_xml(x)
   raw <- xml_children(x = x)
   # handle time slots
@@ -95,5 +96,7 @@ read_elan <- function(x) {
   xres$end <- xres$end/1000
   # add duration column
   xres$duration <- xres$end - xres$start
+  attributes(xres)$filename <- basename(fn)
+
   xres
 }

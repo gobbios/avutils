@@ -4,16 +4,28 @@
 \alias{evaluate_roles}
 \title{evaluate speaker roles}
 \usage{
-evaluate_roles(xdata, resolution = 1, duration = NULL, tiers = NULL)
+evaluate_roles(test, reference, resolution = 1, duration = NULL,
+  summarize = TRUE, test_tiers = c("CHI", "FEM", "MAL"),
+  ref_tiers = c("CHI", "FA1", "MA1"), test_ignore = NULL,
+  ref_ignore = NULL, allspeech = TRUE, confuse_matches = list(CHI =
+  c("CHI"), FEM = c("FA1"), MAL = c("MA1")))
 }
 \arguments{
-\item{xdata}{a data.frame, (result from \code{\link{read_elan}} or \code{\link{read_rttm}})}
-
 \item{resolution}{numeric, the time increment in seconds, by default 1}
 
-\item{duration}{numeric, optional info about the duration of the audio. If not supplied, the end of the last annotation is taken as the duration}
+\item{duration}{numeric, optional info about the duration of the audio. At its default \code{NULL}, the end of the last annotation is taken as the duration}
 
-\item{tiers}{character of variable length, the tiers that should be considered}
+\item{summarize}{logical (default is \code{TRUE}), should summary metrics be returned or the detailed frame-by-frame results}
+
+\item{test_tiers, ref_tiers}{character, the tiers to be taken into account. If set to \code{NULL}, all tiers that are found in the data will be used.}
+
+\item{test_ignore, ref_ignore}{character, the annotation values to be ignored. At its default \code{NULL}, nothing is ignored.}
+
+\item{allspeech}{logical, should the speech detection be taken from \emph{all} tiers, i.e. even those that were ignored by setting \code{tiers=}. Default is \code{TRUE}.}
+
+\item{confuse_matches}{a named list with character vectors. The vectors need to be named according to the entries in \code{test_tiers} and contain those tier names in \code{ref_tiers} that are considered to be matches.}
+
+\item{xdata}{a data.frame, (result from \code{\link{read_elan}} or \code{\link{read_rttm}})}
 }
 \value{
 a matrix
@@ -22,7 +34,9 @@ a matrix
 evaluate speaker roles
 }
 \examples{
-elan <- system.file("synthetic_speech_overlap.eaf", package = "avutils")
-xdata <- read_elan(elan)
-evaluate_roles(xdata)
+reference <- read_elan(system.file("spanish.eaf", package = "avutils"))
+test <- read_rttm(system.file("yunitator_old_spanish.rttm", package = "avutils"))
+evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
+test <- read_rttm(system.file("tocomboSad_spanish.rttm", package = "avutils"))
+evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
 }

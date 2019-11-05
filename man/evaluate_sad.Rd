@@ -4,15 +4,18 @@
 \alias{evaluate_sad}
 \title{evaluation of speech detection tools}
 \usage{
-evaluate_sad(x1, x2, nsegments = 1, from = NULL, to = NULL,
-  overlap_res = NULL, doplot = TRUE, raw_results = FALSE, ...)
+evaluate_sad(test, reference, nsegments = 1, duration = NULL,
+  from = NULL, to = NULL, overlap_res = NULL, doplot = TRUE,
+  raw_results = FALSE, ...)
 }
 \arguments{
-\item{x1}{character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
+\item{test}{character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
 
-\item{x2}{character, path to file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
+\item{reference}{character, path to reference file with annotations in either ELAN (.eaf) or DiViMe (.rttm) format}
 
 \item{nsegments}{numeric, the number of segments in which the file is to be split (represented as different lines in output graphic). Default is \code{1}, i.e. the entire file is considered as one segment.}
+
+\item{duration}{numeric, optional info about the duration of the audio. At its default \code{NULL}, the end of the last annotation is taken as the duration}
 
 \item{from}{numeric, starting point for selecting a subset of time}
 
@@ -33,16 +36,16 @@ a data.frame with proportions of agreement between the two SADs
 evaluation of speech detection tools
 }
 \examples{
-x1 <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")
-x2 <- system.file("synthetic_speech.eaf", package = "avutils")
+test <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")
+reference <- system.file("synthetic_speech.eaf", package = "avutils")
 # no overlap calculation
-evaluate_sad(x1 = x1, x2 = x2)
+evaluate_sad(test = test, reference = reference)
 # fairly crude time resolution for overlap calculation
-evaluate_sad(x1 = x1, x2 = x2, overlap_res = 10)
+evaluate_sad(test = test, reference = reference, overlap_res = 10)
 # slightly higher time resolution
-evaluate_sad(x1 = x1, x2 = x2, overlap_res = 100)
+evaluate_sad(test = test, reference = reference, overlap_res = 100)
 # even more fine-grained
-evaluate_sad(x1 = x1, x2 = x2, overlap_res = 1000)
+evaluate_sad(test = test, reference = reference, overlap_res = 1000)
 # even more fine-grained and file split into multiple segments
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 10, overlap_res = 100)
+evaluate_sad(test = test, reference = reference, nsegments = 10, overlap_res = 100)
 }

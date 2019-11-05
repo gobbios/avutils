@@ -18,12 +18,8 @@
 #' read_rttm(rttm)
 read_rttm <- function(x) {
   res <- read.table(x, header = FALSE)
-  # special handling for tocombo files?
-  # if (grepl("tocomboSad_", basename(x)))
-  # colnames(res)[c(7, 10, 14)] <- c("start", "duration", "tier")
-
   colnames(res)[c(4, 5, 8)] <- c("start", "duration", "tier")
-
   res$end <- res$start + res$duration
+  attributes(res)$filename <- basename(x)
   res
 }

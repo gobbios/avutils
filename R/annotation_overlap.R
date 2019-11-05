@@ -53,7 +53,7 @@ annotation_overlap <- function(x1, x2, seg_length = NULL, overlap_res = 100, ret
   res <- as.numeric(xvals[, 2] == xvals[, 3])
   out <- sum(res) / length(res)
   xvals <- cbind(xvals, res)
-  colnames(xvals) <- c("timestamp", "x1_speech", "x2_speech", "both_same")
+  colnames(xvals) <- c("timestamp", "test_speech", "ref_speech", "both_same")
 
   if (return_raw) {
     return(xvals)

@@ -24,7 +24,7 @@ summary_elan <- function(x) {
 
     # mean duration of annotations
     dur <- X$end - X$start
-    tempres$mean_dur <- round(tapply(dur, X$tier, mean)/1000, 2)
+    tempres$mean_dur <- round(tapply(dur, X$tier, mean), 3)
 
     # check for empty/NA annotation values
     foo <- function(xdata) {
