@@ -5,10 +5,9 @@
 \title{evaluate speaker roles}
 \usage{
 evaluate_roles(test, reference, resolution = 1, duration = NULL,
-  summarize = TRUE, test_tiers = c("CHI", "FEM", "MAL"),
-  ref_tiers = c("CHI", "FA1", "MA1"), test_ignore = NULL,
-  ref_ignore = NULL, allspeech = TRUE, confuse_matches = list(CHI =
-  c("CHI"), FEM = c("FA1"), MAL = c("MA1")))
+  summarize = TRUE, tiers = list(CHI = c("CHI", paste0("UC", 1:9)), FEM
+  = paste0("FA", 1:9), MAL = paste0("MA", 1:9)), test_ignore = NULL,
+  ref_ignore = NULL, allspeech = TRUE)
 }
 \arguments{
 \item{resolution}{numeric, the time increment in seconds, by default 1}
@@ -17,18 +16,16 @@ evaluate_roles(test, reference, resolution = 1, duration = NULL,
 
 \item{summarize}{logical (default is \code{TRUE}), should summary metrics be returned or the detailed frame-by-frame results}
 
-\item{test_tiers, ref_tiers}{character, the tiers to be taken into account. If set to \code{NULL}, all tiers that are found in the data will be used.}
+\item{tiers}{a named list that controls which labels/speakers from reference and test annotation are used. The name of each element needs to correspond to the speakers/'tiers' in the test file, e.g. \code{CHI}, \code{FEM} and \code{MAL}. The content of each element then lists the corresponding speakers/tiers of the reference. For example, the entry \code{FEM = c("FA1", "FA2")} matches the \code{FEM} speaker in the test file to the \code{FA1} and \code{FA2} tiers in the reference file.}
 
 \item{test_ignore, ref_ignore}{character, the annotation values to be ignored. At its default \code{NULL}, nothing is ignored.}
 
 \item{allspeech}{logical, should the speech detection be taken from \emph{all} tiers, i.e. even those that were ignored by setting \code{tiers=}. Default is \code{TRUE}.}
 
-\item{confuse_matches}{a named list with character vectors. The vectors need to be named according to the entries in \code{test_tiers} and contain those tier names in \code{ref_tiers} that are considered to be matches.}
-
 \item{xdata}{a data.frame, (result from \code{\link{read_elan}} or \code{\link{read_rttm}})}
 }
 \value{
-a matrix
+a data.frame (for \code{summarize = TRUE}) or matrix (for \code{summarize = FALSE})
 }
 \description{
 evaluate speaker roles
@@ -37,6 +34,8 @@ evaluate speaker roles
 reference <- read_elan(system.file("spanish.eaf", package = "avutils"))
 test <- read_rttm(system.file("yunitator_old_spanish.rttm", package = "avutils"))
 evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
-test <- read_rttm(system.file("tocomboSad_spanish.rttm", package = "avutils"))
-evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
+# use for pure speech detection
+# not quite working yet...
+# test <- read_rttm(system.file("tocomboSad_spanish.rttm", package = "avutils"))
+# evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
 }

@@ -3,42 +3,36 @@
 #' @param xdata a data.frame, (result from \code{\link{read_elan}} or \code{\link{read_rttm}})
 #' @param resolution numeric, the time increment in seconds, by default 1
 #' @param duration numeric, optional info about the duration of the audio. At its default \code{NULL}, the end of the last annotation is taken as the duration
-#' @param test_tiers,ref_tiers character, the tiers to be taken into account. If set to \code{NULL}, all tiers that are found in the data will be used.
+#' @param tiers a named list that controls which labels/speakers from reference and test annotation are used. The name of each element needs to correspond to the speakers/'tiers' in the test file, e.g. \code{CHI}, \code{FEM} and \code{MAL}. The content of each element then lists the corresponding speakers/tiers of the reference. For example, the entry \code{FEM = c("FA1", "FA2")} matches the \code{FEM} speaker in the test file to the \code{FA1} and \code{FA2} tiers in the reference file.
 #' @param test_ignore,ref_ignore character, the annotation values to be ignored. At its default \code{NULL}, nothing is ignored.
 #' @param allspeech logical, should the speech detection be taken from \emph{all} tiers, i.e. even those that were ignored by setting \code{tiers=}. Default is \code{TRUE}.
-#' @param confuse_matches a named list with character vectors. The vectors need to be named according to the entries in \code{test_tiers} and contain those tier names in \code{ref_tiers} that are considered to be matches.
 #' @param summarize logical (default is \code{TRUE}), should summary metrics be returned or the detailed frame-by-frame results
 #'
-#' @return a matrix
+#' @return a data.frame (for \code{summarize = TRUE}) or matrix (for \code{summarize = FALSE})
 #' @export
 #'
 #' @examples
 #' reference <- read_elan(system.file("spanish.eaf", package = "avutils"))
 #' test <- read_rttm(system.file("yunitator_old_spanish.rttm", package = "avutils"))
 #' evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
-#' test <- read_rttm(system.file("tocomboSad_spanish.rttm", package = "avutils"))
-#' evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
+#' # use for pure speech detection
+#' # not quite working yet...
+#' # test <- read_rttm(system.file("tocomboSad_spanish.rttm", package = "avutils"))
+#' # evaluate_roles(reference = reference, test = test, duration = 180, resolution = 10)
 
 evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, summarize = TRUE,
-                           test_tiers = c("CHI", "FEM", "MAL"),
-                           ref_tiers = c("CHI", "FA1", "MA1"),
+                           tiers = list(CHI = c("CHI", paste0("UC", 1:9)),
+                                        FEM = paste0("FA", 1:9),
+                                        MAL = paste0("MA", 1:9)),
                            test_ignore = NULL,
                            ref_ignore = NULL,
-                           allspeech = TRUE,
-                           confuse_matches = list(CHI = c("CHI"),
-                                                  FEM = c("FA1"),
-                                                  MAL = c("MA1"))) {
+                           allspeech = TRUE) {
   # defaults
-  # resolution = 1; duration = NULL; test_tiers = c("CHI", "FEM", "MAL")
-  # ref_tiers = c("CHI", "FA1", "MA1"); test_ignore = NULL; ref_ignore = NULL;
+  # resolution = 1; duration = NULL; test_ignore = NULL; ref_ignore = NULL;
   # allspeech = TRUE; summarize = TRUE
-  # confuse_matches = list(CHI = c("CHI"), FEM = c("FA1"), MAL = c("MA1"))
+  # tiers = list(CHI = c("CHI", paste0("UC", 1:9)), FEM = paste0("FA", 1:9), MAL = paste0("MA", 1:9))
 
-  # test_tiers = c("CHI", "FEM", "MAL"); ref_tiers = c("CHI", "FA1", "MA1", "FA2")
-  # ref_ignore = c("L", "?s", "?x","x","x?","?L","L?"); test_ignore = NULL
-  # resolution = 7; duration = NULL; allspeech = TRUE
-  # confuse_matches = list(CHI = c("CHI"),  FEM = c("FA1", "FA2"), MAL = c("MA1"))
-
+  # resolution = 10
 
   # extract duration if not supplied
   if (is.null(duration)) {
@@ -63,16 +57,15 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
   ref_copy <- reference
   test_copy <- test
 
-  # filter requested tiers
-  if (is.null(ref_tiers)) {
-    ref_tiers <- unique(as.character(reference$tier))
+  # rename tiers in reference file
+  reference$tier <- as.character(reference$tier)
+  reference <- reference[reference$tier %in% unlist(tiers), ]
+  if (!is.null(tiers)) {
+    for (i in 1:length(tiers)) {
+      newname <- names(tiers)[[i]]
+      reference$tier[reference$tier %in% tiers[[i]]] <- newname
+    }
   }
-  if (is.null(test_tiers)) {
-    test_tiers <- unique(as.character(test$tier))
-  }
-
-  reference <- reference[reference$tier %in% ref_tiers, ]
-  test <- test[test$tier %in% test_tiers, ]
 
   # generate sampling points (depending on whether duration is supplied) and remove first point at 0
   samplepoints <- seq(from = 0, to = duration, by = resolution)[-1]
@@ -104,8 +97,8 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
     res
   }
 
-  res_ref <- tempfoo(reference, ref_tiers, samplepoints)
-  res_test <- tempfoo(test, test_tiers, samplepoints)
+  res_ref <- tempfoo(reference, names(tiers), samplepoints)
+  res_test <- tempfoo(test, names(tiers), samplepoints)
   res_ref2 <- tempfoo(ref_copy, unique(as.character(ref_copy$tier)), samplepoints)
 
   if (allspeech) {
@@ -137,26 +130,28 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
   res_test_sel <- res_test[speech_frames, , drop = FALSE]
   res_ref_sel <- res_ref[speech_frames, , drop = FALSE]
 
-
-  if (!is.null(confuse_matches)) {
-    correct_match <- logical(nrow(res_test_sel))
-    i=1
-    for (i in 1:length(confuse_matches)) {
-      # select test speaker
-      tempindex <- which(res_test_sel[, names(confuse_matches)[i]] == 1)
-      if (length(tempindex) > 0) {
-        correct_match[tempindex] <- rowSums(res_ref_sel[tempindex, confuse_matches[[i]], drop = FALSE]) >= 1
-      }
+  correct_match <- logical(nrow(res_test_sel))
+  i=1
+  for (i in 1:length(tiers)) {
+    # select test speaker
+    tempindex <- which(res_test_sel[, names(tiers)[[i]]] == 1)
+    if (length(tempindex) > 0) {
+      correct_match[tempindex] <- rowSums(res_ref_sel[tempindex, names(tiers)[[i]], drop = FALSE]) >= 1
     }
-    detailed_res$confused_role[speech_frames] <- !correct_match
   }
+  detailed_res$confused_role[speech_frames] <- !correct_match
+
 
   # overlap categories
   # applies only to manual annotations (DiViMe doesn't classify overlap)
   # any overlap
   detailed_res$overlap <- rowSums(res_ref) > 1
   # overlap with CHI
-  detailed_res$overlap_chi <- (res_ref[, "CHI"] + rowSums(res_ref[, colnames(res_ref) != "CHI"])) > 1
+  detailed_res$overlap_chi <- (res_ref[, "CHI"] == 1) & (rowSums(res_ref[, colnames(res_ref) != "CHI"]) >= 1)
+  # pure CHI, FEM and MAL (without considering overlap) from reference
+  detailed_res$pure_chi <- res_ref[, "CHI"] == 1 & !detailed_res$overlap
+  detailed_res$pure_fem <- res_ref[, "FEM"] == 1 & !detailed_res$overlap
+  detailed_res$pure_mal <- res_ref[, "MAL"] == 1 & !detailed_res$overlap
 
   # create summary results
   if (summarize) {
@@ -176,11 +171,11 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
     # precision and recall
     # In both precision and recall, the numerator is the intersection between a LENA® tag and a human tag (e.g., the number of frames that LENA® classified as CHN and the annotator classified as Key child). The denominator differs: To calculate precision, we divide that number by the total number of frames attributed to a category by LENA®, whereas for recall, we divide by the total number of frames attributed to a category by the human annotator.
     # new table for speaker aggregates (in case there is more than one FA or more than one MA)
-    xtab <- cbind(refr_chi = rowSums(res_ref[, grepl("C", colnames(res_ref)), drop = FALSE]) >= 1,
+    xtab <- cbind(refr_chi = res_ref[, "CHI"] >= 1,
                   test_chi = res_test[, "CHI"] >= 1,
-                  refr_fem = rowSums(res_ref[, grepl("FA", colnames(res_ref)), drop = FALSE]) >= 1,
+                  refr_fem = res_ref[, "FEM"] >= 1,
                   test_fem = res_test[, "FEM"] >= 1,
-                  refr_mal = rowSums(res_ref[, grepl("MA", colnames(res_ref)), drop = FALSE]) >= 1,
+                  refr_mal = res_ref[, "MAL"] >= 1,
                   test_mal = res_test[, "MAL"] >= 1
     )
 
@@ -215,7 +210,12 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
                           precis_mal,
                           recall_chi,
                           recall_fem,
-                          recall_mal)
+                          recall_mal,
+                          pure_chi = sum(detailed_res$pure_chi) / length(samplepoints),
+                          pure_fem = sum(detailed_res$pure_fem) / length(samplepoints),
+                          pure_mal = sum(detailed_res$pure_mal) / length(samplepoints),
+                          overlapped = sum(detailed_res$overlap) / length(samplepoints)
+    )
     return(sum_res)
 
   } else {
