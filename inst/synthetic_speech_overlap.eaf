@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ANNOTATION_DOCUMENT AUTHOR="" DATE="2019-10-14T14:51:41+01:00" FORMAT="3.0" VERSION="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv3.0.xsd">
+<ANNOTATION_DOCUMENT AUTHOR="" DATE="2019-11-14T12:43:23+01:00" FORMAT="3.0" VERSION="3.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.mpi.nl/tools/elan/EAFv3.0.xsd">
     <HEADER MEDIA_FILE="" TIME_UNITS="milliseconds">
         <MEDIA_DESCRIPTOR MEDIA_URL="file:///Users/christofneumann/Dropbox/work/avutils/inst/synthetic_speech_overlap.wav" MIME_TYPE="audio/x-wav" RELATIVE_MEDIA_URL="./synthetic_speech_overlap.wav"/>
         <PROPERTY NAME="URN">urn:nl-mpi-tools-elan-eaf:95a17ff9-ab15-40a3-be9c-4aa724cb0202</PROPERTY>
@@ -36,7 +36,7 @@
         <TIME_SLOT TIME_SLOT_ID="ts28" TIME_VALUE="47420"/>
     </TIME_ORDER>
     <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="default"/>
-    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="english_1">
+    <TIER LINGUISTIC_TYPE_REF="default-lt" PARTICIPANT="english_1" TIER_ID="english_1">
         <ANNOTATION>
             <ALIGNABLE_ANNOTATION ANNOTATION_ID="a1" TIME_SLOT_REF1="ts9" TIME_SLOT_REF2="ts11">
                 <ANNOTATION_VALUE>sentence 1</ANNOTATION_VALUE>
@@ -48,7 +48,7 @@
             </ALIGNABLE_ANNOTATION>
         </ANNOTATION>
     </TIER>
-    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="spanish_1">
+    <TIER LINGUISTIC_TYPE_REF="default-lt" PARTICIPANT="spanish_1" TIER_ID="spanish_1">
         <ANNOTATION>
             <ALIGNABLE_ANNOTATION ANNOTATION_ID="a2" TIME_SLOT_REF1="ts1" TIME_SLOT_REF2="ts2">
                 <ANNOTATION_VALUE>sentence 1</ANNOTATION_VALUE>
@@ -60,7 +60,7 @@
             </ALIGNABLE_ANNOTATION>
         </ANNOTATION>
     </TIER>
-    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="spanish_2">
+    <TIER LINGUISTIC_TYPE_REF="default-lt" PARTICIPANT="spanish_2" TIER_ID="spanish_2">
         <ANNOTATION>
             <ALIGNABLE_ANNOTATION ANNOTATION_ID="a7" TIME_SLOT_REF1="ts12" TIME_SLOT_REF2="ts14">
                 <ANNOTATION_VALUE>sentence 1</ANNOTATION_VALUE>
@@ -72,7 +72,7 @@
             </ALIGNABLE_ANNOTATION>
         </ANNOTATION>
     </TIER>
-    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="french_1">
+    <TIER LINGUISTIC_TYPE_REF="default-lt" PARTICIPANT="french_1" TIER_ID="french_1">
         <ANNOTATION>
             <ALIGNABLE_ANNOTATION ANNOTATION_ID="a3" TIME_SLOT_REF1="ts3" TIME_SLOT_REF2="ts5">
                 <ANNOTATION_VALUE>sentence 1</ANNOTATION_VALUE>
@@ -84,7 +84,7 @@
             </ALIGNABLE_ANNOTATION>
         </ANNOTATION>
     </TIER>
-    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="german_1">
+    <TIER LINGUISTIC_TYPE_REF="default-lt" PARTICIPANT="german_1" TIER_ID="german_1">
         <ANNOTATION>
             <ALIGNABLE_ANNOTATION ANNOTATION_ID="a4" TIME_SLOT_REF1="ts7" TIME_SLOT_REF2="ts8">
                 <ANNOTATION_VALUE>sentence 1</ANNOTATION_VALUE>
@@ -96,7 +96,7 @@
             </ALIGNABLE_ANNOTATION>
         </ANNOTATION>
     </TIER>
-    <TIER LINGUISTIC_TYPE_REF="default-lt" TIER_ID="english_2">
+    <TIER LINGUISTIC_TYPE_REF="default-lt" PARTICIPANT="english_2" TIER_ID="english_2">
         <ANNOTATION>
             <ALIGNABLE_ANNOTATION ANNOTATION_ID="a11" TIME_SLOT_REF1="ts4" TIME_SLOT_REF2="ts6">
                 <ANNOTATION_VALUE>sentence 1</ANNOTATION_VALUE>
