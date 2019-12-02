@@ -33,6 +33,11 @@ divime_classify_vox <- function(audio_loc,
     vm_running <- divime_vagrant_state(divime_loc = divime_loc,
                                        what = "status",
                                        silent = TRUE)
+    if (vm_running %in% c("running (virtualbox)")) {
+      vm_running <- TRUE
+    } else {
+      vm_running <- FALSE
+    }
     if (!vm_running) {
       divime_vagrant_state(divime_loc = divime_loc,
                            what = "start",

@@ -5,12 +5,14 @@
 \title{set options with locations to ffmpeg and sox binaries}
 \usage{
 set_binaries(pathtoffmpeg = Sys.which("ffmpeg"),
-  pathtosox = Sys.which("sox"))
+  pathtosox = Sys.which("sox"), printmessages = TRUE)
 }
 \arguments{
 \item{pathtoffmpeg}{character, path to ffmpeg binary, by default looks for it in the path variable}
 
 \item{pathtosox}{character, path to sox binary, by default looks for it in the path variable}
+
+\item{printmessages}{logical, should messages be returned}
 }
 \value{
 a message

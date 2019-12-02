@@ -1,0 +1,6 @@
+
+This is a graphical user interface for the DiViMe tool set. 
+
+
+
+Running the different tools is a time-consuming process. One of the shortcomings of this app is that no reliable progress can be reported. When running the tools you'll see a 'progress bar' in the bottom right corner, which indicates that the given tool is running. It will disappear once the process is finished, but provides no updates on the progress on a file-per-file basis. You can check in the R console for some very (!) approximate estimated time to finish (which becomes avaiable after two files were processed).

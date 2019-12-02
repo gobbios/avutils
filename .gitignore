@@ -4,6 +4,7 @@ inst/synthetic_speech.pfsx
 # History files
 .Rhistory
 .Rapp.history
+inst/divime_tools/testapp.R
 
 # Session Data files
 .RData

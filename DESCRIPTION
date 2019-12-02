@@ -16,11 +16,14 @@ Depends:
   R (>= 3.5.0),
   xml2,
   tuneR,
+  reticulate,
   parallel
 Suggests: 
     knitr,
     rmarkdown,
     lme4,
     MuMIn,
-    testthat (>= 2.1.0)
+    testthat (>= 2.1.0),
+    shiny,
+    shinyFiles
 VignetteBuilder: knitr

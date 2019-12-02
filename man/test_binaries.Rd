@@ -2,13 +2,16 @@
 % Please edit documentation in R/test_binaries.R
 \name{test_binaries}
 \alias{test_binaries}
-\title{test whether sox and ffmpeg binaries work}
+\title{test whether sox, ffmpeg, git and vagrant binaries work}
 \usage{
-test_binaries()
+test_binaries(printmessages = TRUE)
+}
+\arguments{
+\item{printmessages}{logical, should messages be returned}
 }
 \value{
 a message
 }
 \description{
-test whether sox and ffmpeg binaries work
+test whether sox, ffmpeg, git and vagrant binaries work
 }
