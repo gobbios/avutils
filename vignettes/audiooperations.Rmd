@@ -22,9 +22,9 @@ knitr::opts_chunk$set(
 library(avutils)
 ```
 
-After loading the package, we first need to set up a few parameters so that the functions in the package can find `sox` and `ffmpeg` which are the programs that do the actual audio/video manipulation.
+After loading the package, we first need to set up a few parameters so that the functions in the package can find `sox` and `ffmpeg` which are the programs that do the actual audio/video manipulation (see here: http://sox.sourceforge.net/ and here: https://www.ffmpeg.org/download.html).
 
-There are essentially two options to get R to control `sox` and `ffmpeg`. Either you have *installed* these programs, or you just have saved the program binaries somewhere. 
+There are essentially two options to get R access `sox` and `ffmpeg`. Either you have *installed* these programs, or you just have saved the program binaries somewhere.
 
 In the first case, you just need to run the following command.
 
@@ -61,7 +61,16 @@ Then we can test whether this actually worked. If the following command doesn't 
 test_binaries()
 ```
 
-Next, we can test some more. For this, we create a temporary folder (one that is deleted as soon as you close R). Then we generate some sound, and save it as wave file into this temporary folder. This is done instead of providing an example wave file.
+
+Alternatively, you can also check whether the options for both `sox` and `ffmpeg` were set correctly.
+
+```{r}
+getOption("avutils_sox")
+getOption("avutils_ffmpeg")
+```
+
+
+Next, we can run some actual tests. For this, we create a temporary folder (one that is deleted as soon as you close R). Then we generate some sound, and save it as wave file into this temporary folder. This is done instead of providing an example wave file.
 
 ```{r}
 tdir <- normalizePath(tempdir(), winslash = "/")
@@ -77,6 +86,7 @@ shell.exec(tdir)
 system2("open", tdir)
 ```
 
+Now, we create some audio (simple sine waves) of known duration, sampling rate and number of channels (the most crucial features for the purpose of theis package).
 
 ```{r}
 w1 <- sine(freq = 440, duration = 0.9, bit = 32, stereo = TRUE, xunit = "time")
@@ -91,9 +101,7 @@ Next, we use the package function `audio_info()` to extract some information abo
 ```{r}
 # get locations
 x <- list.files(tdir, pattern = "\\.wav$", full.names = TRUE)
-# 
-audio_info(filein = x[1])
-audio_info(filein = x[2])
+audio_info(filein = x)
 ```
 
 We can also split files.

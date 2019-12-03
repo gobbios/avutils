@@ -1,6 +1,9 @@
 ---
 title: "DiViMe tools with `avutils`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
   # pdf_document
 vignette: >
   %\VignetteIndexEntry{divime}
@@ -13,7 +16,7 @@ editor_options:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = ""
 )
 ```
 
@@ -23,7 +26,7 @@ library(avutils)
 
 # Overview 
 
-The idea here is to provide R functions that wrap up the bash commands normally used to invoke the virtual machine with the DiViMe tools. The functions are by and large calls using the `system()` or `system2()` functions.
+The idea here is to provide R functions that wrap up the shell commands normally used to invoke the virtual machine with the DiViMe tools. The functions are by and large calls using the `system2()` functions (or `system()`). There is now also an early version of a shiny app (try `divime_app()`).
 
 ```{r, echo=FALSE, fig.width=8, fig.height=4.5}
 par(family = "serif", mar = c(0, 0, 0, 0))
@@ -154,10 +157,12 @@ First off, you will need the following R packages installed:
   
   - `tuneR`
 
-  - `parallel`
+  - `parallel` if you want to use this package to set up the DiViMe virtual machine from scratch
+  
+  - `shiny` and `shinyFiles` if you want to use the shiny interactive user interface
 
 
-Regarding the DiViMe tools, you will require a fair amount of disk space on the drive where you are going to install the virtual machine (25GB+).
+Regarding the DiViMe tools themselves, you will require a fair amount of disk space on the drive where you are going to install the virtual machine (25GB+).
 
 You also need sufficient working memory, at least 8GB. 
 
@@ -222,7 +227,7 @@ divime_vagrant_state(divime_loc = "C:/Data/VMX/DiViMe/", what = "start")
 
 ### Testing the DiViMe tools
 
-If the above steps were successful, you can run the test protocol of the DiViMe package. Running this will take a few minutes.
+If the above steps were successful, you can run the test protocol of the DiViMe package. Running this will take a few minutes because it will download some example data.
 
 ```{r, eval=FALSE}
 # with a Mac
@@ -247,7 +252,9 @@ Currently, there are the following functions available to run specific DiViMe to
   
   - `divime_fullnoisemes()`: runs the `noisemes` module but outputs all found noiseme types (including non-speech)
   
-  - `divime_run_all()`: runs all the above tools in one go
+  - `divime_wordcount()`: runs `wce` (word count), which requires speech detection output from either `divime_sad()` or `divime_talkertype(marvinator = TRUE, ...)`
+  
+  - `divime_run_all()`: runs all the above tools in one go (except the word count for now)
   
 The general idea of how these functions work is the same for all:
 
@@ -281,7 +288,6 @@ myaudio <- "D:/Data/audio"      # location for audio files
 divime <- "C:/Data/VMX/DiViMe/" # location for DiViMe VM
 ```
 
-
 If your audio location contains two .wav files, e.g. 'test1.wav' and test2.wav', running the following command will add two more files to this location ('opensmileSad_test1.rttm' and 'opensmileSad_test2.rttm').
 
 ```{r, eval = FALSE}
@@ -295,10 +301,85 @@ divime_diarization(divime_loc = divime, audio_loc = myaudio, speech_annos = "ope
 ```
 
 
+Let's go for a *proper* example, i.e. using two of the example files provided in the package. These short files contain a few sentences spoken by a voice synthesizer. We start by setting up temporary folder and copy the sound files there. (Note that I use the R temporary file folder for this, which is deleted once you close R).
+
+
+```{r, results='hide'}
+tdir <- file.path(normalizePath(tempdir(), winslash = "/"), "avutils")
+dir.create(tdir)
+file.copy(from = system.file("synthetic_speech.wav", package = "avutils"),
+          to = file.path(tdir, "synthetic_speech.wav"))
+file.copy(from = system.file("synthetic_speech_overlap.wav", package = "avutils"),
+          to = file.path(tdir, "synthetic_speech_overlap.wav"))
+```
+
+```{r, eval= FALSE}
+# open location in file browser
+shell.exec(tdir) # Windows
+system2("open", tdir) # Mac
+```
+
+```{r, echo=FALSE, results='hide'}
+file.copy(from = system.file("opensmileSad_synthetic_speech.rttm", package = "avutils"),
+          to = file.path(tdir, "opensmileSad_synthetic_speech.rttm"))
+file.copy(from = system.file("opensmileSad_synthetic_speech_overlap.rttm", package = "avutils"),
+          to = file.path(tdir, "opensmileSad_synthetic_speech_overlap.rttm"))
+file.copy(from = system.file("noisemesSad_synthetic_speech.rttm", package = "avutils"),
+          to = file.path(tdir, "noisemesSad_synthetic_speech.rttm"))
+file.copy(from = system.file("noisemesSad_synthetic_speech_overlap.rttm", package = "avutils"),
+          to = file.path(tdir, "noisemesSad_synthetic_speech_overlap.rttm"))
+```
+
+
+Now let's run two speech detection algorithms on the two files in this folder.
+
+```{r, eval=FALSE}
+divime_sad(audio_loc = tdir, divime_loc = "/Volumes/Data/VMX/DiViMe/", module = "opensmile", vmshutdown = FALSE)
+divime_sad(audio_loc = tdir, divime_loc = "/Volumes/Data/VMX/DiViMe/", module = "noisemes", vmshutdown = FALSE)
+```
+
+This should lead to four `.rttm` files being created in the data folder:
+
+```{r}
+list.files(tdir)
+```
+
+Now let's read back one of these files.
+
+```{r}
+file1 <- read_rttm(file.path(tdir, "opensmileSad_synthetic_speech.rttm"))
+file1
+```
+
+Please note that during the reading with `read_rttm()` I assign column names that are not present in the actual .rttm file and I create an extra column to set the end time of each segment.
+
+```{r, echo=FALSE}
+cat(paste(readLines(file.path(tdir, "opensmileSad_synthetic_speech.rttm")), collapse = "\n"))
+```
 
 
 
-# Evaluation of speech detection
+
+
+
+
+
+
+
+# DiViMe shiny app
+
+The app is still in an early development stage.
+
+
+```{r, eval=FALSE}
+divime_app() # starts app in your default browser
+divime_app(launchinbrowser = FALSE) # starts app in RStudio window (if you use RStudio)
+```
+
+
+
+
+# Evaluation of speech detection (NEEDS MAJOR REWORKING!!!)
 
 We start by providing the paths to two annotation files (one manually coded with ELAN, one the output from noisemes), which are part of the package and relate to an audio file that I made up with synthetic speech.
 
@@ -312,7 +393,7 @@ x2 <- system.file("synthetic_speech.eaf", package = "avutils")
 The first example is 'normal' in that both files contain detected speech and the overlap between the two annotation sets is fairly good.
 
 ```{r, out.width="50%"}
-evaluate_sad(x1 = x1, x2 = x2, overlap_res = 500)
+evaluate_sad(test = x1, reference = x2, overlap_res = 500)
 ```
 
 Let's first consider the graphical output. We see two sets of lines, one black and one gold, which refer to the 'test' file (`x1`) and the reference file (or the 'gold standard', `x2` in our case). The lines represent the speech detected in both annotation sets. When you use ELAN files, note that the function will take all annotations from all tiers and consider them speech. If you want to exclude certain annotations or tiers, you can exclude them by providing the relevant arguments (see `?collapse_tiers` for more details on this). On the left side, we can see the time stamps (in seconds) that are covered. 
@@ -331,13 +412,13 @@ In order to aid visual assessment, `evaluate_sad()` allows to break the display 
 
 ```{r}
 # break the display over 5 segments
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 5, overlap_res = 100)
+evaluate_sad(test = x1, reference = x2, nsegments = 5, overlap_res = 100)
 ```
 
 You can also select a time window. (the example here corresponds roughly to the second segment from just above).
 
 ```{r}
-evaluate_sad(x1 = x1, x2 = x2, from = 9.46, to = 18.94, overlap_res = 100)
+evaluate_sad(test = x1, reference = x2, from = 9.46, to = 18.94, overlap_res = 100)
 ```
 
 
@@ -348,7 +429,7 @@ The DiViMe manual considers special cases when one or two of the files submitted
 First, we consider the special case where the gold/manual annotation is empty and also the SAD module detected no speech.
 
 ```{r, out.width="50%"}
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 1, from = 27, to = 28, overlap_res = 10)
+evaluate_sad(test = x1, reference = x2, nsegments = 1, from = 27, to = 28, overlap_res = 10)
 ```
 
 As expected, both FA and MSR are 0 (as defined in the DiViMe manual).
@@ -356,7 +437,7 @@ As expected, both FA and MSR are 0 (as defined in the DiViMe manual).
 Second, we consider the next case where the gold/manual annotation is empty but the SAD module detected some speech.
 
 ```{r, out.width="50%"}
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 1, from = 27, to = 28.3, overlap_res = 10)
+evaluate_sad(test = x1, reference = x2, nsegments = 1, from = 27, to = 28.3, overlap_res = 10)
 ```
 
 Here we see that the false alarm rate is 1 while the missed speech rate is set to 0.
@@ -364,7 +445,7 @@ Here we see that the false alarm rate is 1 while the missed speech rate is set t
 And finally, the case where there was speech in the gold standard, but the SAD module didn't detect anything:
 
 ```{r, out.width="50%"}
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 1, from = 23.2, to = 25, overlap_res = 10)
+evaluate_sad(test = x1, reference = x2, nsegments = 1, from = 23.2, to = 25, overlap_res = 10)
 ```
 
 Here, FA = 0 and MSR is 1.
@@ -373,9 +454,9 @@ Here, FA = 0 and MSR is 1.
 
 ```{r, echo=2:4, fig.width=8, fig.height=3.5, out.width="100%"}
 par(mfrow = c(1, 3), family = "serif")
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 2, from = 27, to = 28, overlap_res = 10)
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 2, from = 27, to = 28.3, overlap_res = 10)
-evaluate_sad(x1 = x1, x2 = x2, nsegments = 2, from = 23.2, to = 25, overlap_res = 10)
+evaluate_sad(test = x1, reference = x2, nsegments = 2, from = 27, to = 28, overlap_res = 10)
+evaluate_sad(test = x1, reference = x2, nsegments = 2, from = 27, to = 28.3, overlap_res = 10)
+evaluate_sad(test = x1, reference = x2, nsegments = 2, from = 23.2, to = 25, overlap_res = 10)
 ```
 
 
