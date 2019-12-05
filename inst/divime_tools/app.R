@@ -52,19 +52,28 @@ ui <- fluidPage(
                      ),
                      hr(),
                      fluidRow(
-                         column(4, offset = 4,
+                         column(4,
                                 shinyDirButton("divime_path", label = "select path to DiViMe", title = "please select"),
                                 textOutput("divime_path_loc"),
                                 # actionButton("divime_verify", label = "verify", icon = icon("user-check")),
                                 htmlOutput("divime_available")
+                         ),
+                         column(4,
+                                shinyDirButton("data_path_button", label = "select path to audio files", title = "please select"),
+                                htmlOutput("data_path_info"),
+                                htmlOutput("data_path_audio")
+                                ),
+                         column(4,
+                                actionButton("check_python_button", label = "check for python/reticulate"),
+                                htmlOutput("check_python_path"),
+                                htmlOutput("check_python_result")
                          )
 
+
                      ),
-                     hr(),
-                     fluidRow(
-                         column(4, shinyDirButton("data_path_button", label = "select path to audio files", title = "please select")),
-                         column(12, htmlOutput("data_path_info"))
-                     )
+                     br(),
+                     br(),
+                     hr()
                  )
 
 
@@ -207,9 +216,12 @@ server <- function(input, output, session) {
                                git_working = test_binaries(printmessages = FALSE)["git"],
                                vagrant_path = ifelse(Sys.which("vagrant") == "", "no path available", Sys.which("vagrant")),
                                vagrant_working = test_binaries(printmessages = FALSE)["vagrant"],
+                               python_working = file.exists(Sys.which("python")),
+                               python_path = ifelse(Sys.which("python") == "", "no path available", Sys.which("python")),
                                divime_loc = "",
                                divime_check1 = FALSE,
-                               data_loc = ""
+                               data_loc = "",
+                               data_has_audio = FALSE
     )
 
 
@@ -264,14 +276,7 @@ server <- function(input, output, session) {
         }
     })
     observe(output$divime_path_loc <- renderText(binaries$divime_loc))
-    # observeEvent(input$divime_verify, {
-    #     x <- list.files("/Volumes/Data/VM2/ooo/DiViMe")
-    #     x <- list.files(binaries$divime_loc)
-    #     if ("launcher" %in% x && "utils" %in% x && "LICENSE" %in% x) {
-    #         binaries$divime_check1 <- TRUE
-    #     }
-    #     output$divime_available <- renderText(binaries$divime_check1)
-    # })
+
     observe({
         check <- binaries$divime_check1
         if (check) {
@@ -287,8 +292,34 @@ server <- function(input, output, session) {
         inFile <- parseDirPath(roots = ROOTS, input$data_path_button)
         binaries$data_loc <- as.character(inFile)
         output$data_path_info <- renderUI(HTML(paste("data are here: <font color=red family='Times New Roman'>", binaries$data_loc, "</font>")))
-        # binaries$data_loc <- "as.character(inFile)"
+        allfiles <- list.files(binaries$data_loc)
+        binaries$data_has_audio <- sum(grepl(pattern = ".wav", x = allfiles, ignore.case = TRUE)) > 0
     })
+    observe({
+        check <- binaries$data_has_audio
+        if (check) {
+            output$data_path_audio <- renderUI(HTML("<font color=green size=200%;> &#10004; </font>"))
+        } else {
+            output$data_path_audio <- renderUI(HTML("<font color=red size=200%;> &#10008; </font>"))
+        }
+    })
+
+    # check python -------------------------------
+
+    observeEvent(input$check_python_button, {
+        binaries$python_working <- reticulate::py_available(TRUE)
+    })
+
+    observe({
+        check <- binaries$python_working
+        if (check) {
+            output$check_python_result <- renderUI(HTML("<font color=green size=200%;> &#10004; </font>"))
+        } else {
+            output$check_python_result <- renderUI(HTML("<font color=red size=200%;> &#10008; </font>"))
+        }
+    })
+    output$check_python_path <- renderText(Sys.which("python"))
+
 
     # folder content ----------------------------------------------
     observe({
