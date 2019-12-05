@@ -57,9 +57,12 @@ file.remove(paste0(tdir, "/spanish.rttm"))
 
 # multiple files in different locations
 dir.create(file.path(tdir, "test"))
-file.copy(system.file("spanish.eaf", package = "avutils"), file.path(tdir, "spanish.eaf"))
-file.copy(system.file("synthetic_speech.eaf", package = "avutils"), file.path(tdir, "synthetic_speech.eaf"))
-file.copy(system.file("synthetic_speech_overlap.eaf", package = "avutils"), file.path(tdir, "test/synthetic_speech_overlap.eaf"))
+file.copy(from = system.file("spanish.eaf", package = "avutils"),
+          to = file.path(tdir, "spanish.eaf"))
+file.copy(from = system.file("synthetic_speech.eaf", package = "avutils"),
+          to = file.path(tdir, "synthetic_speech.eaf"))
+file.copy(from = system.file("synthetic_speech_overlap.eaf", package = "avutils"),
+          to = file.path(tdir, "test/synthetic_speech_overlap.eaf"))
 X <- list.files(tdir, pattern = ".eaf", full.names = T, recursive = TRUE)
 X
 elan2rttm(x = X, use_py = FALSE)
