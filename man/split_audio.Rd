@@ -25,7 +25,7 @@ a vector with the paths to the split files
 split audio file into chunks of regular or irregular length
 }
 \details{
-The \code{split=} argument can be supplied in two ways. If you supply a single number the input file will be split into file of equal lengths (determined by \code{split=} in seconds). If you supply a data.frame, it is assumed this is a .rttm file, where the fourth column reflects the starting point and the fifth column determines the length of the segment.
+The \code{split=} argument can be supplied in two ways. If you supply a single number the input file will be split into files of equal lengths (determined by \code{split=} in seconds). If you supply a data.frame, it is assumed this is a .rttm file, where the fourth column reflects the starting point and the fifth column determines the length of the segment (in the unit of seconds).
 
 Output files have the time stamps appended in the file name (unit of milliseconds) in the form of filename_fromtime_totime.wav. The \code{ndigits=} argument determines the number of characters the two time chunks have.
 }
@@ -48,7 +48,7 @@ audio_info(filein = res)
 # remove files
 file.remove(res)
 
-# using and .rttm file as input
+# using an .rttm file as input
 split <- read.table(system.file("opensmileSad_synthetic_speech.rttm", package = "avutils"))
 head(split)
 res <- split_audio(filein = x, split = split, pathout = tdir)

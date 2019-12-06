@@ -48,12 +48,17 @@ rttm_pairs <- function(test = NULL, reference = NULL, location = NULL, prefix = 
         }
       }
     }
+
+    # limit to desired prefixes
     if (nrow(out) > 0) {
       if (!is.null(prefix)) {
         out <- out[out$prefix %in% prefix, ]
         rownames(out) <- NULL
       }
     }
+    # convert columns into character
+    out[] <- lapply(out, as.character)
+
     return(out)
   }
 
@@ -85,12 +90,18 @@ rttm_pairs <- function(test = NULL, reference = NULL, location = NULL, prefix = 
         out <- rbind(out, temp)
       }
     }
+
+    # limit to desired prefixes
     if (nrow(out) > 0) {
       if (!is.null(prefix)) {
         out <- out[out$prefix %in% prefix, ]
         rownames(out) <- NULL
       }
     }
+
+    # convert columns into character
+    out[] <- lapply(out, as.character)
+
     return(out)
   }
 

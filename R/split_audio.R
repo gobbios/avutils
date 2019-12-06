@@ -5,7 +5,7 @@
 #' @param pathtosox character, path to sox binary
 #' @param ndigits numeric, the number of characters a time step should comprise (see details and \code{\link{leadingzeros}})
 #' @param pathout character, path were output is stored, by default the same as the source
-#' @details The \code{split=} argument can be supplied in two ways. If you supply a single number the input file will be split into file of equal lengths (determined by \code{split=} in seconds). If you supply a data.frame, it is assumed this is a .rttm file, where the fourth column reflects the starting point and the fifth column determines the length of the segment.
+#' @details The \code{split=} argument can be supplied in two ways. If you supply a single number the input file will be split into files of equal lengths (determined by \code{split=} in seconds). If you supply a data.frame, it is assumed this is a .rttm file, where the fourth column reflects the starting point and the fifth column determines the length of the segment (in the unit of seconds).
 #'
 #' Output files have the time stamps appended in the file name (unit of milliseconds) in the form of filename_fromtime_totime.wav. The \code{ndigits=} argument determines the number of characters the two time chunks have.
 #' @return a vector with the paths to the split files
@@ -29,7 +29,7 @@
 #' # remove files
 #' file.remove(res)
 #'
-#' # using and .rttm file as input
+#' # using an .rttm file as input
 #' split <- read.table(system.file("opensmileSad_synthetic_speech.rttm", package = "avutils"))
 #' head(split)
 #' res <- split_audio(filein = x, split = split, pathout = tdir)
@@ -38,7 +38,7 @@
 
 
 split_audio <- function(filein, split, pathout = NULL, ndigits = NULL, pathtosox = getOption("avutils_sox")) {
-  xin <- normalizePath(filein, winslash = "/")
+  xin <- normalizePath(filein, winslash = "/", mustWork = FALSE)
   if (!file.exists(xin)) stop("audio file not found", call. = FALSE)
   if (!file.exists(pathtosox)) stop("sox binary not found", call. = FALSE)
 
@@ -86,5 +86,6 @@ split_audio <- function(filein, split, pathout = NULL, ndigits = NULL, pathtosox
     system2(command = pathtosox, args = cm, stdout = TRUE, stderr = TRUE)
   }
 
-  list.files(pathout, pattern = bnm, full.names = TRUE)
+  matchstring <- paste0("^", bnm, "_")
+  list.files(pathout, pattern = matchstring, full.names = TRUE)
 }
