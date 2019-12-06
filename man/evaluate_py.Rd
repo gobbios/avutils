@@ -5,12 +5,13 @@
 \title{run evaluation via python scripts}
 \usage{
 evaluate_py(test, reference, metric = "accuracy", task = "detection",
-  prefix = NULL, check_python = FALSE, set_ident_flag = FALSE)
+  prefix = NULL, check_python = FALSE, set_ident_flag = FALSE,
+  processed_output = TRUE, progressbar = FALSE)
 }
 \arguments{
-\item{test}{character, path to test file (must be .rttm)}
+\item{test}{character, path to test file (must be .rttm), typically with prefix}
 
-\item{reference}{character, path to reference file (must be .rttm)}
+\item{reference}{character, path to reference file (must be .rttm), typically without prefix}
 
 \item{metric}{character, the metric to be calculated}
 
@@ -21,29 +22,42 @@ evaluate_py(test, reference, metric = "accuracy", task = "detection",
 \item{check_python}{logical, test whether python is working}
 
 \item{set_ident_flag}{logical, should the '--identification' flag be set for the call to the python script}
+
+\item{processed_output}{logical, should the process output be returned (a data.frame) or the raw textual output from the console (a list). Default is \code{TRUE}.}
+
+\item{progressbar}{logical, display a progress bar (default is \code{FALSE})}
 }
 \value{
-numeric vector
+a data.frame with one row per pair of test/reference and a varying number of columns (depending on task and metric).
 }
 \description{
 run evaluation via python scripts
 }
+\details{
+So far the function only works for a small subset of evaluation task/metric combinations:
+\itemize{
+ \item{detection/accuracy}
+ \item{detection/precision}
+ \item{identification/ider}
+ \item{diarization/diaer}
+}
+
+Pairs of test/reference are determined by the \code{\link{rttm_pairs}} function.
+
+Also, the function is not very efficient because it has to initialize python for each test/reference pair.
+}
 \examples{
 \dontrun{
-# get file paths to two SAD files
-sad1 <- system.file("tocomboSad_spanish.rttm", package = "avutils")
-sad2 <- system.file("yunitator_english_spanish.rttm", package = "avutils")
-# create rttm file from ELAN and copy to temp folder
-tdir <- tempdir()
-elanfile <- system.file("spanish.eaf", package = "avutils")
-dest1 <- elan2rttm(x = elanfile, outpath = tdir, use_py = FALSE)
-file.exists(dest1)
-evaluate_py(test = sad1, reference = dest1, metric = "accuracy", task = "detection")
-evaluate_py(test = sad2, reference = dest1, metric = "accuracy", task = "detection")
-dest2 <- elan2rttm(x = elanfile, outpath = tdir, use_py = TRUE)
-file.exists(dest2)
-evaluate_py(test = sad1, reference = dest2, metric = "accuracy", task = "detection")
-evaluate_py(test = sad2, reference = dest2, metric = "accuracy", task = "detection")
+dataloc <- dirname(system.file("spanish.rttm", package = "avutils"))
+# list three reference files, one containing a 'typo'
+reference <- file.path(dataloc, c("BER_0485_12_07_09123.rttm", "spanish.rttm", "filewithtypo.rttm"))
+# and a whole bunch of potential test files (all rttm in the same location)
+test <- list.files(dataloc, pattern= ".rttm$", full.names = TRUE)
+
+# will produce a warning that there was one file that couldn't be processed...
+res <- evaluate_py(test = test, reference = reference, metric = "accuracy", task = "detection",
+                   progressbar = TRUE)
+res
 }
 
 }
