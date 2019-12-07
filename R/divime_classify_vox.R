@@ -1,4 +1,4 @@
-#' run the DiViMe vocal classification module vcm
+#' run the DiViMe vocalization classification module \code{vcm}
 #'
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with running VM
@@ -9,6 +9,9 @@
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
 #' @details The \code{marvinator=} argument determines which kind of yunitator file is looked for. If \code{TRUE} the file looked for is 'yunitator_english_X.rttm', where X is the name of the underlying audio file (which is the result of \code{divime_talkertype(..., marvinator = TRUE)}). If \code{FALSE} the file looked for is 'yunitator_old_X.rttm' (which is the result of \code{divime_talkertype(..., marvinator = FALSE)}). If the respective file is not found, the function aborts.
+#'
+#' The name of the resulting output also depends on the \code{marvinator=} argument. If \code{FALSE}, the output is 'vcm_X.rttm' and if \code{TRUE} it is 'vcm_marvinator_X.rttm'. Note that the latter is different from the behaviour of the underlying script \code{vcm.sh}, which in both cases returns the same output file name. I made this modification to avoid mix-ups.
+#'
 #' @export
 
 divime_classify_vox <- function(audio_loc,
@@ -67,12 +70,13 @@ divime_classify_vox <- function(audio_loc,
     cm <- paste0("ssh -c 'vcm.sh data/ english'")
     fileprefix <- "yunitator_english_"
     outprefix <- "yunitator_english_"
+    rttmprefix <- "vcm_marvinator_"
   } else {
     cm <- paste0("ssh -c 'vcm.sh data/'")
     fileprefix <- "yunitator_old_"
     outprefix <- "yunitator_universal_"
+    rttmprefix <- "vcm_"
   }
-
 
   # loop through files
   for (i in 1:nrow(logres)) {
@@ -85,7 +89,7 @@ divime_classify_vox <- function(audio_loc,
 
     if (file.exists(yunifrom)) {
       output_file <- paste0("vcm_", paths$root_clean[i], ".rttm")
-      output_file_ori <- paste0("vcm_", paths$root[i], ".rttm")
+      output_file_ori <- paste0(rttmprefix, paths$root[i], ".rttm")
       output_file_to <- normalizePath(paste0(audio_loc, "/", paths$folder[i], output_file_ori),
                                       winslash = "/",
                                       mustWork = FALSE)
@@ -114,7 +118,7 @@ divime_classify_vox <- function(audio_loc,
         # log number of lines in output
         logres$outlines[i] <- length(readLines(output_file_from))
 
-        # remove source files (audio and ynui)
+        # remove source files (audio and yuni)
         logres$audioremove[i] <- file.remove(paths$audiotarget_clean[i])
         logres$yuniremove[i] <- file.remove(yunito)
 
@@ -131,6 +135,8 @@ divime_classify_vox <- function(audio_loc,
 
         # clean up
         rm(xres, WD)
+
+
       } else {
         if (messages) message(paths$filestoprocess[i], "  -->  ", "XXXXXXXXX")
       }

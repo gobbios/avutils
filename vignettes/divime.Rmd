@@ -26,7 +26,7 @@ library(avutils)
 
 # Overview 
 
-The idea here is to provide R functions that wrap up the shell commands normally used to invoke the virtual machine with the DiViMe tools. The functions are by and large calls using the `system2()` functions (or `system()`). There is now also an early version of a shiny app (try `divime_app()`).
+The idea here is to provide R functions that wrap up the shell commands normally used to invoke the virtual machine with the DiViMe tools. The functions are by and large calls using the `system2()` functions (or `system()`), with some processing around these calls. There is now also an early version of a shiny app (try `divime_app()`).
 
 ```{r, echo=FALSE, fig.width=8, fig.height=4.5}
 par(family = "serif", mar = c(0, 0, 0, 0))
@@ -135,6 +135,37 @@ cds <- c(41, 16, 49, 20)
 labs <- "WCE_from_SAD_outputs.sh ... noisemesSad\nWCE_from_SAD_outputs.sh ... opensmileSad\nWCE_from_SAD_outputs.sh ... tocomboSad\nWCE_from_SAD_outputs.sh ... english"
 if(r) rect(cds[1], cds[2], cds[3], cds[4])
 text(x = mean(cds[c(1, 3)]), y = mean(cds[c(2, 4)]), labels = labs, cex = textcex)
+```
+
+
+Here is a tabular overview.
+
+```{r, results='markup', echo=FALSE}
+headers <- c("task", "function", "main argument", "requires", "output template", "comment")
+
+sad1 <- c("**speech detection**", "`divime_sad`", "`module = \"noisemes\"`", " ", "noisemesSad_X", "")
+sad2 <- c(" ", " ",                           "`module = \"opensmile\"`", " ", "opensmileSad_X", "")
+sad3 <- c(" ", " ",                           "`module = \"tocombo\"`", " ", "tocomboSad_X", "")
+
+diar1 <- c("**talker diarization**", "`divime_diarization`", "`speech_annos = \"noisemes\"`", "noisemesSad_X", "diartk_noisemesSad_X", "identification of individuals speakers")
+diar2 <- c(" ", " ",                                     "`speech_annos = \"opensmile\"`", "opensmileSad_X", "diartk_noisemesSad_X", "")
+diar3 <- c(" ", " ",                                     "`speech_annos = \"tocombo\"`", "tocomboSad_X", "diartk_tocomboSad_X", "")
+
+yuni1 <- c("**talker type**", "`divime_talkertype`", "`marvinator = FALSE`", " ", "yunitator_old_X", "CHI vs FEM vs MAL")
+yuni2 <- c(" ", " ",                             "`marvinator = TRUE`", " ", "yunitator_english_X", "")
+
+vcm1 <- c("**vocalization classification**", "`divime_classify_vox`", "`marvinator = FALSE`", "yunitator_old_X", "vcm_X", "CNS vs NCS vs CRY vs OTH")
+vcm2 <- c(" ", " ",                                               "`marvinator = TRUE`", "yunitator_english_X", "vcm_marvinator_X", "")
+
+
+wce1 <- c("**word count**", "`divime_wordcount`", "`speech_annos = \"noisemes\"`", "noisemesSad_X", "WCE_noisemesSad_X", "")
+wce2 <- c(" ", " ",                           "`speech_annos = \"opensmile\"`", "opensmileSad_X", "WCE_tocomboSad_", "")
+wce3 <- c(" ", " ",                           "`speech_annos = \"tocombo\"`", "tocomboSad_X", "WCE_tocomboSad_X", "")
+wce4 <- c(" ", " ",                           "`speech_annos = \"yunitator_english\"`", "yunitator_english_X", "WCE_yunitator_english_X", "")
+
+xtab <- rbind(sad1, sad2, sad3, diar1, diar2, diar3, yuni1, yuni2, vcm1, vcm2, wce1, wce2, wce3, wce4)
+colnames(xtab) <- headers
+knitr::kable(xtab,row.names = FALSE)
 ```
 
 
@@ -254,7 +285,7 @@ Currently, there are the following functions available to run specific DiViMe to
   
   - `divime_wordcount()`: runs `wce` (word count), which requires speech detection output from either `divime_sad()` or `divime_talkertype(marvinator = TRUE, ...)`
   
-  - `divime_run_all()`: runs all the above tools in one go (except the word count for now)
+  - `divime_run_all()`: runs all the above tools in one go
   
 The general idea of how these functions work is the same for all:
 

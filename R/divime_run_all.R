@@ -20,6 +20,8 @@ divime_run_all <- function(audio_loc,
   # divime_loc = "/Volumes/Data/VM2/ooo/DiViMe"
   # vmstart = T; vmshutdown = F; messages = TRUE; overwrite = FALSE
   logres <- list()
+  totalruns <- 15
+
 
   cat("###### SAD noisemes ###########\n")
   temp1 <- divime_sad(audio_loc = audio_loc,
@@ -30,6 +32,7 @@ divime_run_all <- function(audio_loc,
                       messages = messages,
                       overwrite = overwrite)
   logres$sad_noisemes <- temp1
+  cat(length(logres), "out of", totalruns, "done\n")
 
   cat("###### SAD opensmile ###########\n")
   temp2 <- divime_sad(audio_loc = audio_loc,
@@ -40,6 +43,7 @@ divime_run_all <- function(audio_loc,
                       messages = messages,
                       overwrite = overwrite)
   logres$sad_opensmile <- temp2
+  cat(length(logres), "out of", totalruns, "done\n")
 
   cat("###### SAD tocombo ###########\n")
   temp3 <- divime_sad(audio_loc = audio_loc,
@@ -50,6 +54,7 @@ divime_run_all <- function(audio_loc,
                       messages = messages,
                       overwrite = overwrite)
   logres$sad_tocombo <- temp3
+  cat(length(logres), "out of", totalruns, "done\n")
 
   cat("###### diartk noisemes ###########\n")
   temp4 <- divime_diarization(audio_loc = audio_loc,
@@ -60,6 +65,7 @@ divime_run_all <- function(audio_loc,
                               messages = messages,
                               overwrite = overwrite)
   logres$diartk_noisemes <- temp4
+  cat(length(logres), "out of", totalruns, "done\n")
 
   cat("###### diartk opensmile ###########\n")
   temp5 <- divime_diarization(audio_loc = audio_loc,
@@ -70,6 +76,7 @@ divime_run_all <- function(audio_loc,
                               messages = messages,
                               overwrite = overwrite)
   logres$diartk_opensmile <- temp5
+  cat(length(logres), "out of", totalruns, "done\n")
 
   cat("###### diartk tocombo ###########\n")
   temp6 <- divime_diarization(audio_loc = audio_loc,
@@ -80,33 +87,107 @@ divime_run_all <- function(audio_loc,
                               messages = messages,
                               overwrite = overwrite)
   logres$diartk_tocombo <- temp6
+  cat(length(logres), "out of", totalruns, "done\n")
 
   cat("###### yunitate ###########\n")
   temp7 <- divime_talkertype(audio_loc = audio_loc,
                              divime_loc = divime_loc,
                              vmstart = FALSE,
                              vmshutdown = FALSE,
+                             marvinator = FALSE,
                              messages = messages,
                              overwrite = overwrite)
   logres$yuni <- temp7
+  cat(length(logres), "out of", totalruns, "done\n")
 
-  cat("###### vcm ###########\n")
-  temp8 <- divime_classify_vox(audio_loc = audio_loc,
+  cat("###### yunitate (marvinator) ###########\n")
+  temp8 <- divime_talkertype(audio_loc = audio_loc,
+                             divime_loc = divime_loc,
+                             vmstart = FALSE,
+                             vmshutdown = FALSE,
+                             marvinator = TRUE,
+                             messages = messages,
+                             overwrite = overwrite)
+  logres$yuni_marv <- temp8
+  cat(length(logres), "out of", totalruns, "done\n")
+
+  cat("###### vcm (marvinator) ###########\n")
+  temp9 <- divime_classify_vox(audio_loc = audio_loc,
                                divime_loc = divime_loc,
                                vmstart = FALSE,
                                vmshutdown = FALSE,
+                               marvinator = TRUE,
                                messages = messages,
                                overwrite = overwrite)
-  logres$vcm <- temp8
+  logres$vcm_marv <- temp9
+  cat(length(logres), "out of", totalruns, "done\n")
+
+  cat("###### vcm ###########\n")
+  temp10 <- divime_classify_vox(audio_loc = audio_loc,
+                               divime_loc = divime_loc,
+                               vmstart = FALSE,
+                               vmshutdown = FALSE,
+                               marvinator = FALSE,
+                               messages = messages,
+                               overwrite = overwrite)
+  logres$vcm <- temp10
+  cat(length(logres), "out of", totalruns, "done\n")
+
+  cat("###### wce (noisemes) ###########\n")
+  temp11 <- divime_wordcount(audio_loc = audio_loc,
+                             divime_loc = divime_loc,
+                             vmstart = FALSE,
+                             vmshutdown = FALSE,
+                             speech_annos = "noisemes",
+                             messages = messages,
+                             overwrite = overwrite)
+  logres$wce_nois <- temp11
+  cat(length(logres), "out of", totalruns, "done\n")
+
+  cat("###### wce (opensmile) ###########\n")
+  temp12 <- divime_wordcount(audio_loc = audio_loc,
+                             divime_loc = divime_loc,
+                             vmstart = FALSE,
+                             vmshutdown = FALSE,
+                             speech_annos = "opensmile",
+                             messages = messages,
+                             overwrite = overwrite)
+  logres$wce_open <- temp12
+  cat(length(logres), "out of", totalruns, "done\n")
+
+  cat("###### wce (tocombo) ###########\n")
+  temp13 <- divime_wordcount(audio_loc = audio_loc,
+                             divime_loc = divime_loc,
+                             vmstart = FALSE,
+                             vmshutdown = FALSE,
+                             speech_annos = "tocombo",
+                             messages = messages,
+                             overwrite = overwrite)
+  logres$wce_toco <- temp13
+  cat(length(logres), "out of", totalruns, "done\n")
+
+  cat("###### wce (marvinator) ###########\n")
+  temp14 <- divime_wordcount(audio_loc = audio_loc,
+                             divime_loc = divime_loc,
+                             vmstart = FALSE,
+                             vmshutdown = FALSE,
+                             speech_annos = "yunitator_english",
+                             messages = messages,
+                             overwrite = overwrite)
+  logres$wce_marv <- temp14
+  cat(length(logres), "out of", totalruns, "done\n")
+
+
 
   cat("###### full noisemes ###########\n")
-  temp9 <- divime_fullnoisemes(audio_loc = audio_loc,
+  temp15 <- divime_fullnoisemes(audio_loc = audio_loc,
                                divime_loc = divime_loc,
                                vmstart = FALSE,
                                vmshutdown = vmshutdown,
                                messages = messages,
                                overwrite = overwrite)
-  logres$fullnoisemes <- temp9
+  logres$fullnoisemes <- temp15
+  cat(length(logres), "out of", totalruns, "done\n")
 
   logres
 }

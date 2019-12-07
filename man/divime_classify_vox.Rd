@@ -2,7 +2,7 @@
 % Please edit documentation in R/divime_classify_vox.R
 \name{divime_classify_vox}
 \alias{divime_classify_vox}
-\title{run the DiViMe vocal classification module vcm}
+\title{run the DiViMe vocalization classification module \code{vcm}}
 \usage{
 divime_classify_vox(audio_loc, divime_loc, marvinator = TRUE,
   vmstart = TRUE, vmshutdown = TRUE, messages = TRUE,
@@ -27,8 +27,10 @@ divime_classify_vox(audio_loc, divime_loc, marvinator = TRUE,
 a data.frame with the locations of the created rttm files and some diagnostics
 }
 \description{
-run the DiViMe vocal classification module vcm
+run the DiViMe vocalization classification module \code{vcm}
 }
 \details{
 The \code{marvinator=} argument determines which kind of yunitator file is looked for. If \code{TRUE} the file looked for is 'yunitator_english_X.rttm', where X is the name of the underlying audio file (which is the result of \code{divime_talkertype(..., marvinator = TRUE)}). If \code{FALSE} the file looked for is 'yunitator_old_X.rttm' (which is the result of \code{divime_talkertype(..., marvinator = FALSE)}). If the respective file is not found, the function aborts.
+
+The name of the resulting output also depends on the \code{marvinator=} argument. If \code{FALSE}, the output is 'vcm_X.rttm' and if \code{TRUE} it is 'vcm_marvinator_X.rttm'. Note that the latter is different from the behaviour of the underlying script \code{vcm.sh}, which in both cases returns the same output file name. I made this modification to avoid mix-ups.
 }
