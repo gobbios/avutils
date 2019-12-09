@@ -2,7 +2,7 @@
 % Please edit documentation in R/combine_rttm.R
 \name{combine_rttm}
 \alias{combine_rttm}
-\title{merge rttm files}
+\title{merge rttm file sequence}
 \usage{
 combine_rttm(rttm_files, split_dur, basename = NULL)
 }
@@ -17,5 +17,5 @@ combine_rttm(rttm_files, split_dur, basename = NULL)
 a data.frame that can be written as rttm file
 }
 \description{
-merge rttm files
+merge rttm file sequence
 }

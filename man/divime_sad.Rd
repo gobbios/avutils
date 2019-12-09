@@ -5,7 +5,7 @@
 \title{run a DiViMe SAD module}
 \usage{
 divime_sad(audio_loc, divime_loc, module = "noisemes",
-  splitaudio = FALSE, vmstart = TRUE, vmshutdown = TRUE,
+  splitaudio = NULL, vmstart = TRUE, vmshutdown = TRUE,
   messages = TRUE, overwrite = FALSE)
 }
 \arguments{
@@ -15,7 +15,7 @@ divime_sad(audio_loc, divime_loc, module = "noisemes",
 
 \item{module}{character, which module to execute (default is \code{"noisemes"}), see details}
 
-\item{splitaudio}{logical, should audio files be split into smaller chunks, default is \code{FALSE}, see details}
+\item{splitaudio}{numeric, should audio files be split into smaller chunks before processing by SAD tool, default is \code{NULL}, see details}
 
 \item{vmstart}{logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.}
 
@@ -34,5 +34,5 @@ run a DiViMe SAD module
 \details{
 \code{module=} sets the SAD module to be used: can be either \code{"noisemes"}, \code{"opensmile"} or \code{"tocombo"}
 
-It appears that some of the modules have difficulties with larger audio files (opensmile and noisemes). Hence, setting \code{split_audio} to \code{TRUE} will split the source audio into chunks of 2 minutes temporarilly. Note that this step requires the \code{sox} utility available (see \code{\link{set_binaries}} and \code{\link{split_audio}}).
+It appears that some of the modules have difficulties with larger audio files (opensmile and noisemes). Hence, setting \code{splitaudio=} to a numeric value will temporarilly split the source audio into chunks of that duration (\code{\link{split_audio}}). Im my experience, a chunk duration of about two minutes solves these issues (e.g. via \code{splitaudio=120}). Note that this step requires the \code{sox} utility available (see \code{\link{set_binaries}} and \code{\link{split_audio}}).
 }

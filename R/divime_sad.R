@@ -3,14 +3,14 @@
 #' @param audio_loc character, path to the audio files
 #' @param divime_loc character, path to the DiViMe directory with a VM
 #' @param module character, which module to execute (default is \code{"noisemes"}), see details
-#' @param splitaudio logical, should audio files be split into smaller chunks, default is \code{FALSE}, see details
+#' @param splitaudio numeric, should audio files be split into smaller chunks before processing by SAD tool, default is \code{NULL}, see details
 #' @param vmstart logical, perform a check whether the VM is running and if not start it up (by default \code{TRUE}). Turning this off, will speed up the function a little bit, but requires that you are sure that the VM is indeed running in \code{divime_loc}.
 #' @param vmshutdown logical, should the VM shut down after the operations are done (by default \code{TRUE})
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
 #' @details \code{module=} sets the SAD module to be used: can be either \code{"noisemes"}, \code{"opensmile"} or \code{"tocombo"}
 #'
-#' It appears that some of the modules have difficulties with larger audio files (opensmile and noisemes). Hence, setting \code{split_audio} to \code{TRUE} will split the source audio into chunks of 2 minutes temporarilly. Note that this step requires the \code{sox} utility available (see \code{\link{set_binaries}} and \code{\link{split_audio}}).
+#' It appears that some of the modules have difficulties with larger audio files (opensmile and noisemes). Hence, setting \code{splitaudio=} to a numeric value will temporarilly split the source audio into chunks of that duration (\code{\link{split_audio}}). Im my experience, a chunk duration of about two minutes solves these issues (e.g. via \code{splitaudio=120}). Note that this step requires the \code{sox} utility available (see \code{\link{set_binaries}} and \code{\link{split_audio}}).
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
 #' @export
 #' @importFrom utils write.table
@@ -19,7 +19,7 @@
 divime_sad <- function(audio_loc,
                        divime_loc,
                        module = "noisemes",
-                       splitaudio = FALSE,
+                       splitaudio = NULL,
                        vmstart = TRUE,
                        vmshutdown = TRUE,
                        messages = TRUE,
@@ -29,8 +29,8 @@ divime_sad <- function(audio_loc,
   # vmshutdown = F; messages = TRUE; overwrite = TRUE
   # module = "noisemes"; splitaudio = FALSE
 
-  # check whether sox is available
-  if (splitaudio) {
+  # check whether sox is available if audio is to be split
+  if (!is.null(splitaudio)) {
     allgood <- FALSE
     if (!is.null(getOption("avutils_sox"))) {
       allgood <- TRUE
@@ -41,7 +41,14 @@ divime_sad <- function(audio_loc,
     if (!allgood) {
       stop("sox not found for splitting audio files")
     }
-    splitdur <- 110
+    if (splitaudio <= 0) {
+      splitaudio <- FALSE
+    } else {
+      splitdur <- splitaudio
+      splitaudio <- TRUE
+    }
+  } else {
+    splitaudio <- FALSE
   }
 
 
@@ -155,14 +162,11 @@ divime_sad <- function(audio_loc,
         }
       }
 
-
-
-
-
       if (success) {
         # merge multiple rttm files if necessary
         if (splitaudio) {
-          r <- combine_rttm(rttm_files = rttm_files, split_dur = splitdur,
+          r <- combine_rttm(rttm_files = rttm_files,
+                            split_dur = splitdur,
                             basename = as.character(paths$root[i]))
           write.table(x = r, file = output_file_from, sep = " ",
                       quote = FALSE, row.names = FALSE, col.names = FALSE)

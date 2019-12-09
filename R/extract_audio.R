@@ -66,5 +66,6 @@ extract_audio <- function(videofile,
 
     if (progbar) setTxtProgressBar(pb = pb, value = i)
   }
+  if (progbar) close(pb)
   data.frame(input = res[, 1], targetloc = res[, 2], stringsAsFactors = FALSE)
 }
