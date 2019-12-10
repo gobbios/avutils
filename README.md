@@ -18,11 +18,13 @@ Current functionality:
   
     - SAD noisemse, SAD opensmile, SAD tocombo
     
-    - diartk
+    - `diartk`
     
-    - yunitator
+    - `yunitator`
     
-    - vcm
+    - `vcm`
+    
+    - `wce` word count estimator
 
 Requirements:
 

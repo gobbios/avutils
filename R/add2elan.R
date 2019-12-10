@@ -40,9 +40,9 @@ add2elan <- function(elanfile, audiofile, tocombo = NULL, noisemes = NULL, opens
     temp1 <- rbind(temp1, noif)
   }
   if (!is.null(yuni)) {
-    yuni_eng <- read.table(yuni, header = FALSE)
-    yuni_eng[, 1] <- "yunitator_english"
-    temp1 <- rbind(temp1, yuni_eng[, 1:9, drop = FALSE])
+    yuni <- read.table(yuni, header = FALSE)
+    yuni[, 1] <- "yunitator"
+    temp1 <- rbind(temp1, yuni[, 1:9, drop = FALSE])
   }
 
   # read elan input file

@@ -37,7 +37,8 @@ x2[c(3, 7), ]
 # with longer audio and longer chunks, this should be much less severe
 
 
-# another way of testing might be to take the audio file and add a lot of silence and make the chunks larger, so that effectively, the processed first chunk is the same for both cases
+# another way of testing might be to take the audio file and add a lot of silence and make the chunks larger,
+# so that effectively the processed first chunk is the same for both cases
 
 file.remove(file.path(audio_loc, "synthetic_speech.wav"))
 file.remove(file.path(audio_loc, "tocomboSad_synthetic_speech.rttm"))
@@ -48,7 +49,7 @@ audio_info(system.file("synthetic_speech.wav", package = "avutils"))
 # copy original sound file with silence appended
 copy_audio(from = system.file("synthetic_speech.wav", package = "avutils"),
            to = file.path(audio_loc, "synthetic_speech.wav"),
-           appendsilence = 30)
+           appendsilence = sample(10:50, 1))
 
 # run module with internally split audio ()
 divime_sad(audio_loc = audio_loc, divime_loc = divime_loc, module = "tocombo", vmstart = FALSE, vmshutdown = FALSE,

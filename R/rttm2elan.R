@@ -23,7 +23,9 @@ rttm2elan <- function(rttmfile, audiofile, targetloc = NULL) {
 
   # handle media link
   audiofile <- normalizePath(audiofile, winslash = "/", mustWork = FALSE)
-  if (!file.exists(audiofile)) warning(audiofile, " not found. \n.eaf file was created anyway, but you you will be prompted to locate the file when opening ELAN")
+  if (!file.exists(audiofile)) {
+    warning(audiofile, " not found. \n.eaf file was created anyway, but you you will be prompted to locate the file when opening ELAN", call. = FALSE)
+  }
   ml <- paste0("file://", audiofile)
   rml <- basename(audiofile)
   rml <- paste0("./", rml)
