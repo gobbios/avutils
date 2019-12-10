@@ -17,7 +17,8 @@ Depends:
   xml2,
   tuneR,
   reticulate,
-  parallel
+  parallel,
+  tools
 Suggests: 
     knitr,
     rmarkdown,

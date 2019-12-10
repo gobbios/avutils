@@ -4,16 +4,24 @@
 \alias{audio_info}
 \title{get media information}
 \usage{
-audio_info(filein, pathtosox = getOption("avutils_sox"))
+audio_info(filein, pathtosox = getOption("avutils_sox"),
+  pathtoffmpeg = getOption("avutils_ffmpeg"), use_sox = TRUE)
 }
 \arguments{
 \item{filein}{character, path to audio files}
 
 \item{pathtosox}{character, path to sox binary}
+
+\item{pathtoffmpeg}{character, path to ffmepg binary}
+
+\item{use_sox}{logical, should \code{sox} be used (default is \code{TRUE}, and if \code{FALSE} \code{ffmpeg} is used)}
 }
 \value{
-a dataframe with features of audio files
+a \code{data.frame} with features of audio files
 }
 \description{
-audio information via sox
+audio information via sox or ffmpeg
+}
+\details{
+Getting information about audio files is possible both via \code{sox} and \code{ffmpeg}. The advantage of \code{sox} is that it provides more detailed information, but does not by default work with some file types (e.g. mp3). \code{ffmpeg} on the other seems to work with more file types, but returns less detailed information. If you use the default option (i.e. \code{use_sox = TRUE}) and see missing information in the output it might be a good idea to try via \code{ffmpeg}, i.e. \code{use_sox = FALSE}.
 }

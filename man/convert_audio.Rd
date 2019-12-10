@@ -9,22 +9,26 @@ convert_audio(filein, outformat = list(filetype = "wav", res = 44100,
   pathtoffmpeg = getOption("avutils_ffmpeg"))
 }
 \arguments{
-\item{filein}{character, path to input audio}
+\item{filein}{character, paths to input audio files}
 
 \item{outformat}{a list with specifications of the desired output format, see details}
 
-\item{overwrite}{logical, should output files be overwritten if it already exists}
+\item{overwrite}{logical, should output files be overwritten if they already exist}
 
-\item{pathout}{character, path were output is stored, by default the same as the source}
+\item{pathout}{character, path were output is written, by default the same as the source}
 
 \item{pathtoffmpeg}{character, path to ffmpeg binary}
 }
 \value{
-a vector with the paths to the split files
+a \code{data.frame} with diagnostics
 }
 \description{
-convert audio file format
+convert from mp3 and possibly other audio file formats to .wav
 }
 \details{
-the \code{outformat=} argument currently provides four options, and by default a mono (\code{mono = TRUE}) .wav files is produced (\code{filetpye = "wav"}) with 44.1kHz resolution (\code{res = 441000}).
+The \code{outformat=} argument currently provides three options, and by default a mono (\code{mono = TRUE}) .wav files is produced (\code{filetpye = "wav"}) with 44.1kHz sampling rate (\code{res = 441000}).
+
+Files will be potentially renamed, i.e. the file extension of the new output file will change to '.wav'.
+
+Note that if the input file has the same name and is in the same location as the output (e.g. if you convert x.wav with \code{pathout = NULL}), nothing will happen even if you select \code{overwrite = TRUE} because \code{ffmpeg} won't overwrite its own source.
 }
