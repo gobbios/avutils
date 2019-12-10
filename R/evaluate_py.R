@@ -15,7 +15,10 @@
 #' \itemize{
 #'  \item{detection/accuracy}
 #'  \item{detection/precision}
+#'  \item{detection/recall}
 #'  \item{identification/ider}
+#'  \item{identification/precision}
+#'  \item{identification/recall}
 #'  \item{diarization/diaer}
 #' }
 #'
@@ -116,6 +119,9 @@ evaluate_py <- function(test, reference, metric = "accuracy", task = "detection"
     if (metric == "precision") {
       outnames <- c("detect_precision_pct", "retrieved", "relevant_retrieved")
     }
+    if (metric == "recall") {
+      outnames <- c("detect_recall_pct", "retrieved", "relevant_retrieved")
+    }
   }
 
   if (task == "identification") {
@@ -123,6 +129,12 @@ evaluate_py <- function(test, reference, metric = "accuracy", task = "detection"
       outnames <- c("ident_error_rate_pct", "total", "correct", "correct_pct",
                     "false_alarm", "false_alarm_pct", "missed", "missed_pct",
                     "confusion", "confusion_pct")
+    }
+    if (metric == "precision") {
+      outnames <- c("detect_precision_pct", "retrieved", "relevant_retrieved")
+    }
+    if (metric == "recall") {
+      outnames <- c("detect_recall_pct", "retrieved", "relevant_retrieved")
     }
   }
 

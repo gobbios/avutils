@@ -38,7 +38,10 @@ So far the function only works for a small subset of evaluation task/metric comb
 \itemize{
  \item{detection/accuracy}
  \item{detection/precision}
+ \item{detection/recall}
  \item{identification/ider}
+ \item{identification/precision}
+ \item{identification/recall}
  \item{diarization/diaer}
 }
 

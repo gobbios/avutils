@@ -11,8 +11,9 @@
 #' @examples
 #' x1 <- system.file("noisemesSad_synthetic_speech.rttm", package = "avutils")
 #' x2 <- system.file("synthetic_speech.eaf", package = "avutils")
-#' edata <- evaluate_sad(x1 = x1, x2 = x2, overlap_res = 100, raw_results = TRUE, doplot = FALSE)
-#' confusion_matrix(test = edata[, "x1_speech"], gold = edata[, "x2_speech"])
+#' edata <- evaluate_sad(test = x1, reference = x2, overlap_res = 100,
+#'                       raw_results = TRUE, doplot = FALSE)
+#' confusion_matrix(test = edata[, "test_speech"], gold = edata[, "ref_speech"])
 
 confusion_matrix <- function(test = NULL, gold = NULL) {
   # test <- edata[, "x1_speech"]

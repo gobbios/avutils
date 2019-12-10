@@ -1,9 +1,10 @@
 #' evaluate speaker roles
 #'
-#' @param xdata a data.frame, (result from \code{\link{read_elan}} or \code{\link{read_rttm}})
+#' @param test character, path to file with annotations in DiViMe (.rttm) format
+#' @param reference character, path to reference file with annotations in DiViMe (.rttm) format
 #' @param resolution numeric, the time increment in seconds, by default 1
 #' @param duration numeric, optional info about the duration of the audio. At its default \code{NULL}, the end of the last annotation is taken as the duration
-#' @param tiers a named list that controls which labels/speakers from reference and test annotation are used. The name of each element needs to correspond to the speakers/'tiers' in the test file, e.g. \code{CHI}, \code{FEM} and \code{MAL}. The content of each element then lists the corresponding speakers/tiers of the reference. For example, the entry \code{FEM = c("FA1", "FA2")} matches the \code{FEM} speaker in the test file to the \code{FA1} and \code{FA2} tiers in the reference file.
+#' @param tiers a named list that controls which labels/speakers from reference and test annotation are used. The name of each element needs to correspond to the speakers/'tiers' in the \bold{test} file, e.g. \code{CHI}, \code{FEM} and \code{MAL}. The content of each element then lists the corresponding speakers/tiers of the reference. For example, the entry \code{FEM = c("FA1", "FA2")} maps the \code{FEM} speaker in the test file to the \code{FA1} and \code{FA2} tiers in the reference file.
 #' @param test_ignore,ref_ignore character, the annotation values to be ignored. At its default \code{NULL}, nothing is ignored.
 #' @param allspeech logical, should the speech detection be taken from \emph{all} tiers, i.e. even those that were ignored by setting \code{tiers=}. Default is \code{TRUE}.
 #' @param summarize logical (default is \code{TRUE}), should summary metrics be returned or the detailed frame-by-frame results
@@ -53,7 +54,7 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
     }
   }
 
-  # keep a copies without unwanted annos but with all tiers
+  # keep copies without unwanted annos but with all tiers
   ref_copy <- reference
   test_copy <- test
 
@@ -146,12 +147,21 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
   # applies only to manual annotations (DiViMe doesn't classify overlap)
   # any overlap
   detailed_res$overlap <- rowSums(res_ref) > 1
-  # overlap with CHI
-  detailed_res$overlap_chi <- (res_ref[, "CHI"] == 1) & (rowSums(res_ref[, colnames(res_ref) != "CHI"]) >= 1)
-  # pure CHI, FEM and MAL (without considering overlap) from reference
-  detailed_res$pure_chi <- res_ref[, "CHI"] == 1 & !detailed_res$overlap
-  detailed_res$pure_fem <- res_ref[, "FEM"] == 1 & !detailed_res$overlap
-  detailed_res$pure_mal <- res_ref[, "MAL"] == 1 & !detailed_res$overlap
+
+  if ("CHI" %in% colnames(res_ref)) {
+    # overlap with CHI
+    detailed_res$overlap_chi <- (res_ref[, "CHI"] == 1) & (rowSums(res_ref[, colnames(res_ref) != "CHI"]) >= 1)
+    # pure CHI, FEM and MAL (without considering overlap) from reference
+    detailed_res$pure_chi <- res_ref[, "CHI"] == 1 & !detailed_res$overlap
+    detailed_res$pure_fem <- res_ref[, "FEM"] == 1 & !detailed_res$overlap
+    detailed_res$pure_mal <- res_ref[, "MAL"] == 1 & !detailed_res$overlap
+  } else {
+    detailed_res$overlap_chi <- NA
+    detailed_res$pure_chi <- NA
+    detailed_res$pure_fem <- NA
+    detailed_res$pure_mal <- NA
+  }
+
 
   # create summary results
   if (summarize) {
@@ -171,24 +181,28 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
     # precision and recall
     # In both precision and recall, the numerator is the intersection between a LENA® tag and a human tag (e.g., the number of frames that LENA® classified as CHN and the annotator classified as Key child). The denominator differs: To calculate precision, we divide that number by the total number of frames attributed to a category by LENA®, whereas for recall, we divide by the total number of frames attributed to a category by the human annotator.
     # new table for speaker aggregates (in case there is more than one FA or more than one MA)
-    xtab <- cbind(refr_chi = res_ref[, "CHI"] >= 1,
-                  test_chi = res_test[, "CHI"] >= 1,
-                  refr_fem = res_ref[, "FEM"] >= 1,
-                  test_fem = res_test[, "FEM"] >= 1,
-                  refr_mal = res_ref[, "MAL"] >= 1,
-                  test_mal = res_test[, "MAL"] >= 1
-    )
+    if ("CHI" %in% colnames(res_ref)) {
+      xtab <- cbind(refr_chi = res_ref[, "CHI"] >= 1,
+                    test_chi = res_test[, "CHI"] >= 1,
+                    refr_fem = res_ref[, "FEM"] >= 1,
+                    test_fem = res_test[, "FEM"] >= 1,
+                    refr_mal = res_ref[, "MAL"] >= 1,
+                    test_mal = res_test[, "MAL"] >= 1
+      )
+      # summaries for three roles
+      chi_num <- sum(xtab[, "refr_chi"] + xtab[, "test_chi"] == 2)
+      precis_chi <- chi_num / sum(xtab[, "test_chi"])
+      recall_chi <- chi_num / sum(xtab[, "refr_chi"])
+      fem_num <- sum(xtab[, "refr_fem"] + xtab[, "test_fem"] == 2)
+      precis_fem <- fem_num / sum(xtab[, "test_fem"])
+      recall_fem <- fem_num / sum(xtab[, "refr_fem"])
+      mal_num <- sum(xtab[, "refr_mal"] + xtab[, "test_mal"] == 2)
+      precis_mal <- mal_num / sum(xtab[, "test_mal"])
+      recall_mal <- mal_num / sum(xtab[, "refr_mal"])
+    }
 
-    # summaries for three roles
-    chi_num <- sum(xtab[, "refr_chi"] + xtab[, "test_chi"] == 2)
-    precis_chi <- chi_num / sum(xtab[, "test_chi"])
-    recall_chi <- chi_num / sum(xtab[, "refr_chi"])
-    fem_num <- sum(xtab[, "refr_fem"] + xtab[, "test_fem"] == 2)
-    precis_fem <- fem_num / sum(xtab[, "test_fem"])
-    recall_fem <- fem_num / sum(xtab[, "refr_fem"])
-    mal_num <- sum(xtab[, "refr_mal"] + xtab[, "test_mal"] == 2)
-    precis_mal <- mal_num / sum(xtab[, "test_mal"])
-    recall_mal <- mal_num / sum(xtab[, "refr_mal"])
+
+
 
 
     # speech detection: false positives etc
@@ -205,17 +219,23 @@ evaluate_roles <- function(test, reference, resolution = 1, duration = NULL, sum
                           FN = sum(detailed_res$fn) / length(samplepoints),
                           TP = sum(detailed_res$tp) / length(samplepoints),
                           TN = sum(detailed_res$tn) / length(samplepoints),
-                          precis_chi,
-                          precis_fem,
-                          precis_mal,
-                          recall_chi,
-                          recall_fem,
-                          recall_mal,
-                          pure_chi = sum(detailed_res$pure_chi) / length(samplepoints),
-                          pure_fem = sum(detailed_res$pure_fem) / length(samplepoints),
-                          pure_mal = sum(detailed_res$pure_mal) / length(samplepoints),
                           overlapped = sum(detailed_res$overlap) / length(samplepoints)
     )
+
+    if ("CHI" %in% colnames(res_ref)) {
+      sum_res <- data.frame(sum_res,
+      precis_chi,
+      precis_fem,
+      precis_mal,
+      recall_chi,
+      recall_fem,
+      recall_mal,
+      pure_chi = sum(detailed_res$pure_chi) / length(samplepoints),
+      pure_fem = sum(detailed_res$pure_fem) / length(samplepoints),
+      pure_mal = sum(detailed_res$pure_mal) / length(samplepoints)
+      )
+    }
+
     return(sum_res)
 
   } else {
