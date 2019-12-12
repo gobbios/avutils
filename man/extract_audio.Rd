@@ -2,7 +2,7 @@
 % Please edit documentation in R/extract_audio.R
 \name{extract_audio}
 \alias{extract_audio}
-\title{extract mono wav file from video source}
+\title{extract sound file from video source}
 \usage{
 extract_audio(videofile, pathout = NULL, messages = TRUE,
   progbar = FALSE, pathtoffmpeg = getOption("avutils_ffmpeg"))
@@ -19,8 +19,8 @@ extract_audio(videofile, pathout = NULL, messages = TRUE,
 \item{pathtoffmpeg}{character, the path to the ffmpeg binary}
 }
 \value{
-a character string with the path to the written audio file
+a \code{data.frame} with locations of input and output files
 }
 \description{
-extract mono wav file from video source
+ouput is fixed to 16bit 44.1k mono wav, ready for DiViMe tools
 }

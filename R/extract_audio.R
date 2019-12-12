@@ -1,4 +1,6 @@
-#' extract mono wav file from video source
+#' extract sound file from video source
+#'
+#' ouput is fixed to 16bit 44.1k mono wav, ready for DiViMe tools
 #'
 #' @param videofile character, path to video file(s)
 #' @param pathout character, path where the audio should be saved (by default the same as the video file)
@@ -7,7 +9,7 @@
 #' @param pathtoffmpeg character, the path to the ffmpeg binary
 #'
 #' @importFrom utils setTxtProgressBar txtProgressBar
-#' @return a character string with the path to the written audio file
+#' @return a \code{data.frame} with locations of input and output files
 #' @export
 #'
 
@@ -16,7 +18,7 @@ extract_audio <- function(videofile,
                           messages = TRUE,
                           progbar = FALSE,
                           pathtoffmpeg = getOption("avutils_ffmpeg")) {
-  xin <- normalizePath(videofile, winslash = "/")
+  xin <- normalizePath(videofile, winslash = "/", mustWork = FALSE)
   if (!file.exists(pathtoffmpeg)) stop("ffmpeg binary not found", call. = FALSE)
 
   if (progbar) pb <- txtProgressBar(min = 0, max = length(xin),
@@ -27,20 +29,15 @@ extract_audio <- function(videofile,
   for (i in 1:length(xin)) {
     if (!file.exists(xin[i])) stop("video file not found", call. = FALSE)
 
-    temp <- unlist(strsplit(x = xin[i], split = "/", fixed = TRUE))
-    newfilename <- unlist(strsplit(x = temp[length(temp)],
-                                   split = ".",
-                                   fixed = TRUE))
-    newfilename[length(newfilename)] <- "wav"
-    newfilename <- paste(newfilename, collapse = ".")
+    # create output file names with locations
     if (is.null(pathout)) {
-      temp[length(temp)] <- newfilename
-      targetloc <- paste(temp, collapse = "/")
+      targetloc <- paste0(file_path_sans_ext(xin[i]), ".wav")
     } else {
       pathout <- normalizePath(pathout, winslash = "/")
-      targetloc <- paste(pathout, newfilename, sep = "/")
+      targetloc <- file.path(pathout, basename(paste0(file_path_sans_ext(xin[i]), ".wav")))
     }
 
+    # create shell command
     cmargs <- paste("-i",
                     shQuote(xin[i]),
                     "-y -ar 44100 -ac 1",
@@ -57,7 +54,7 @@ extract_audio <- function(videofile,
       if (messages) message(xin[i], "  -->  ", targetloc)
     } else {
       if (attr(xres, "status") == 1) {
-        warning("file ", xin[i], " is broken and has not been processed",
+        warning("file ", xin[i], " seems to be broken and has not been processed",
                 call. = FALSE)
         res[i, 2] <- NA
         if (messages) message("!!! ", xin[i], "  X-X-X>X  ", targetloc, " !!!")
