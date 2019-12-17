@@ -4,7 +4,8 @@
 #' @param outpath character, path to output directory (if \code{NULL} (the default), files are written in the same location as the respective input files)
 #' @param clean_at logical, remove tiers with @@ in their name (dependent tiers)
 #' @param use_py logical, use DiViMe python script (per default \code{TRUE}), or R style
-#' @details to install the required python package use \code{py_install("pympi-ling")}.
+#' @param merge_tiers list containing information about renaming tiers. This works only if \code{use_py = FALSE}!. By default \code{NULL}, which won't rename anything. See details.
+#' @details to install the required python package use \code{py_install("pympi-ling")}, or \code{py_install("pympi-ling", pip = TRUE)}.
 #'
 #' If you supply an output location, the \code{outpath=} argument needs to be a folder location (and not file names). The output file name is 'fixed' in the sense that it's the same as the input, except that file extension of the name is changed to .rttm.
 #'
@@ -15,6 +16,8 @@
 #' The python version also re-sorts the output, i.e. entries are sorted according to tier name whereas the R version sorts according to starting time.
 #'
 #' If a file exists with the same name as the target file, it will be overwritten.
+#'
+#' If you provide information via \code{merge_tiers}, you can make sure that tier names are merged. For example if you provide \code{merge_tiers = list(ADULT = c("FEM", "MAL"))} the row that contain 'FEM' and 'MAL' as speaker will be renamed to 'ADULT'. You can provide a list with several such entries, e.g. \code{merge_tiers = list(CHI = c("CHI", "UC1), FEM = c("FA1", "FA2"))}.
 #'
 #' @return .rttm file(s) written and data.frame with file name(s) and location(s) is returned
 #' @importFrom reticulate source_python
@@ -30,6 +33,14 @@
 #' temp <- read_rttm(paste0(tdir, "/spanish.rttm"))
 #' temp <- temp[order(temp$start), ]
 #' head(temp)
+#' table(temp$tier)
+#' file.remove(paste0(tdir, "/spanish.rttm"))
+#' elan2rttm(x = elanfile, outpath = tdir, use_py = FALSE,
+#'           merge_tiers = list(FEM = c("FA1", "FA2"), MAL = "MA1"))
+#' temp <- read_rttm(paste0(tdir, "/spanish.rttm"))
+#' temp <- temp[order(temp$start), ]
+#' head(temp)
+#' table(temp$tier)
 #' file.remove(paste0(tdir, "/spanish.rttm"))
 #'
 #' # use python internally
@@ -53,8 +64,26 @@
 #' elan2rttm(x = X, use_py = FALSE)
 #' }
 
-elan2rttm <- function(x, outpath = NULL, clean_at = TRUE, use_py = TRUE) {
+elan2rttm <- function(x,
+                      outpath = NULL,
+                      clean_at = TRUE,
+                      use_py = TRUE,
+                      merge_tiers = NULL) {
   x <- normalizePath(x, winslash = "/", mustWork = FALSE)
+
+  # prelim checks
+  if (!is.null(merge_tiers)) {
+    if (sum(duplicated(unlist(merge_tiers))) > 0) {
+      stop("you have duplicated entries in merge_tiers", call. = FALSE)
+    }
+    if (sum(duplicated(names(merge_tiers))) > 0) {
+      stop("you have duplicated entries in merge_tiers", call. = FALSE)
+    }
+    if (use_py) {
+      stop("merge_tiers can only be used with use_py=TRUE", call. = FALSE)
+    }
+  }
+
 
   bn <- basename(x)
   outname <- basename(gsub(".eaf", ".rttm", x, fixed = TRUE))
@@ -87,9 +116,18 @@ elan2rttm <- function(x, outpath = NULL, clean_at = TRUE, use_py = TRUE) {
                         dur = round(xdata$duration, 2),
                         col6 = as.factor(NA),
                         col7 = as.factor(NA),
-                        tier = xdata$tier,
-                        col9 = 1
+                        tier = as.character(xdata$tier),
+                        col9 = 1,
+                        stringsAsFactors = FALSE
       )
+
+      # merge tiers if desired
+      if (!is.null(merge_tiers)) {
+        for (k in 1:length(merge_tiers)) {
+          out$tier[out$tier %in% merge_tiers[[k]]] <- names(merge_tiers)[k]
+        }
+      }
+
       rownames(out) <- NULL
       # write output
       write.table(out, file = outloc[i], quote = FALSE, sep = " ",
