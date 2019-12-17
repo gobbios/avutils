@@ -57,6 +57,21 @@ evaluate_py <- function(test, reference, metric = "accuracy", task = "detection"
   # reference = file.path("~/Dropbox/work/avutils/inst", c("BER_0485_12_07_09123.rttm", "spanish.rttm", "bam.txt", "dup.txt"))
   # test = list.files("inst/", pattern= ".rttm$", full.names = TRUE)
 
+  # run python check
+  if (check_python) {
+    if (py_available()) message("python is installed")
+
+    pyres <- tryCatch(expr = x <- import(module = "pyannote.metrics"),
+                      error = function(cond) {
+                        message("pyannote package seems to be absent.")
+                        message("Here's the original error message:")
+                        message(cond)
+                        return(NULL) # choose a return value in case of error
+                      })
+    if (as.character(pyres) == "Module(pyannote.metrics)") message("pyannote seems to work")
+    return(invisible(NULL))
+  }
+
   # clean paths
   test <- normalizePath(test, winslash = "/", mustWork = FALSE)
   reference <- normalizePath(reference, winslash = "/", mustWork = FALSE)
@@ -73,21 +88,6 @@ evaluate_py <- function(test, reference, metric = "accuracy", task = "detection"
   if (sum(reftest) > 0) {
     missingfiles <- paste(shQuote(names(reftest[reftest])), collapse = "\n")
     warning("the following reference files were not found:\n", missingfiles, call. = FALSE)
-  }
-
-  # run python check
-  if (check_python) {
-    if (py_available()) message("python is installed")
-
-    pyres <- tryCatch(expr = x <- import(module = "pyannote.metrics"),
-                      error = function(cond) {
-                        message("pyannote package seems to be absent.")
-                        message("Here's the original error message:")
-                        message(cond)
-                        return(NULL) # choose a return value in case of error
-                      })
-    if (as.character(pyres) == "Module(pyannote.metrics)") message("pyannote seems to work")
-    return(invisible(NULL))
   }
 
   pyannote <- import("pyannote.core")
