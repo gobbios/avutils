@@ -32,7 +32,7 @@ a data.frame with the locations of the created rttm files and some diagnostics
 run the DiViMe word count estimator
 }
 \details{
-\code{speech_annos} needs to be one of the following: \code{"noisemes"}, \code{"opensmile"}, \code{"tocombo"} or \code{"yunitator_english"}. The first three can be obtained from \code{\link{divime_sad}} and the latter from \code{\link{divime_talkertype}}.
+\code{speech_annos} needs to be one of the following: \code{"noisemes"}, \code{"opensmile"}, \code{"tocombo"}, \code{"yunitator_old"} or \code{"yunitator_english"}. The first three can be obtained from \code{\link{divime_sad}} and the latter two from \code{\link{divime_talkertype}}.
 
 In case you choose \code{speech_annos = "yunitator_english"} you might not get results unless you append your source audio file with some silence. This can be done inside the function here, and requires you setting two additional arguments to \code{divime_wordcount}: \code{appendsilence = 5} adds 5 seconds of silence, and \code{pathtosox=} requires the location of \code{sox}. See \code{\link{copy_audio}} and \code{\link{set_binaries}} for more details.
 }

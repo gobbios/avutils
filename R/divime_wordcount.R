@@ -8,7 +8,7 @@
 #' @param messages logical, should the file names of each processed file be printed
 #' @param overwrite logical, should output files be overwritten if they already exist (default is \code{FALSE})
 #' @param ... further arguments for \code{\link{copy_audio}}, see details
-#' @details \code{speech_annos} needs to be one of the following: \code{"noisemes"}, \code{"opensmile"}, \code{"tocombo"} or \code{"yunitator_english"}. The first three can be obtained from \code{\link{divime_sad}} and the latter from \code{\link{divime_talkertype}}.
+#' @details \code{speech_annos} needs to be one of the following: \code{"noisemes"}, \code{"opensmile"}, \code{"tocombo"}, \code{"yunitator_old"} or \code{"yunitator_english"}. The first three can be obtained from \code{\link{divime_sad}} and the latter two from \code{\link{divime_talkertype}}.
 #'
 #' In case you choose \code{speech_annos = "yunitator_english"} you might not get results unless you append your source audio file with some silence. This can be done inside the function here, and requires you setting two additional arguments to \code{divime_wordcount}: \code{appendsilence = 5} adds 5 seconds of silence, and \code{pathtosox=} requires the location of \code{sox}. See \code{\link{copy_audio}} and \code{\link{set_binaries}} for more details.
 #' @return a data.frame with the locations of the created rttm files and some diagnostics
@@ -91,7 +91,15 @@ divime_wordcount <- function(audio_loc,
     sadtarget <- paste0(divime_loc, "/data/", sad_clean)
     sadsource <- paste0(audio_loc, "/", paths$folder, sad)
   }
-
+  if (speech_annos == "yunitator_old") {
+    prefix <- "yunitator_old_"
+    outprefix <- "WCE_yunitator_old_"
+    cm <- paste0("ssh -c '~/launcher/WCE_from_SAD_outputs.sh /vagrant/data/ yunitator_old'")
+    sad <- paste0(prefix, paths$root, ".rttm")
+    sad_clean <- paste0(prefix, paths$root_clean, ".rttm")
+    sadtarget <- paste0(divime_loc, "/data/", sad_clean)
+    sadsource <- paste0(audio_loc, "/", paths$folder, sad)
+  }
 
   # loop through files
   for (i in 1:nrow(logres)) {
