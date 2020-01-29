@@ -1,7 +1,7 @@
 #' responsiveness
 #'
-#' proportion of utterances by focus/target role that are responded to by
-#' responder within some threshold time
+#' utterances by focus/target role that are responded to by responder within
+#' some threshold time and average lag of 'responses' regardless of threshold
 #'
 #' @param xfile character, file path to rttm or eaf file
 #' @param responder character, either \code{"child"}, \code{"female"},
@@ -13,9 +13,12 @@
 #' \code{2}), i.e. utterance of \code{"responder"} must have started no later
 #' than this number from the end of an utterance of \code{"focus"}
 #'
-#' @return a list with three items (\code{utterances}: the number of utterances
+#' @return a list with four items (\code{utterances}: the number of utterances
 #' by focus/target and responder, \code{responses}: the number of responses by
-#' \code{responder} and \code{threshold}: the threshold value used)
+#' \code{responder}, \code{response_lag}: median lag of first utterance of
+#' \code{responder} after each utterance of \code{focus} and \code{threshold}:
+#' the threshold value used)
+#'
 #' @export
 #'
 #' @examples
@@ -28,7 +31,7 @@ responsiveness <- function(xfile,
                            focus = c("child", "female", "male", "adult"),
                            responder = c("child", "female", "male", "adult"),
                            threshold = 2) {
-  # read rttm
+  # read rttm and match speaker roles
   if (grepl("rttm$", xfile)) {
     xd <- read_rttm(xfile)
     xd$tier <- as.character(xd$tier)
@@ -42,7 +45,7 @@ responsiveness <- function(xfile,
     if (focus == "adult") focus <- c("FEM", "MAL")
   }
 
-  # read elan
+  # read elan and match speaker roles
   if (grepl("eaf$", xfile)) {
     xd <- read_elan(xfile)
     xd <- xd[xd$content %in% c("s", "s?"), ]
@@ -75,11 +78,21 @@ responsiveness <- function(xfile,
   })
   xdata$received_response[xdata$tier == "focus"] <- tempres
 
+  # response lag
+  tempres <- sapply(foc$end, function(x){
+    temp <- resp$start - x
+    temp <- temp[temp >= 0]
+    ifelse(length(temp) > 0, temp[1], NA)
+  })
+
+  xdata$response_lag[xdata$tier == "focus"] <- round(tempres, 3)
+
   xdata$tier <- factor(xdata$tier, levels = c("focus", "resp"))
   utterances <- as.numeric(table(xdata$tier))
   names(utterances) <- c("target", "responder")
 
   list(utterances = utterances,
        responses = sum(xdata$received_response, na.rm = TRUE),
+       response_lag = median(xdata$response_lag, na.rm = TRUE),
        threshold = threshold)
 }

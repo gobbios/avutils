@@ -22,13 +22,15 @@ are responded to}
 than this number from the end of an utterance of \code{"focus"}}
 }
 \value{
-a list with three items (\code{utterances}: the number of utterances
+a list with four items (\code{utterances}: the number of utterances
 by focus/target and responder, \code{responses}: the number of responses by
-\code{responder} and \code{threshold}: the threshold value used)
+\code{responder}, \code{response_lag}: median lag of first utterance of
+\code{responder} after each utterance of \code{focus} and \code{threshold}:
+the threshold value used)
 }
 \description{
-proportion of utterances by focus/target role that are responded to by
-responder within some threshold time
+utterances by focus/target role that are responded to by responder within
+some threshold time and average lag of 'responses' regardless of threshold
 }
 \examples{
 xfile <- system.file("yunitator_english_spanish.rttm", package = "avutils")
