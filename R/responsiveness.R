@@ -68,6 +68,7 @@ responsiveness <- function(xfile,
   xdata$tier[xdata$tier %in% focus] <- "focus"
   xdata <- xdata[xdata$tier %in% c("resp", "focus"), ]
   xdata$received_response <- NA
+  xdata$response_lag <- NA
 
   foc <- xdata[xdata$tier == "focus", ]
   # foc$end <- foc$end + threshold
@@ -76,7 +77,9 @@ responsiveness <- function(xfile,
     temp <- resp$start - x
     length(temp[temp >= 0 & temp <= threshold]) > 0
   })
-  xdata$received_response[xdata$tier == "focus"] <- tempres
+  if (length(tempres) > 0) {
+    xdata$received_response[xdata$tier == "focus"] <- tempres
+  }
 
   # response lag
   tempres <- sapply(foc$end, function(x){
@@ -84,8 +87,10 @@ responsiveness <- function(xfile,
     temp <- temp[temp >= 0]
     ifelse(length(temp) > 0, temp[1], NA)
   })
+  if (length(tempres) > 0) {
+    xdata$response_lag[xdata$tier == "focus"] <- round(tempres, 3)
+  }
 
-  xdata$response_lag[xdata$tier == "focus"] <- round(tempres, 3)
 
   xdata$tier <- factor(xdata$tier, levels = c("focus", "resp"))
   utterances <- as.numeric(table(xdata$tier))
