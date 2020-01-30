@@ -12,6 +12,9 @@
 #' @param threshold numeric, the threshold to be considered (default is
 #' \code{2}), i.e. utterance of \code{"responder"} must have started no later
 #' than this number from the end of an utterance of \code{"focus"}
+#' @param short_output logical, should the summaries be returned (default is
+#' \code{TRUE}), or alternatively a data frame with each row being one utterance
+#' and the relevant information represented as columns
 #'
 #' @return a list with four items (\code{utterances}: the number of utterances
 #' by focus/target and responder, \code{responses}: the number of responses by
@@ -26,11 +29,16 @@
 #' responsiveness(xfile, focus = "child", responder = "female")
 #' responsiveness(xfile, focus = "child", responder = "male")
 #' responsiveness(xfile, focus = "child", responder = "adult")
+#' head(responsiveness(xfile,
+#'                     focus = "child",
+#'                     responder = "adult",
+#'                     short_output = FALSE))
 
 responsiveness <- function(xfile,
                            focus = c("child", "female", "male", "adult"),
                            responder = c("child", "female", "male", "adult"),
-                           threshold = 2) {
+                           threshold = 2,
+                           short_output = TRUE) {
   # read rttm and match speaker roles
   if (grepl("rttm$", xfile)) {
     xd <- read_rttm(xfile)
@@ -96,8 +104,20 @@ responsiveness <- function(xfile,
   utterances <- as.numeric(table(xdata$tier))
   names(utterances) <- c("target", "responder")
 
-  list(utterances = utterances,
-       responses = sum(xdata$received_response, na.rm = TRUE),
-       response_lag = median(xdata$response_lag, na.rm = TRUE),
-       threshold = threshold)
+  short_res <- list(utterances = utterances,
+                    responses = sum(xdata$received_response, na.rm = TRUE),
+                    response_lag = median(xdata$response_lag, na.rm = TRUE),
+                    threshold = threshold)
+  if (short_output) {
+    return(short_res)
+  } else {
+    return(data.frame(start = xdata$start,
+                      end = xdata$end,
+                      duration = xdata$duration,
+                      speaker_cat = xdata$tier,
+                      speaker_ori = xdata$tier_ori,
+                      received_response = xdata$received_response,
+                      response_lag = xdata$response_lag))
+  }
+
 }
