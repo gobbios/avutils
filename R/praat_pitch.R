@@ -112,7 +112,10 @@ praat_pitch <- function(sound_file,
 
   # process results
   res <- strsplit(res, split = " ", fixed = TRUE)
-  nums <- round(as.numeric(unlist(lapply(res, function(x)x[1]))), 3)
+  nums <- unlist(lapply(res, function(x)x[1]))
+  # replace undefined values with NA
+  nums <- gsub(pattern = "--undefined--", replacement = NA, x = nums)
+  nums <- round(as.numeric(nums), 3)
   units <- unlist(lapply(res, function(x)x[2]))
   if (is.null(time_range)) time_range <- c(0, nums[1])
   out <- data.frame(xsource = basename(sound_file),
