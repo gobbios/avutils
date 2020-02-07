@@ -10,8 +10,8 @@
 #' \code{"ERB"}, ...)
 #' @param pathtosox character, optional path to sox binary (only required if
 #' \code{time_range} is \emph{not} \code{NULL})
-#' @details The output reflect measure of F0: mean, 5% percentile and 95%
-#' percentile.
+#' @details The output reflects measures of F0 (actually, pitch): mean, 5%
+#' percentile and 95% percentile.
 #'
 #' The pitch settings for child versus adult are the following. Child:
 #' floor = 150 Hz, ceiling = 650 Hz. Adult: floor = 75 Hz, ceiling = 400 Hz.
@@ -21,6 +21,8 @@
 #' \code{Praat} binary is located. On a Mac the location is likely to be
 #' "/Applications/Praat.app/Contents/MacOS/Praat", and on Windows
 #' "C:/Program Files/Praat.exe".
+#'
+#' The function produces and executes a short Praat script.
 #'
 #' @return a data frame with one row
 #' @export
@@ -130,4 +132,3 @@ praat_pitch <- function(sound_file,
                     stringsAsFactors = FALSE)
   out
 }
-

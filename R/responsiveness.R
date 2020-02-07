@@ -75,8 +75,14 @@ responsiveness <- function(xfile,
   xdata$tier[xdata$tier %in% responder] <- "resp"
   xdata$tier[xdata$tier %in% focus] <- "focus"
   xdata <- xdata[xdata$tier %in% c("resp", "focus"), ]
-  xdata$received_response <- NA
-  xdata$response_lag <- NA
+  if (nrow(xdata) > 0) {
+    xdata$received_response <- NA
+    xdata$response_lag <- NA
+  } else {
+    xdata$received_response <- numeric()
+    xdata$response_lag <- numeric()
+  }
+
 
   foc <- xdata[xdata$tier == "focus", ]
   # foc$end <- foc$end + threshold
