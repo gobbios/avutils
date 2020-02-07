@@ -16,15 +16,27 @@ a data.frame
 read and prettify rttm files
 }
 \details{
-The function adds an end time column and assigns meaningful column names for the most relevant columns. The actual content of the eighth column (\code{tier}) depends on the rttm file. For example, 'yunitator' rttm files have levels \code{CHI}, \code{FEM} and \code{MAL}, while SAD outputs contain \code{speech} (or in the case of the full noisemes module other labels like \code{background}, \code{noise} etc).
+The function adds an end time column and assigns meaningful column
+names for the most relevant columns. The actual content of the eighth column
+(\code{tier}) depends on the rttm file. For example, 'yunitator' rttm files
+have levels \code{CHI}, \code{FEM} and \code{MAL}, while SAD outputs contain
+\code{speech} (or in the case of the full noisemes module other labels like
+\code{background}, \code{noise} etc).
+
+If the rttm file is empty (i.e. contains no annotations), the result is a
+data frame with no rows.
 }
 \examples{
-rttm <- system.file("noisemesSad_synthetic_speech_overlap.rttm", package = "avutils")
+rttm <- system.file("noisemesSad_synthetic_speech_overlap.rttm",
+                    package = "avutils")
 read_rttm(rttm)
-rttm <- system.file("noisemesFull_synthetic_speech_overlap.rttm", package = "avutils")
+rttm <- system.file("noisemesFull_synthetic_speech_overlap.rttm",
+                    package = "avutils")
 read_rttm(rttm)
-rttm <- system.file("yunitator_english_synthetic_speech_overlap.rttm", package = "avutils")
+rttm <- system.file("yunitator_english_synthetic_speech_overlap.rttm",
+                    package = "avutils")
 read_rttm(rttm)
-rttm <- system.file("tocomboSad_synthetic_speech_overlap.rttm", package = "avutils")
+rttm <- system.file("tocomboSad_synthetic_speech_overlap.rttm",
+                     package = "avutils")
 read_rttm(rttm)
 }
