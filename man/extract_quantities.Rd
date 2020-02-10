@@ -9,9 +9,13 @@ extract_quantities(path, turntakingthresh = 1, tiernames = NULL)
 \arguments{
 \item{path}{character, path to file with results from yunitator or Elan}
 
-\item{turntakingthresh}{numeric, the threshold for the time between onsets of two subsequent segments to be considered a turn. Default is \code{1} second.}
+\item{turntakingthresh}{numeric, the threshold for the time between onsets of
+two subsequent segments to be considered a turn. Default is \code{1} second.}
 
-\item{tiernames}{a list with two elements. By default set to \code{NULL}, where tier names are guessed from the data type. If supplied, element 1 (\code{targetchild}) should be a character of length one, and the second element (\code{adults}) a character vector of any length. See details.}
+\item{tiernames}{a list with two elements. By default set to \code{NULL},
+where tier names are guessed from the data type. If supplied, element 1
+(\code{targetchild}) should be a character of length one, and the second
+element (\code{adults}) a character vector of any length. See details.}
 }
 \value{
 a list with three elements.
@@ -25,5 +29,8 @@ a list with three elements.
 extract child speech counts, duration and conversational turns
 }
 \details{
-if the supplied file is an .rttm file, the following tier names are assumed: \code{list(targetchild = "CHI", adults = c("FEM", "MAL"))}. If supplying an .eaf file, tier names are assumed as follows: \code{list(targetchild = "CHI", adults = c("FA1", "MA1"))}.
+if the supplied file is an .rttm file, the following tier names are
+assumed: \code{list(targetchild = "CHI", adults = c("FEM", "MAL"))}. If
+supplying an .eaf file, tier names are assumed as follows:
+\code{list(targetchild = "CHI", adults = c("FA1", "MA1"))}.
 }

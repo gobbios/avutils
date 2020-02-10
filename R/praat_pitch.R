@@ -10,6 +10,7 @@
 #' \code{"ERB"}, ...)
 #' @param pathtosox character, optional path to sox binary (only required if
 #' \code{time_range} is \emph{not} \code{NULL})
+#'
 #' @details The output reflects measures of F0 (actually, pitch): mean, 5%
 #' percentile and 95% percentile.
 #'
@@ -22,7 +23,23 @@
 #' "/Applications/Praat.app/Contents/MacOS/Praat", and on Windows
 #' "C:/Program Files/Praat.exe".
 #'
-#' The function produces and executes a short Praat script.
+#' The function produces and executes a short Praat script:
+#'
+#' \code{Read from file: "myfile.wav"}
+#'
+#' \code{To Pitch: 0.01, 150, 600}
+#'
+#' \code{Get total duration}
+#'
+#' \code{Get mean: 0, 0, "ERB"}
+#'
+#' \code{Get quantile: 0, 0, 0.95, "ERB"}
+#'
+#' \code{Get quantile: 0, 0, 0.05, "ERB"}
+#'
+#' The second line is adapted according to whether the assigned speaker of the
+#' audio segment is a child (as in the example above) or an adult (in which case
+#' that line will be \code{To Pitch: 0.01, 75, 400})
 #'
 #' @return a data frame with one row
 #' @export

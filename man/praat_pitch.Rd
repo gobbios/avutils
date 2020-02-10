@@ -31,8 +31,8 @@ a data frame with one row
 extract some pitch variables via Praat from audio (segments)
 }
 \details{
-The output reflect measure of F0: mean, 5% percentile and 95%
-percentile.
+The output reflects measures of F0 (actually, pitch): mean, 5%
+percentile and 95% percentile.
 
 The pitch settings for child versus adult are the following. Child:
 floor = 150 Hz, ceiling = 650 Hz. Adult: floor = 75 Hz, ceiling = 400 Hz.
@@ -42,6 +42,24 @@ For this function to work, you need Praat, and you need to know where the
 \code{Praat} binary is located. On a Mac the location is likely to be
 "/Applications/Praat.app/Contents/MacOS/Praat", and on Windows
 "C:/Program Files/Praat.exe".
+
+The function produces and executes a short Praat script:
+
+\code{Read from file: "myfile.wav"}
+
+\code{To Pitch: 0.01, 150, 600}
+
+\code{Get total duration}
+
+\code{Get mean: 0, 0, "ERB"}
+
+\code{Get quantile: 0, 0, 0.95, "ERB"}
+
+\code{Get quantile: 0, 0, 0.05, "ERB"}
+
+The second line is adapted according to whether the assigned speaker of the
+audio segment is a child (as in the example above) or an adult (in which case
+that line will be \code{To Pitch: 0.01, 75, 400})
 }
 \examples{
 \dontrun{
