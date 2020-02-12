@@ -4,10 +4,13 @@
 \alias{read_rttm}
 \title{read rttm files}
 \usage{
-read_rttm(x)
+read_rttm(x, from = NULL, to = NULL)
 }
 \arguments{
 \item{x}{character, path to rttm file}
+
+\item{from, to}{numeric, specify subset along the time axis (by default both
+are \code{NULL}, i.e. the entire file is considered)}
 }
 \value{
 a data.frame
@@ -25,6 +28,11 @@ have levels \code{CHI}, \code{FEM} and \code{MAL}, while SAD outputs contain
 
 If the rttm file is empty (i.e. contains no annotations), the result is a
 data frame with no rows.
+
+If either \code{from} or \code{to} are specified, segments that overlap are
+cut accordingly. For example, if \code{from = 8} and there is a segment that
+starts at 7.5 and ends 8.7, this segment will be included as starting at 8
+(i.e. the \code{from} value) and ending at 8.7
 }
 \examples{
 rttm <- system.file("noisemesSad_synthetic_speech_overlap.rttm",
@@ -39,4 +47,8 @@ read_rttm(rttm)
 rttm <- system.file("tocomboSad_synthetic_speech_overlap.rttm",
                      package = "avutils")
 read_rttm(rttm)
+# time subsetting
+read_rttm(rttm, from = 8, to = 11)
+# empty result because no annotations before 5 seconds
+read_rttm(rttm, to = 5)
 }
