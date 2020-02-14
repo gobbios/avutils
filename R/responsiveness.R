@@ -5,16 +5,18 @@
 #'
 #' @param xfile character, file path to rttm or eaf file
 #' @param responder character, either \code{"child"}, \code{"female"},
-#' \code{"male"} or \code{"adult"}, whose responses are considered
+#'        \code{"male"} or \code{"adult"}, whose responses are considered
 #' @param focus character, either \code{"child"}, \code{"female"},
-#' \code{"male"} or \code{"adult"}, whose utterances are checked whether they
-#' are responded to
+#'        \code{"male"} or \code{"adult"}, whose utterances are checked whether
+#'        they are responded to
 #' @param threshold numeric, the threshold to be considered (default is
-#' \code{2}), i.e. utterance of \code{"responder"} must have started no later
-#' than this number from the end of an utterance of \code{"focus"}
+#'        \code{2}), i.e. utterance of \code{"responder"} must have started no
+#'        later than this number from the end of an utterance of \code{"focus"}
 #' @param short_output logical, should the summaries be returned (default is
-#' \code{TRUE}), or alternatively a data frame with each row being one utterance
-#' and the relevant information represented as columns
+#'        \code{TRUE}), or alternatively a data frame with each row being one
+#'        utterance and the relevant information represented as columns
+#' @param ... additional arguments (currently \code{from} and \code{to} for
+#'        \code{\link{read_rttm}})
 #'
 #' @return a list with four items (\code{utterances}: the number of utterances
 #' by focus/target and responder, \code{responses}: the number of responses by
@@ -33,15 +35,21 @@
 #'                     focus = "child",
 #'                     responder = "adult",
 #'                     short_output = FALSE))
+#'
+#' # with a subset (second minute of annotations)
+#' responsiveness(xfile, focus = "child", responder = "female", from = 60, to = 120)
+#' responsiveness(xfile, focus = "child", responder = "female")
+#'
 
 responsiveness <- function(xfile,
                            focus = c("child", "female", "male", "adult"),
                            responder = c("child", "female", "male", "adult"),
                            threshold = 2,
-                           short_output = TRUE) {
+                           short_output = TRUE,
+                           ...) {
   # read rttm and match speaker roles
   if (grepl("rttm$", xfile)) {
-    xd <- read_rttm(xfile)
+    xd <- read_rttm(xfile, ...)
     xd$tier <- as.character(xd$tier)
     if (responder == "child") responder <- "CHI"
     if (responder == "female") responder <- "FEM"

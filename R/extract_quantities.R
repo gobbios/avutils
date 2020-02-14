@@ -2,11 +2,15 @@
 #'
 #' @param path character, path to file with results from yunitator or Elan
 #' @param turntakingthresh numeric, the threshold for the time between onsets of
-#' two subsequent segments to be considered a turn. Default is \code{1} second.
+#'        two subsequent segments to be considered a turn. Default is \code{1}
+#'        second.
 #' @param tiernames a list with two elements. By default set to \code{NULL},
-#' where tier names are guessed from the data type. If supplied, element 1
-#' (\code{targetchild}) should be a character of length one, and the second
-#' element (\code{adults}) a character vector of any length. See details.
+#'        where tier names are guessed from the data type. If supplied, element
+#'        1 (\code{targetchild}) should be a character of length one, and the
+#'        second element (\code{adults}) a character vector of any length. See
+#'        details.
+#' @param ... additional arguments (currently \code{from} and \code{to} for
+#'        \code{\link{read_rttm}})
 #'
 #' @details if the supplied file is an .rttm file, the following tier names are
 #' assumed: \code{list(targetchild = "CHI", adults = c("FEM", "MAL"))}. If
@@ -23,7 +27,8 @@
 
 extract_quantities <- function(path,
                                turntakingthresh = 1,
-                               tiernames = NULL) {
+                               tiernames = NULL,
+                               ...) {
   # determine data type
   type <- rev(unlist(strsplit(basename(path), ".", fixed = TRUE)))[1]
 
@@ -42,7 +47,7 @@ extract_quantities <- function(path,
   }
 
   if (type == "rttm") {
-    xdata <- read_rttm(x = path)
+    xdata <- read_rttm(x = path, ...)
   }
 
   if (type == "eaf") {

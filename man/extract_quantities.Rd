@@ -4,18 +4,23 @@
 \alias{extract_quantities}
 \title{extract child speech counts, duration and conversational turns}
 \usage{
-extract_quantities(path, turntakingthresh = 1, tiernames = NULL)
+extract_quantities(path, turntakingthresh = 1, tiernames = NULL, ...)
 }
 \arguments{
 \item{path}{character, path to file with results from yunitator or Elan}
 
 \item{turntakingthresh}{numeric, the threshold for the time between onsets of
-two subsequent segments to be considered a turn. Default is \code{1} second.}
+two subsequent segments to be considered a turn. Default is \code{1}
+second.}
 
 \item{tiernames}{a list with two elements. By default set to \code{NULL},
-where tier names are guessed from the data type. If supplied, element 1
-(\code{targetchild}) should be a character of length one, and the second
-element (\code{adults}) a character vector of any length. See details.}
+where tier names are guessed from the data type. If supplied, element
+1 (\code{targetchild}) should be a character of length one, and the
+second element (\code{adults}) a character vector of any length. See
+details.}
+
+\item{...}{additional arguments (currently \code{from} and \code{to} for
+\code{\link{read_rttm}})}
 }
 \value{
 a list with three elements.

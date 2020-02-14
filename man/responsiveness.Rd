@@ -6,25 +6,28 @@
 \usage{
 responsiveness(xfile, focus = c("child", "female", "male", "adult"),
   responder = c("child", "female", "male", "adult"), threshold = 2,
-  short_output = TRUE)
+  short_output = TRUE, ...)
 }
 \arguments{
 \item{xfile}{character, file path to rttm or eaf file}
 
 \item{focus}{character, either \code{"child"}, \code{"female"},
-\code{"male"} or \code{"adult"}, whose utterances are checked whether they
-are responded to}
+\code{"male"} or \code{"adult"}, whose utterances are checked whether
+they are responded to}
 
 \item{responder}{character, either \code{"child"}, \code{"female"},
 \code{"male"} or \code{"adult"}, whose responses are considered}
 
 \item{threshold}{numeric, the threshold to be considered (default is
-\code{2}), i.e. utterance of \code{"responder"} must have started no later
-than this number from the end of an utterance of \code{"focus"}}
+\code{2}), i.e. utterance of \code{"responder"} must have started no
+later than this number from the end of an utterance of \code{"focus"}}
 
 \item{short_output}{logical, should the summaries be returned (default is
-\code{TRUE}), or alternatively a data frame with each row being one utterance
-and the relevant information represented as columns}
+\code{TRUE}), or alternatively a data frame with each row being one
+utterance and the relevant information represented as columns}
+
+\item{...}{additional arguments (currently \code{from} and \code{to} for
+\code{\link{read_rttm}})}
 }
 \value{
 a list with four items (\code{utterances}: the number of utterances
@@ -46,4 +49,9 @@ head(responsiveness(xfile,
                     focus = "child",
                     responder = "adult",
                     short_output = FALSE))
+
+# with a subset (second minute of annotations)
+responsiveness(xfile, focus = "child", responder = "female", from = 60, to = 120)
+responsiveness(xfile, focus = "child", responder = "female")
+
 }
