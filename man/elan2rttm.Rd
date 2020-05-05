@@ -37,7 +37,7 @@ The python version also re-sorts the output, i.e. entries are sorted according t
 
 If a file exists with the same name as the target file, it will be overwritten.
 
-If you provide information via \code{merge_tiers}, you can make sure that tier names are merged. For example if you provide \code{merge_tiers = list(ADULT = c("FEM", "MAL"))} the row that contain 'FEM' and 'MAL' as speaker will be renamed to 'ADULT'. You can provide a list with several such entries, e.g. \code{merge_tiers = list(CHI = c("CHI", "UC1), FEM = c("FA1", "FA2"))}.
+If you provide information via \code{merge_tiers}, you can make sure that tier names are merged. For example if you provide \code{merge_tiers = list(ADULT = c("FEM", "MAL"))} the row that contain 'FEM' and 'MAL' as speaker will be renamed to 'ADULT'. You can provide a list with several such entries, e.g. \code{merge_tiers = list(CHI = c("CHI", "UC1"), FEM = c("FA1", "FA2"))}.
 }
 \examples{
 \dontrun{
